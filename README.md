@@ -1,8 +1,7 @@
-# Meteor Addon Template
+# Random Metoor Addon
 
-A template to allow easy usage of the Meteor Addon API.
+An addon that adds random but good modules to meteor client..
 
-### How to use:  
-- Clone this project
-- Use this template to create new modules/commands
-- Run the mod with Meteor.
+### Modules
+- Pearl phase 
+- Hole snap
