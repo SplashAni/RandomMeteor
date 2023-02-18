@@ -1,5 +1,12 @@
 package random.meteor.Utils;
 
+import baritone.api.BaritoneAPI;
+import baritone.api.pathing.goals.GoalComposite;
+import baritone.api.pathing.goals.GoalGetToBlock;
+import baritone.api.pathing.goals.GoalXZ;
+import baritone.api.pathing.goals.GoalYLevel;
+import baritone.api.utils.BlockOptionalMeta;
+import baritone.api.utils.BlockOptionalMetaLookup;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
@@ -23,4 +30,10 @@ public class CombatUtils {
         });
     }
 
+    public static void walkPos(int x, int y, int z) {
+        GoalXZ goalXZ = new GoalXZ(x, z);
+        GoalYLevel goalY = new GoalYLevel(y);
+
+        BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(new GoalComposite(goalXZ, goalY));
+    }
 }
