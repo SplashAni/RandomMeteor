@@ -9,7 +9,6 @@ import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
 import random.meteor.Utils.CombatUtils;
@@ -94,8 +93,9 @@ public class BlockClap extends Module {
         this.toggle();
     }
     private void throwPearl(){
+        mc.player.setYaw(-182);
+        mc.player.setPitch(72);
         CombatUtils.throwPearl(72);
-        mc.player.setYaw(182);
     }
     private FindItemResult getInvBlock() {
         return InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
