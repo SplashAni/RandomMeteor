@@ -7,6 +7,7 @@ import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
+import random.meteor.Utils.MiscUtils;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
@@ -16,7 +17,7 @@ public class Main extends MeteorAddon {
     @Override
     public void onInitialize() {
         LOG.info("Initializing Meteor Main Template");
-
+        MiscUtils.createCapeConfig();
         Manager.load();
     }
 

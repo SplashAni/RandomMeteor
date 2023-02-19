@@ -14,6 +14,7 @@ public class Manager {
         Modules.get().add(new HoleSnap());
         Modules.get().add(new BlockClap());
         Modules.get().add(new AutoPvp());
+
     }
     private static void addCommands(){
 
