@@ -10,6 +10,8 @@ import baritone.api.utils.BlockOptionalMetaLookup;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -28,6 +30,16 @@ public class CombatUtils {
                 InvUtils.swapBack();
             }
         });
+    }
+    public static PlayerEntity getTargetPlayerWithinRange(int range) {
+        for (Entity entity : mc.world.getEntities()) {
+            if (entity instanceof PlayerEntity && entity != mc.player) {
+                if (mc.player.getPos().distanceTo(entity.getPos()) <= range) {
+                    return (PlayerEntity) entity;
+                }
+            }
+        }
+        return null;
     }
 
     public static void walkPos(int x, int y, int z) {
