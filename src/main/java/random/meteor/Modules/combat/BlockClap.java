@@ -31,16 +31,8 @@ public class BlockClap extends Module {
     );
     private final Setting<Boolean> trap = sgGeneral.add(new BoolSetting.Builder()
             .name("trap")
-            .description("Places obsidian on top of the player.")
+            .description("Jumps then places block to trap player underneath.")
             .defaultValue(true)
-            .build()
-    );
-    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
-            .name("delay")
-            .description("How many tics to wait.")
-            .defaultValue(1)
-            .min(1)
-            .max(10)
             .build()
     );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
@@ -70,9 +62,8 @@ public class BlockClap extends Module {
     @Override
     public void onActivate() {
         toggleVelocity();
-        if (center.get()) {
-            PlayerUtils.centerPlayer();
-        }
+        if (center.get()) {PlayerUtils.centerPlayer();}
+        if (trap.get() && mc.player.isOnGround()) {mc.player.jump();}
         clapAttempt();
         super.onActivate();
     }
@@ -86,6 +77,7 @@ public class BlockClap extends Module {
     }
 
     private void clapAttempt() {
+
         BlockPos playerPos = mc.player.getBlockPos();
         BlockPos blockPos = playerPos.north();
         BlockUtils.place(blockPos, getInvBlock(), rotate.get(), 100, swing.get(), true);
