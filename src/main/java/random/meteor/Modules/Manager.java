@@ -1,5 +1,6 @@
 package random.meteor.Modules;
 
+import random.meteor.Modules.combat.BlockClap;
 import random.meteor.Modules.combat.HoleSnap;
 import random.meteor.Modules.combat.PearlPhase;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -10,6 +11,7 @@ public class Manager {
 
         Modules.get().add(new PearlPhase());
         Modules.get().add(new HoleSnap());
+        Modules.get().add(new BlockClap());
     }
     private static void addCommands(){
 

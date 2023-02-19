@@ -95,6 +95,7 @@ public class HoleSnap extends Module {
 
             double playerY = mc.player.getY();
             // Todo: use baritone to get the player into a hole, soon ™
+            // mc.player.setPosition(holeX,playerY,holeZ);
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(holeX, playerY, holeZ, true));
         }
     }
@@ -111,10 +112,5 @@ public class HoleSnap extends Module {
         blockPos.set(x, y, z);
         Block block = mc.world.getBlockState(blockPos).getBlock();
         return block == Blocks.BEDROCK || block == Blocks.OBSIDIAN || block == Blocks.CRYING_OBSIDIAN;
-    }
-
-    private boolean isAir(int x, int y, int z) {
-        blockPos.set(x, y, z);
-        return !((AbstractBlockAccessor)mc.world.getBlockState(blockPos).getBlock()).isCollidable();
     }
 }
