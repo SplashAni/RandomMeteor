@@ -27,7 +27,7 @@ public class Manager {
         Commands.get().add(new unbind());
         // Commands here
     }
-    private static void addHud(){
+    private static void addHud(){   
 
         // hud here
 
