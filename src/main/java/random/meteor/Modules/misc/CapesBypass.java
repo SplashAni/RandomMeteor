@@ -25,7 +25,7 @@ public class CapesBypass extends Module {
 
     public CapesBypass() {
         super(Main.MISC, "CapeBypass", "Saves 10 euros.");
-    }//
+    }
 
 
     @Override
