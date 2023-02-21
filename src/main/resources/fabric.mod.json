@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "id": "addon-template",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for the Meteor addons.",
+  "name": "MeteorRandom",
+  "description": "Random but insane",
   "authors": [
-    "seasnail"
+    "SplashAni_"
   ],
   "contact": {
-    "repo": "https://github.com/MeteorDevelopment/meteor-addon-template"
+    "repo": "github.com/SplashAni/RandomMeteor"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/random/icon.png",
   "environment": "client",
   "entrypoints": {
     "meteor": [
@@ -18,10 +18,10 @@
     ]
   },
   "mixins": [
-    "addon-template.mixins.json"
+    "random.mixins.json"
   ],
   "custom": {
-    "meteor-client:color": "225,25,25"
+    "meteor-client:color": "255, 142, 215"
   },
   "depends": {
     "java": ">=17",

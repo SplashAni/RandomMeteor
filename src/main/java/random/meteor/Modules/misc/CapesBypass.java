@@ -1,69 +1,65 @@
 package random.meteor.Modules.misc;
 
 import meteordevelopment.meteorclient.MeteorClient;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.misc.MeteorIdentifier;
-import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
 import random.meteor.Main;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.io.File.separator;
 
 public class CapesBypass extends Module {
-    private static final Map<String, Cape> TEXTURES = new HashMap<>();
 
-    private static final List<Cape> TO_REGISTER = new ArrayList<>();
+    private static final Map<String, Cape> TEXTURES = new HashMap<>();
+    private final String appDataPath = System.getenv("APPDATA");
+    private final String capePath = appDataPath + separator + ".minecraft" + separator + "meteor-client" + separator + "capes" + separator + "cape.png";
+    private Cape cape;
 
     public CapesBypass() {
         super(Main.MISC, "CapeBypass", "Saves 10 euros.");
+    }
 
-        String capePath = MeteorClient.FOLDER + separator + "capes" + separator + "cape.png";
 
+    @Override
+    public void onActivate() {
         File capeFile = new File(capePath);
         if (!capeFile.exists() || !capeFile.isFile()) {
-            MeteorClient.LOG.error("Cape fil is missing" + capePath);
+            MeteorClient.LOG.error("Bro u cape is missing at: " + capePath);
             this.toggle();
-        } else {
-            Cape cape = new Cape(capeFile);
-            TEXTURES.put(capePath, cape);
+            return;
         }
 
-        MeteorClient.EVENT_BUS.subscribe(CapesBypass.class);
-    }
-
-    @EventHandler
-    private static void onTick(TickEvent.Post event) {
-        synchronized (TO_REGISTER) {
-            for (Cape cape : TO_REGISTER) cape.register();
-            TO_REGISTER.clear();
-        }
-    }
-
-    private class Cape extends MeteorIdentifier {
-        private final File file;
-        private NativeImage img;
-
-        public Cape(File file) {
-            super(file.getAbsolutePath());
-            this.file = file;
+        if (cape == null) {
             try {
-                img = NativeImage.read(String.valueOf(file));
+                cape = new Cape();
             } catch (IOException e) {
-                e.printStackTrace();
+                MeteorClient.LOG.error("Failed to load cape: " + e.getMessage());
+                this.toggle();
+                return;
             }
         }
 
+        cape.register();
+    }
+
+    private class Cape extends MeteorIdentifier {
+        private NativeImage img;
+
+        public Cape() throws IOException {
+            super(capePath);
+            img = NativeImage.read(String.valueOf(new File(capePath)));
+        }
+
         public void register() {
-            mc.getTextureManager().registerTexture(this, new NativeImageBackedTexture(img));
+            mc.execute(() -> mc.getTextureManager().registerTexture(this, new NativeImageBackedTexture(img)));
             img = null;
         }
     }
