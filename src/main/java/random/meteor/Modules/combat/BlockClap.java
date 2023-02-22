@@ -69,9 +69,9 @@ public class BlockClap extends Module {
     }
 
     private void toggleVelocity() {
-        Velocity v = new Velocity();
-        if (toggleVelocity.get() && v.isActive()) {
-            v.toggle();
+        Velocity velocity = new Velocity();
+        if (toggleVelocity.get() && !velocity.isActive()) {
+            velocity.toggle();
             info("Toggled velocity...");
         }
     }
