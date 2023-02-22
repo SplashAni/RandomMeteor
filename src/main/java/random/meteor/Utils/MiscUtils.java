@@ -89,7 +89,6 @@ public class MiscUtils {
         if (mc.currentScreen != null) {
             return false;
         }
-
         return true;
     }
 }
