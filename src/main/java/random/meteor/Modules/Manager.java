@@ -8,7 +8,7 @@ import random.meteor.Modules.combat.PearlPhase;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.Modules.commands.dupe;
 import random.meteor.Modules.commands.unbind;
-import random.meteor.Modules.misc.CapesBypass;
+import random.meteor.Modules.misc.LeftClickArmor;
 
 public class Manager {
     private static void addModules(){
@@ -19,7 +19,7 @@ public class Manager {
         Modules.get().add(new BlockClap());
         Modules.get().add(new AutoPvp());
 
-        Modules.get().add(new CapesBypass());
+        Modules.get().add(new LeftClickArmor());
 
     }
     private static void addCommands(){

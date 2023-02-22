@@ -9,7 +9,7 @@ public class Utils {
         try {
             return new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())).readLine();
         } catch (Exception ignored) {
-            return "failed doop";
         }
+        return null;
     }
 }
