@@ -1,4 +1,4 @@
-# Random Metoor Addon
+# Random Meteor Addon
 
 An addon that adds random but good modules to meteor client..
 
