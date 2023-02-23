@@ -1,10 +1,7 @@
 package random.meteor.Modules;
 
 import meteordevelopment.meteorclient.systems.commands.Commands;
-import random.meteor.Modules.combat.AutoPvp;
-import random.meteor.Modules.combat.BlockClap;
-import random.meteor.Modules.combat.HoleSnap;
-import random.meteor.Modules.combat.PearlPhase;
+import random.meteor.Modules.combat.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.Modules.commands.Dupe;
 import random.meteor.Modules.commands.Panic;
@@ -19,6 +16,7 @@ public class Manager {
         Modules.get().add(new BlockClap());
         Modules.get().add(new AutoPvp());
         Modules.get().add(new LeftClickArmor());
+
 
     }
     private static void addCommands(){
