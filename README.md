@@ -4,7 +4,7 @@
 An addon that adds random but good modules to meteor client..
 
 <div align="center">
-    <a href="discord.gg/dNyVgyvsYG"><img src="https://img.shields.io/discord/689197705683140636?logo=discord" alt="Discord"/></a>
+    <a href="https://discord.gg/dNyVgyvsYG"><img src="https://img.shields.io/discord/689197705683140636?logo=discord" alt="Discord"/></a>
     <br>
 </div>
 
