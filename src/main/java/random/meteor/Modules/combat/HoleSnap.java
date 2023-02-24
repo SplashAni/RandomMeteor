@@ -13,7 +13,7 @@ public class HoleSnap extends Module {
     private final List<BlockPos> holes = new ArrayList<>();
 
     public HoleSnap() {
-        super(Main.COMBAT, "Hole-snap", "Best rewrite");
+        super(Main.COMBAT, "hole-snap", "Best rewrite");
     }
 
     @Override

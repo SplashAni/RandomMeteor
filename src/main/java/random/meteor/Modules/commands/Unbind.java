@@ -11,7 +11,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class Unbind extends Command {
     public Unbind() {
-        super("Unbind", "Unbinds the module");
+        super("unbind", "Unbinds the module");
     }
 
     @Override

@@ -14,7 +14,7 @@ public class LeftClickArmor extends Module {
     private final MinecraftClient mc = MinecraftClient.getInstance();
 
     public LeftClickArmor() {
-        super(Main.MISC, "LeftClickArmor", "Automatically equips armor when you left-click with it in your hand");
+        super(Main.MISC, "left-click-armor", "Automatically equips armor when you left-click with it in your hand");
     }
 
     @EventHandler

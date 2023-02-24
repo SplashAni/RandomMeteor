@@ -37,7 +37,7 @@ public class AutoPvp extends Module {
     );
 
     public AutoPvp() {
-        super(Main.COMBAT, "Auto-pvp", "Automatically pvps, so skillful");
+        super(Main.COMBAT, "auto-pvp", "Automatically pvps, so skillful");
     }
 
     @Override

@@ -20,7 +20,6 @@ public class Main extends MeteorAddon {
     @Override
     public void onInitialize() {
         LOG.info("Initializing Meteor Main Template");
-        MiscUtils.createCapeConfig();
         Manager.load();
     }
 

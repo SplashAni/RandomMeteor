@@ -11,7 +11,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class Panic extends Command {
     public Panic() {
-        super("Panic", "toggles everything");
+        super("panic", "toggles everything");
     }
 
     @Override

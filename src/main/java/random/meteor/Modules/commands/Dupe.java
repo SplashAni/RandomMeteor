@@ -10,7 +10,7 @@ import static random.meteor.Utils.Utils.dupeStuff;
 
 public class Dupe extends Command {
     public Dupe() {
-        super("Dupe", "Dupes item currently held");
+        super("dupe", "Dupes item currently held");
     }
 
     @Override

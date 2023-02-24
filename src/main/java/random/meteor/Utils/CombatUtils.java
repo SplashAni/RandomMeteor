@@ -33,6 +33,7 @@ public class CombatUtils {
             }
         });
     }
+
     public static PlayerEntity getTargetPlayerWithinRange(int range) {
         for (Entity entity : mc.world.getEntities()) {
             if (entity instanceof PlayerEntity && entity != mc.player) {
@@ -43,12 +44,4 @@ public class CombatUtils {
         }
         return null;
     }
-
-    public static void walkPos(int x, int y, int z) {
-        GoalXZ goalXZ = new GoalXZ(x, z);
-        GoalYLevel goalY = new GoalYLevel(y);
-
-        BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(new GoalComposite(goalXZ, goalY));
-    }
-
 }

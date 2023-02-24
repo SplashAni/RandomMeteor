@@ -31,7 +31,7 @@ public class PearlPhase extends Module {
     );
 
     public PearlPhase() {
-        super(Main.COMBAT, "Pearl-phase", "Attempts to phase with pearls");
+        super(Main.COMBAT, "pearl-phase", "Attempts to phase with pearls");
     }
 
     @Override

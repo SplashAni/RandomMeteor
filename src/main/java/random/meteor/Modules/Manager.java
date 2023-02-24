@@ -6,9 +6,10 @@ import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.Modules.commands.Dupe;
 import random.meteor.Modules.commands.Panic;
 import random.meteor.Modules.commands.Unbind;
+import random.meteor.Modules.misc.AutoPussy;
 import random.meteor.Modules.misc.LeftClickArmor;
 
-public class Manager {
+public class  Manager {
     private static void addModules(){
         // Modules here
         Modules.get().add(new PearlPhase());
@@ -16,6 +17,8 @@ public class Manager {
         Modules.get().add(new BlockClap());
         Modules.get().add(new AutoPvp());
         Modules.get().add(new LeftClickArmor());
+
+        Modules.get().add(new AutoPussy());
 
 
     }
