@@ -18,7 +18,7 @@ public class Panic extends Command {
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
             new ArrayList<>(Modules.get().getAll()).forEach(module -> {
-                if (!module.isActive()) module.toggle();
+                if (module.isActive()) module.toggle();
                 info("Toggled everything...");
             });
             return SINGLE_SUCCESS;
