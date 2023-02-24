@@ -14,21 +14,26 @@ import random.meteor.Modules.misc.LeftClickArmor;
 public class  Manager {
     private static void addModules(){
         // Modules here
-        Modules.get().add(new PearlPhase());
-        Modules.get().add(new HoleSnap());
-        Modules.get().add(new BlockClap());
-        Modules.get().add(new AutoPvp());
-        Modules.get().add(new LeftClickArmor());
-        Modules.get().add(new AutoPussy());
-        Modules.get().add(new AutoKys());
-        Modules.get().add(new AutoCum());
+         Modules m = Modules.get();
+        
+        m.add(new PearlPhase());
+        m.add(new HoleSnap());
+        m.add(new BlockClap());
+        m.add(new AutoPvp());
+        m.add(new LeftClickArmor());
+        m.add(new AutoPussy());
+        m.add(new AutoKys());
+        m.add(new AutoCum());
 
     }
     private static void addCommands(){
         // Commands here
-        Commands.get().add(new Dupe());
-        Commands.get().add(new Unbind());
-        Commands.get().add(new Panic());
+        Commands c = Commands.get();
+
+        
+        c.add(new Dupe());
+        c.add(new Unbind());
+        c.add(new Panic());
     }
     private static void addHud(){
 
