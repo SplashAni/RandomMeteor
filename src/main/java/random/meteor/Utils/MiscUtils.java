@@ -14,7 +14,6 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class MiscUtils {
     static String appData = System.getenv("APPDATA");
-    static String config = appData + separator + ".minecraft" + separator + "meteor-client" + separator + "capes";
 
     public static boolean shouldTrigger() {
         if (GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) != GLFW.GLFW_PRESS) {
