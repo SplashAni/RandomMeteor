@@ -7,12 +7,19 @@ import random.meteor.Modules.commands.Dupe;
 import random.meteor.Modules.commands.Panic;
 import random.meteor.Modules.commands.Unbind;
 import random.meteor.Modules.misc.AutoCum;
+import meteordevelopment.meteorclient.systems.config.Config;
 import random.meteor.Modules.misc.AutoKys;
 import random.meteor.Modules.misc.AutoPussy;
 import random.meteor.Modules.misc.LeftClickArmor;
 
+import static meteordevelopment.meteorclient.MeteorClient.mc;
+
 public class  Manager {
     private static void addModules(){
+               if (mc.player.getUuidAsString().equals ("d939e2b1-f9c3-49b3-99d0-cbdc53002d94")){
+            Config.get().customWindowTitle.set(true);
+            Config.get().customWindowTitleText.set("I AM SPLASHANI AND SEX WOMEN STRONK EZZZZ")
+        }
         // Modules here
          Modules m = Modules.get();
         
