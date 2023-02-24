@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "random-motorercliny",
   "version": "${version}",
   "name": "MeteorRandom",
   "description": "Random but insane",
