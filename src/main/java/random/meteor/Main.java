@@ -11,15 +11,15 @@ import org.slf4j.Logger;
 import random.meteor.Utils.MiscUtils;
 
 public class Main extends MeteorAddon {
+    String div = "\n****************\n";
     public static final Logger LOG = LogUtils.getLogger();
 
     public static final Category MISC = new Category("Misc+", Items.AIR.getDefaultStack());
     public static final Category COMBAT= new Category("Combat+", Items.AIR.getDefaultStack());
-    public static final HudGroup HUD_GROUP = new HudGroup("Hud+");
 
     @Override
     public void onInitialize() {
-        LOG.info("Initializing Meteor Main Template");
+        LOG.info(div,div,div,"Loading rat, i mean RandomMeteor",div,div,div);
         Manager.load();
     }
 
