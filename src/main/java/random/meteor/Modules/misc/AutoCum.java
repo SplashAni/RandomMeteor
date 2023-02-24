@@ -21,12 +21,6 @@ public class AutoCum extends Module {
             .sliderMax(30)
             .build()
     );
-    private final Setting<Object2BooleanMap<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
-            .name("entities")
-            .description("Entites to display the cum effect on")
-            .defaultValue(EntityType.PLAYER, EntityType.END_CRYSTAL)
-            .build()
-    );
     private final Setting<Boolean> ignoreSelf = sgGeneral.add(new BoolSetting.Builder()
             .name("ignore-self")
             .description("doesnt render you when u die")
