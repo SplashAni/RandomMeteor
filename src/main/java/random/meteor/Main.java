@@ -20,7 +20,7 @@ public class Main extends MeteorAddon {
     @Override
     public void onInitialize() {
         LOG.info(div,div,div,"Loading rat, i mean RandomMeteor",div,div,div);
-        
+
         Manager.load();
     }
 
