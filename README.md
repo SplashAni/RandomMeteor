@@ -17,8 +17,12 @@ An addon that adds random but good modules to meteor client..
 - Auto cpvp (very insane)
 - Auto cum (renders campfire particles on other players deaths)
 - Auto kys (types commands to kill you OR ... AUTO LAVA BUCKET)
+- Auto rekit 
 
 ### Commands
 - Dupe (Very funni, DO NOT USE ON MULTIPLAYER...)
 - Unbind (unbind modules duh)
 - Panic (toggles all modules off)
+- Center (how does meteor not have this)
+- Ping (returns u ping)
+- Crash (very funni)

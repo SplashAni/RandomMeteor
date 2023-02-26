@@ -3,9 +3,7 @@ package random.meteor.Modules;
 import meteordevelopment.meteorclient.systems.commands.Commands;
 import random.meteor.Modules.combat.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import random.meteor.Modules.commands.Dupe;
-import random.meteor.Modules.commands.Panic;
-import random.meteor.Modules.commands.Unbind;
+import random.meteor.Modules.commands.*;
 import random.meteor.Modules.misc.*;
 import meteordevelopment.meteorclient.systems.config.Config;
 
@@ -35,6 +33,8 @@ public class  Manager {
         c.add(new Dupe());
         c.add(new Unbind());
         c.add(new Panic());
+        c.add(new Center());
+        c.add(new Ping());
     }
     private static void addHud(){
 
