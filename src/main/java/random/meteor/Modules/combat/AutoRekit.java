@@ -31,7 +31,7 @@ public class AutoRekit extends Module {
     private void onPacketReceive(PacketEvent.Receive event)  {
         if (event.packet instanceof DeathMessageS2CPacket packet) {
             Entity entity = mc.world.getEntityById(packet.getEntityId());
-            if (entity == mc.player) {
+            if (entity == mc.player && mc.player.getHealth() == 0) {
                 ChatUtils.sendPlayerMsg("/kit "+kit.get());
             }
         }
