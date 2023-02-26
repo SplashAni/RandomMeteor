@@ -23,6 +23,7 @@ public class  Manager {
         m.add(new AutoKys());
         m.add(new AutoCum());
         m.add(new AutoRekit());
+        m.add(new PopCrash());
 
     }
     private static void addCommands(){
@@ -35,6 +36,8 @@ public class  Manager {
         c.add(new Panic());
         c.add(new Center());
         c.add(new Ping());
+        c.add(new Crash());
+
     }
     private static void addHud(){
 
