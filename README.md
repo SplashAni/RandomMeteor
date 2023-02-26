@@ -12,6 +12,7 @@ An addon that adds random but good modules to meteor client..
 ### Modules
 - Pearl phase (Throws pearls in a direction to clap you in a surround block)
 - Hole snap (soon ™)
+- Left click armor (swops armor with armor currently worn, NO BIDNS)
 - Block clap (Better than burrow)
 - Auto cpvp (very insane)
 - Auto cum (renders campfire particles on other players deaths)
