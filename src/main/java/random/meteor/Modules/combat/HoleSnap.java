@@ -24,7 +24,7 @@ public class HoleSnap extends Module {
             BlockPos playerPos = mc.player.getBlockPos();
             BlockPos nearestHole = findNearestHole(playerPos);
             if (nearestHole != null) {
-                info(String.valueOf(nearestHole.getX()  + nearestHole.getY()  + nearestHole.getZ())); // soon ™
+                info(String.valueOf(nearestHole.getX()  + nearestHole.getY()  + nearestHole.getZ()));
             } else {
                 info("No holes found toggling...");
                 this.toggle();

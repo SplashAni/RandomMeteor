@@ -1,11 +1,10 @@
 package random.meteor.Modules.misc;
 
+import baritone.api.BaritoneAPI;
+import baritone.api.pathing.goals.GoalBlock;
 import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.entity.EntityRemovedEvent;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.IntSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
@@ -38,6 +37,12 @@ public class AutoPussy extends Module {
             .sliderMax(150)
             .build()
     );
+    private final Setting<posMode> autoSwitch = sgGeneral.add(new EnumSetting.Builder<posMode>()
+            .name("pos-mode")
+            .description("use chat or baritone")
+            .defaultValue(posMode.Baritone)
+            .build()
+    );
 
     public AutoPussy() {
         super(Main.MISC, "auto-pussy", "Runs away from nearby players");
@@ -49,7 +54,7 @@ public class AutoPussy extends Module {
         if (!event.entity.getUuid().equals(mc.player.getUuid())) {
             if (event.entity instanceof PlayerEntity) {
                 if ((ignoreFriends.get() || !Friends.get().isFriend(((PlayerEntity) event.entity)))) {
-                    run(); //sexy
+                    pussyTime(); //sexy
                 }
             }
         }
@@ -60,18 +65,38 @@ public class AutoPussy extends Module {
         if (!event.entity.getUuid().equals(mc.player.getUuid())) {
             if (event.entity instanceof PlayerEntity) {
                 if ((!ignoreFriends.get() || !Friends.get().isFriend(((PlayerEntity) event.entity)))) {
-                    ChatUtils.sendPlayerMsg("#stop");
+                    if (autoSwitch.get().equals(posMode.Client))
+                        ChatUtils.sendPlayerMsg("#stop");
+                } else if (autoSwitch.get().equals(posMode.Baritone)) {
+                    BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().onLostControl();
                 }
             }
-
         }
     }
-    private void run() {
+
+
+    private void pussyTime() {
         PlayerEntity player = mc.player;
         float x = (float) player.getX();
         float z = (float) player.getZ();
+
+        int i = (int) (x + distance.get());
+        int y = (int) player.getY();
+        int i1 = (int) (z + distance.get());
+
         if (player.getHealth() < health.get()) {
-            ChatUtils.sendPlayerMsg("#goto " + x + distance.get() + " ~ " + z + distance.get());
+            if(autoSwitch.get().equals(posMode.Client)){
+                ChatUtils.sendPlayerMsg("#goto " + i + " ~ " + i1);
+            }
+            else if(autoSwitch.get().equals(posMode.Baritone)){
+                BaritoneAPI.getProvider().getPrimaryBaritone();
+                GoalBlock newPos = new GoalBlock(i,y,i1);
+                BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoal(newPos);
+            }
         }
+    }
+    public enum posMode {
+        Client,
+        Baritone
     }
 }
