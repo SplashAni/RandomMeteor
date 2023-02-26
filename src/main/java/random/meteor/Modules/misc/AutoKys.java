@@ -29,13 +29,13 @@ public class AutoKys extends Module {
     private final Setting<Boolean> suicide = messageTypes.add(new BoolSetting.Builder()
             .name("/suicide")
             .description("uses /suicide to attempt to kill, works on certain servers")
-            .defaultValue(true)
+            .defaultValue(false)
             .build()
     );
-    private final Setting<Boolean> autoLava = messageTypes.add(new BoolSetting.Builder()
+    private final Setting<Boolean> autoLava = globalMethods.add(new BoolSetting.Builder()
             .name("auto-lava")
             .description("places a lava bucket to attempt to kill you")
-            .defaultValue(true)
+            .defaultValue(false)
             .build()
     );
 
@@ -52,13 +52,13 @@ public class AutoKys extends Module {
 
 
     private void sendMessage() {
-        if (kill.get()) {
+        if (kill.get() && !suicide.get()) {
             ChatUtils.sendPlayerMsg("/kill");
-            this.toggle();
+            toggle();
         }
-        if (suicide.get()) {
+        if (suicide.get() && !kill.get()) {
             ChatUtils.sendPlayerMsg("/suicide");
-            this.toggle();
+            toggle();
         }
     }
 
@@ -74,10 +74,8 @@ public class AutoKys extends Module {
             if (result.found()) {
                 Rotations.rotate(0, 90);
                 BlockUtils.place(blockPos, result, 90);
-                this.toggle();
             } else {
                 error("Lava bucket not found, toggling...");
-                this.toggle();
             }
         }
     }
