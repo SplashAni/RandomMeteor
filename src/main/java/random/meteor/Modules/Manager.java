@@ -24,6 +24,7 @@ public class  Manager {
         m.add(new AutoCum());
         m.add(new AutoRekit());
         m.add(new PopCrash());
+        m.add(new AutoLeak());
 
     }
     private static void addCommands(){

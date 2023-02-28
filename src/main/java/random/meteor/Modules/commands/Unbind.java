@@ -19,7 +19,7 @@ public class Unbind extends Command {
         builder.then(argument("module", ModuleArgumentType.create()).executes(context -> {
             Module module = context.getArgument("module", Module.class);
             module.keybind.set(Keybind.none());
-            info("Successfully unbinded "+module);
+            info("Successfully unbinded "+module.name);
             return SINGLE_SUCCESS;
         }));
     }
