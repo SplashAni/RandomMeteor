@@ -11,6 +11,10 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
 import random.meteor.Main;
+import random.meteor.Utils.CombatUtils;
+import random.meteor.Utils.Utils;
+
+import static random.meteor.Utils.CombatUtils.player;
 
 public class AutoRekit extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -26,14 +30,10 @@ public class AutoRekit extends Module {
 
         super(Main.MISC,"Auto-kit","rekits on death");
     }
-
     @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event)  {
-        if (event.packet instanceof DeathMessageS2CPacket packet) {
-            Entity entity = mc.world.getEntityById(packet.getEntityId());
-            if (entity == mc.player && mc.player.getHealth() == 0) {
-                ChatUtils.sendPlayerMsg("/kit "+kit.get());
-            }
+    private void onTick(){
+        if(player().getHealth() == 0 && !player().isAlive()){
+            ChatUtils.sendPlayerMsg("/kit "+kit);
         }
     }
 }

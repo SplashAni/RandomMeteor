@@ -24,20 +24,8 @@ public class CombatUtils {
             }
         });
     }
-
-    public static PlayerEntity getTargetPlayerWithinRange(int range) {
-        for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof PlayerEntity && entity != mc.player) {
-                if (mc.player.getPos().distanceTo(entity.getPos()) <= range) {
-                    return (PlayerEntity) entity;
-                }
-            }
-        }
-        return null;
-    }
-    public static  PlayerEntity player() {
+    public static PlayerEntity player() {
         PlayerEntity player = mc.player;
-
         return player;
     }
 }

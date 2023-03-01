@@ -14,8 +14,8 @@ import random.meteor.Main;
 public class AutoCum extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
-            .name("health")
-            .description("Health to be at before running..")
+            .name("range")
+            .description("range to render cum")
             .defaultValue(15)
             .range(5, 30)
             .sliderMax(30)
