@@ -19,18 +19,4 @@ public class Utils {
         return null;
     }
 
-    public static float playerX() {
-        float x = (float) player.getX();
-        return x;
-    }
-
-    public static float playerY() {
-        float y = (float) player.getY();
-        return y;
-    }
-
-    public static float playerZ() {
-        float z = (float) player.getX();
-        return z;
-    }
 }

@@ -13,7 +13,7 @@ public class  Manager {
     private static void addModules(){
         // Modules here
         Modules m = Modules.get();
-        
+
         m.add(new PearlPhase());
         m.add(new HoleSnap());
         m.add(new BlockClap());
@@ -31,7 +31,7 @@ public class  Manager {
         // Commands here
         Commands c = Commands.get();
 
-        
+        c.add(new Betrayed());
         c.add(new Dupe());
         c.add(new Unbind());
         c.add(new Panic());

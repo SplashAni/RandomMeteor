@@ -51,6 +51,7 @@ public class AutoCum extends Module {
                     Double y = player.getX();
                     Double z = player.getX();
                     mc.world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x, y,z, 0, 0, 0);
+                    mc.world.addParticle(ParticleTypes.SNEEZE, x, y,z, 0, 0, 0);
                 }
             }
         }
