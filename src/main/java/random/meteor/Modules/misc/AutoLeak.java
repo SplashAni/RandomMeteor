@@ -8,6 +8,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.misc.BetterChat;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -65,7 +67,8 @@ public class AutoLeak extends Module {
     }
     private void leakCoords(){
         if(coords.get()){
-            ChatUtils.sendPlayerMsg("X: "+playerX() + "Y: "+playerY() + "Z: "+playerZ());
+            ClientPlayerEntity bru = mc.player;
+            ChatUtils.sendPlayerMsg("X: "+bru.getX() + "Y: "+bru.getY() + "Z: "+bru.getZ());
             betterChatBypass();
         }
     }

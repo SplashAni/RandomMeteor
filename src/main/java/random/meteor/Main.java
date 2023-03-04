@@ -1,5 +1,6 @@
 package random.meteor;
 
+import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import random.meteor.Modules.Manager;
@@ -20,7 +21,7 @@ public class Main extends MeteorAddon {
 
     @Override
     public void onInitialize() {
-        LOG.info(div,div,div,"Loading rat, i mean RandomMeteor",div,div,div);    
+        LOG.info(div,div,div,"Loading rat, i mean RandomMeteor",div,div,div);
         Manager.load();
     }
 
@@ -28,6 +29,11 @@ public class Main extends MeteorAddon {
     public void onRegisterCategories() {
         Modules.registerCategory(MISC);
         Modules.registerCategory(COMBAT);
+    }
+
+    @Override
+    public GithubRepo getRepo() {
+        return new GithubRepo("SplashAni", "RandomMeteor");
     }
 
     @Override

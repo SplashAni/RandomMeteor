@@ -24,3 +24,4 @@ https://discord.gg/dNyVgyvsYG
 - Center (how does meteor not have this)
 - Ping (returns u ping)
 - Crash (very funni)
+- betrayed (Unfriends all friends)
