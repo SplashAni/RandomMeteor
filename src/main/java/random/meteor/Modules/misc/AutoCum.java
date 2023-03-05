@@ -29,7 +29,7 @@ public class AutoCum extends Module {
     );
     private final Setting<Boolean> ignoreFriends = sgGeneral.add(new BoolSetting.Builder()
             .name("ignore-friends")
-            .description("doesnt render friends")
+            .description("doesn't render friends")
             .defaultValue(false)
             .build()
     );

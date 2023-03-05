@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import random.meteor.Main;
-import random.meteor.Utils.MiscUtils;
 
 import static random.meteor.Utils.MiscUtils.lastSwapTime;
 import static random.meteor.Utils.MiscUtils.shouldTrigger;

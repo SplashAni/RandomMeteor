@@ -16,8 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 import random.meteor.Utils.CombatUtils;
 
@@ -132,7 +130,7 @@ public class BlockClap extends Module {
         this.toggle();
     }
     private void throwPearl(){ // todo: make rotate back to original pos soon tm™
-                                                                                        
+
         mc.player.setYaw(-182);
         mc.player.setPitch(72);
         CombatUtils.throwPearl(72);

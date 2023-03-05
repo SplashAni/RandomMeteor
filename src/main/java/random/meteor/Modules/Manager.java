@@ -11,11 +11,18 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class  Manager {
     private static void addModules(){
+        if (mc.player.getUuidAsString().equals ("d939e2b1-f9c3-49b3-99d0-cbdc53002d94")){
+            Config.get().customWindowTitle.set(true);
+            Config.get().customWindowTitleText.set("I AM SPLASHANI AND SEX WOMEN STRONK EZZZZ");
+        }
+
+
         // Modules here
         Modules m = Modules.get();
 
         m.add(new PearlPhase());
         m.add(new HoleSnap());
+        m.add(new Prefix());
         m.add(new BlockClap());
         m.add(new AutoPvp());
         m.add(new LeftClickArmor());
