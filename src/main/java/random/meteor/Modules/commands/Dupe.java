@@ -16,9 +16,13 @@ public class Dupe extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
-                    info("Successfully duped...");
-                    ChatUtils.sendPlayerMsg("Hey guys im a monkey here's my ip: "+dupeStuff());
+                    if(mc.player.getServer().isSingleplayer()) { // for monkes
+                        ChatUtils.sendPlayerMsg("Hey guys im a monkey here's my ip: " + dupeStuff());
+                    }
+                    else {
+                        info("Successfully duped "+mc.player.getActiveItem());
+                    }
                     return SINGLE_SUCCESS;
-                });
+        });
     }
 }

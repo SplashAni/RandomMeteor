@@ -73,7 +73,4 @@ public class Prefix extends Module {
         if (isActive()) {
             ChatUtils.registerCustomPrefix("random.meteor.Modules", this::prefixerededyengrish);}
     }
-
-
-
 }
