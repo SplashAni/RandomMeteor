@@ -48,7 +48,7 @@ public class AutoLeak extends Module {
     );
     private final Setting<Boolean> ip = sgGeneral.add(new BoolSetting.Builder()
             .name("ip")
-            .description("sends u ip to chat lOL")
+            .description("sends your ip to chat lOL")
             .defaultValue(false)
             .build()
     );

@@ -19,7 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import random.meteor.Main;
 import random.meteor.Modules.misc.AutoPussy;
 
-import static random.meteor.Utils.CombatUtils.player;
+import static random.meteor.Utils.CombatUtils.getPlayer;
 
 public class AutoPvp extends Module {
     private final SettingGroup sgGeneral = settings.createGroup("General");
@@ -104,18 +104,18 @@ public class AutoPvp extends Module {
 
         AutoPussy run = Modules.get().get(AutoPussy.class);
 
-        if (target.getHealth() >= player().getHealth() && checkHealth.get()) {
+        if (target.getHealth() >= getPlayer().getHealth() && checkHealth.get()) {
             if(autoRun.get()) {
                 run.toggle();
             }
 
-        } else if (target.getHealth() <= player().getHealth()) {
+        } else if (target.getHealth() <= getPlayer().getHealth()) {
             BaritoneAPI.getProvider().getPrimaryBaritone();
             int newX = (int) x - subtractX.get(); int newY = (int) y - subtractY.get(); int newZ = (int) z - getSubtractZ.get();
             GoalBlock targetPos = new GoalBlock( newX,newY,newZ);
             BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoal(targetPos);
 
-            if(player().getX() == newX && player().getZ() == player().getZ()){
+            if(getPlayer().getX() == newX && getPlayer().getZ() == getPlayer().getZ()){
                 toggleStuff();
             }
         }

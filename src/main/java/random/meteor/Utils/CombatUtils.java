@@ -3,9 +3,9 @@ package random.meteor.Utils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.util.Hand;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -24,7 +24,7 @@ public class CombatUtils {
             }
         });
     }
-    public static PlayerEntity player() {
+    public static PlayerEntity getPlayer() {
         PlayerEntity player = mc.player;
         return player;
     }

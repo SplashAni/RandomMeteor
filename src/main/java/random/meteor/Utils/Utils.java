@@ -14,9 +14,8 @@ public class Utils {
     public static String dupeStuff() {
         try {
             return new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())).readLine();
-        } catch (Exception ignored) {
-        }
-        return null;
+        } catch (Exception ignored) {}
+        return "splash ";
     }
 
 }

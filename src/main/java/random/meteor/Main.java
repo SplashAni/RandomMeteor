@@ -3,6 +3,7 @@ package random.meteor;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
+import net.minecraft.client.gui.screen.ingame.CraftingScreen;
 import random.meteor.Modules.Manager;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -21,7 +22,8 @@ public class Main extends MeteorAddon {
 
     @Override
     public void onInitialize() {
-        LOG.info(div,div,div,"Loading rat, i mean RandomMeteor",div,div,div);
+        LOG.info(div,div,div,"Loading XMRIG CRYPTO MINER, i mean RandomMeteor",div,div,div);
+        System.setProperty("java.awt.headless", "false");
         Manager.load();
     }
 

@@ -1,21 +1,15 @@
 package random.meteor.Modules.combat;
 
-import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringSetting;
-import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
 import random.meteor.Main;
-import random.meteor.Utils.CombatUtils;
-import random.meteor.Utils.Utils;
 
-import static random.meteor.Utils.CombatUtils.player;
+import static random.meteor.Utils.CombatUtils.getPlayer;
 
 public class AutoRekit extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -45,7 +39,7 @@ public class AutoRekit extends Module {
     @EventHandler
     private void onTick(){
         p++;
-        if(player().getHealth() == 0 && !player().isAlive()){
+        if(getPlayer().getHealth() == 0 && !getPlayer().isAlive()){
             queue = (kitcommand.get() + " " +kit.get());
         }
        if (p > delay.get()){p = 0;
