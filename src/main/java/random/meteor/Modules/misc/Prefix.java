@@ -15,7 +15,7 @@ import random.meteor.Main;
 
 public class Prefix extends Module {
     public Prefix(){
-        super(Main.MISC, "Random Meteor Prefix", "real!1!1");
+        super(Main.MISC, "rm-prefix", "real!1!1");
     }
     private SettingGroup sgGeneral = settings.getDefaultGroup();
 
