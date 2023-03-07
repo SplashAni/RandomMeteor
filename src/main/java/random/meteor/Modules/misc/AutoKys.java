@@ -16,7 +16,6 @@ public class AutoKys extends Module {
     private final SettingGroup messageTypes = settings.getDefaultGroup();
     private final SettingGroup globalMethods = settings.getDefaultGroup();
 
-
     private final Setting<Boolean> kill = messageTypes.add(new BoolSetting.Builder()
             .name("/kill")
             .description("uses /kill to attempt to kill, works on certain servers")

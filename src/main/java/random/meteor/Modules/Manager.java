@@ -28,6 +28,7 @@ public class  Manager {
         m.add(new PopCrash());
         m.add(new AutoLeak());
         m.add(new AutoReply());
+        m.add(new LitematicaPrinter());
 
     }
     private static void addCommands(){
