@@ -16,7 +16,6 @@ public class  Manager {
         Modules m = Modules.get();
 
         m.add(new PearlPhase());
-        m.add(new HoleSnap());
         m.add(new Prefix());
         m.add(new BlockClap());
         m.add(new AutoPvp());
@@ -29,6 +28,7 @@ public class  Manager {
         m.add(new AutoLeak());
         m.add(new AutoReply());
         m.add(new LitematicaPrinter());
+        m.add(new Excavator());
 
     }
     private static void addCommands(){
@@ -42,7 +42,7 @@ public class  Manager {
         c.add(new Center());
         c.add(new Ping());
         c.add(new Crash());
-
+        c.add(new Stop());
     }
     private static void addHud(){
 
