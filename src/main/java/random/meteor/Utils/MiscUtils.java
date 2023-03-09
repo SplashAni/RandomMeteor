@@ -22,7 +22,4 @@ public class MiscUtils {
         return timeSinceLastSwap >= 1000; // 1 second delay
     }
 
-    public static boolean isFalling() {
-        return (mc.player.isFallFlying() && mc.player.getSafeFallDistance() > 3) ? true : false;
-    }
 }
