@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import random.meteor.Utils.MiscUtils;
 
 public class Main extends MeteorAddon {
-    String div = "\n****************\n";
     public static final Logger LOG = LogUtils.getLogger();
 
     public static final Category MISC = new Category("Misc+", Items.AIR.getDefaultStack());
@@ -22,7 +21,9 @@ public class Main extends MeteorAddon {
 
     @Override
     public void onInitialize() {
-        LOG.info(div,div,div,"Loading XMRIG CRYPTO MINER, i mean RandomMeteor",div,div,div);
+        for(int i = 1;i <= 8; i++){
+            LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
+        }
         System.setProperty("java.awt.headless", "false");
         Manager.load();
     }
