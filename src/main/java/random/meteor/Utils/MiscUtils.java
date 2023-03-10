@@ -1,8 +1,4 @@
 package random.meteor.Utils;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
 import org.lwjgl.glfw.GLFW;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -21,5 +17,4 @@ public class MiscUtils {
         long timeSinceLastSwap = currentTime - lastSwapTime;
         return timeSinceLastSwap >= 1000; // 1 second delay
     }
-
 }
