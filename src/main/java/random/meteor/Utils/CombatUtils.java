@@ -37,4 +37,7 @@ public class CombatUtils {
             return false;
         }
     }
+    public static FindItemResult tnt = InvUtils.findInHotbar(Items.TNT);
+
+    public static FindItemResult flint = InvUtils.findInHotbar(Items.FLINT_AND_STEEL);
 }
