@@ -29,6 +29,7 @@ public class  Manager {
         m.add(new AutoReply());
         m.add(new LitematicaPrinter());
         m.add(new Excavator());
+        m.add(new CustomFov());
 
     }
     private static void addCommands(){
