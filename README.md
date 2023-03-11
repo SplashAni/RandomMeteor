@@ -15,7 +15,6 @@ https://discord.gg/dNyVgyvsYG
 - Auto kys (types commands to kill you OR ... AUTO LAVA BUCKET)
 - Auto rekit 
 - Prefix (MeteorRandom prefix)
-- Auto leak (leaks shit about u in chat... you have been warned)
 - Auto pussy (best module imo)
 - Pop crash (sends chiennse shit)
 - Excavator (uses baritone so no errors)
