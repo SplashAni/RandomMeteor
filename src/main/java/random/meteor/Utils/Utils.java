@@ -16,11 +16,4 @@ public class Utils {
         } catch (Exception ignored) {}
         return "splash ";
     }
-    public static JFrame window(){
-        JFrame frame = new JFrame();
-        frame.setVisible(true);
-
-
-        return frame;
-    }
 }

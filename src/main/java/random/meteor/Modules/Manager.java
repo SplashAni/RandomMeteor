@@ -30,7 +30,7 @@ public class  Manager {
         m.add(new LitematicaPrinter());
         m.add(new Excavator());
         m.add(new CustomFov());
-        m.add(new AutoNuke());
+        m.add(new AutoPos());
 
     }
     private static void addCommands(){

@@ -28,16 +28,4 @@ public class CombatUtils {
         PlayerEntity player = mc.player;
         return player;
     }
-    public static boolean isRange(double x1, double y1, double z1, double x2, double y2, double z2, double range) {
-        double distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
-
-        if (distance <= range) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public static FindItemResult tnt = InvUtils.findInHotbar(Items.TNT);
-
-    public static FindItemResult flint = InvUtils.findInHotbar(Items.FLINT_AND_STEEL);
 }
