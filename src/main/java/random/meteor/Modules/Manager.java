@@ -31,7 +31,7 @@ public class  Manager {
         m.add(new Excavator());
         m.add(new CustomFov());
         m.add(new AutoPos());
-
+        m.add(new AutoChunkBan());
     }
     private static void addCommands(){
         // Commands here
