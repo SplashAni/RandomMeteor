@@ -23,11 +23,10 @@ https://discord.gg/dNyVgyvsYG
 - Auto reply(if famous yk)
 
 ### Commands
-- Dupe (Very funni, DO NOT USE ON MULTIPLAYER...)
+- Dupe (Very funni, USE ON MULTIPLAYER)
 - Unbind (unbind modules duh)
 - Panic (toggles all modules off)
 - Center (how does meteor not have this)
-- Ping (returns u ping)
 - Crash (very funni)
 - betrayed (Unfriends all friends)
 - S (stops excavator faster)
