@@ -4,11 +4,23 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.ShulkerBoxScreenHandler;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -27,11 +39,13 @@ public class CombatUtils {
             }
         });
     }
+
     public static PlayerEntity getPlayer() {
         PlayerEntity player = mc.player;
         return player;
     }
-    public static final Block[] SHULKER_BLOCKS = new Block[] {
+
+    public static final Block[] SHULKER_BLOCKS = new Block[]{
             Blocks.SHULKER_BOX,
             Blocks.WHITE_SHULKER_BOX,
             Blocks.ORANGE_SHULKER_BOX,

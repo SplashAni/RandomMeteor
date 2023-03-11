@@ -1,18 +1,31 @@
 package random.meteor.Modules.combat;
 
+import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
 import random.meteor.Utils.CombatUtils;
 
 import java.util.List;
+
+import static random.meteor.Utils.CombatUtils.openShulker;
 
 public class AutoChunkBan extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -64,7 +77,7 @@ public class AutoChunkBan extends Module {
 
     @Override
     public void onActivate() {
-        placeShulker();
+        start();
         super.onActivate();
     }
 
@@ -72,8 +85,9 @@ public class AutoChunkBan extends Module {
         return InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
     }
 
-    private void placeShulker() {
-        if(!shulkerResult().found()) error("No shulkers found..."); this.toggle();
+    private void start() {
+        if (!shulkerResult().found()) error("No shulkers found...");
+        this.toggle();
         for (PlayerEntity target : mc.world.getPlayers()) {
             if (ignoreSelf.get() && target == mc.player) continue;
             if (Friends.get().isFriend(target) && ignoreFriends.get()) continue;
@@ -84,6 +98,7 @@ public class AutoChunkBan extends Module {
                 BlockPos targetBlockPos = target.getBlockPos();
                 BlockPos blockPos = targetBlockPos.north();
                 BlockUtils.place(blockPos, shulkerResult(), rotate.get(), 100, swing.get(), true);
+
             }
         }
     }
