@@ -1,17 +1,13 @@
 package random.meteor;
 
 import meteordevelopment.meteorclient.addons.GithubRepo;
-import meteordevelopment.meteorclient.systems.config.Config;
-import meteordevelopment.meteorclient.systems.hud.HudGroup;
-import net.minecraft.client.gui.screen.ingame.CraftingScreen;
-import random.meteor.Modules.Manager;
+import org.slf4j.Logger;
+import random.meteor.systems.Modules.Manager;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.item.Items;
-import org.slf4j.Logger;
-import random.meteor.Utils.MiscUtils;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();

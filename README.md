@@ -15,7 +15,6 @@ https://discord.gg/dNyVgyvsYG
 - Auto kys (types commands to kill you OR ... AUTO LAVA BUCKET)
 - Auto rekit 
 - Prefix (MeteorRandom prefix)
-- Auto leak (leaks shit about u in chat... you have been warned)
 - Auto pussy (best module imo)
 - Pop crash (sends chiennse shit)
 - Excavator (uses baritone so no errors)
@@ -23,11 +22,10 @@ https://discord.gg/dNyVgyvsYG
 - Auto reply(if famous yk)
 
 ### Commands
-- Dupe (Very funni, DO NOT USE ON MULTIPLAYER...)
+- Dupe (Very funni, USE ON MULTIPLAYER)
 - Unbind (unbind modules duh)
 - Panic (toggles all modules off)
 - Center (how does meteor not have this)
-- Ping (returns u ping)
 - Crash (very funni)
 - betrayed (Unfriends all friends)
 - S (stops excavator faster)
