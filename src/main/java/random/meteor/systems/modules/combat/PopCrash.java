@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;

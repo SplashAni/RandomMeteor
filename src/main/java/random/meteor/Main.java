@@ -2,7 +2,7 @@ package random.meteor;
 
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import org.slf4j.Logger;
-import random.meteor.systems.Modules.Manager;
+import random.meteor.systems.modules.Manager;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.modules.Category;

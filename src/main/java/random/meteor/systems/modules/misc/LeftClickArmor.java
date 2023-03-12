@@ -1,6 +1,9 @@
-package random.meteor.systems.Modules.misc;
+package random.meteor.systems.modules.misc;
 
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.MinecraftClient;
@@ -8,11 +11,20 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import random.meteor.Main;
 
-import static random.meteor.systems.Modules.Utils.MiscUtils.lastSwapTime;
-import static random.meteor.systems.Modules.Utils.MiscUtils.shouldTrigger;
+import static random.meteor.systems.modules.utils.MiscUtils.lastSwapTime;
+import static random.meteor.systems.modules.utils.MiscUtils.shouldTrigger;
 
 public class LeftClickArmor extends Module {
-    private final MinecraftClient mc = MinecraftClient.getInstance();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
+            .name("delay-ms")
+            .description("delay in miliseconds")
+            .defaultValue(1000)
+            .range(1000, 5000)
+            .sliderMax(5000)
+            .build()
+    );
 
     public LeftClickArmor() {
         super(Main.MISC, "left-click-armor", "Automatically equips armor when you left-click with it in your hand");
@@ -20,7 +32,7 @@ public class LeftClickArmor extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        if (shouldTrigger()) {
+        if (shouldTrigger(range.get())) {
             ItemStack pain = mc.player.getMainHandStack();
             if (pain == null || pain.isEmpty()) return;
 

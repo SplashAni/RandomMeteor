@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.misc;
+package random.meteor.systems.modules.misc;
 
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;

@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.Utils;
+package random.meteor.systems.modules.utils;
 
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;

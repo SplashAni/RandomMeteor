@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.IntSetting;

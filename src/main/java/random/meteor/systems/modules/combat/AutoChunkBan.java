@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
@@ -10,7 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
-import random.meteor.systems.Modules.Utils.CombatUtils;
+import random.meteor.systems.modules.utils.CombatUtils;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class AutoChunkBan extends Module {
 
     private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
             .name("blocks")
-            .description("What blocks to use for surround.")
+            .description("incase i missed smtj")
             .defaultValue(CombatUtils.SHULKER_BLOCKS)
             .build()
     );

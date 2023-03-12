@@ -27,5 +27,6 @@ https://discord.gg/dNyVgyvsYG
 - Panic (toggles all modules off)
 - Center (how does meteor not have this)
 - Crash (very funni)
+- Ping (returns u ping)
 - betrayed (Unfriends all friends)
 - S (stops excavator faster)

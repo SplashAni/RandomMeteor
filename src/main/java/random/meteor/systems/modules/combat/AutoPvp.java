@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import baritone.api.BaritoneAPI;
 import baritone.api.pathing.goals.GoalBlock;
@@ -17,9 +17,9 @@ import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import random.meteor.Main;
-import random.meteor.systems.Modules.misc.AutoPussy;
+import random.meteor.systems.modules.misc.AutoPussy;
 
-import static random.meteor.systems.Modules.Utils.CombatUtils.getPlayer;
+import static random.meteor.systems.modules.utils.CombatUtils.getPlayer;
 
 public class AutoPvp extends Module {
     private final SettingGroup sgGeneral = settings.createGroup("General");

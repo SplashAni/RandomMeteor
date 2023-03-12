@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.misc;
+package random.meteor.systems.modules.misc;
 
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -14,7 +14,7 @@ import random.meteor.Main;
 
 public class AutoKys extends Module {
     private final SettingGroup messageTypes = settings.getDefaultGroup();
-    private final SettingGroup globalMethods = settings.getDefaultGroup();
+    private final SettingGroup sgGlobal = settings.getDefaultGroup();
 
     private final Setting<Boolean> kill = messageTypes.add(new BoolSetting.Builder()
             .name("/kill")
@@ -28,10 +28,24 @@ public class AutoKys extends Module {
             .defaultValue(false)
             .build()
     );
-    private final Setting<Boolean> autoLava = globalMethods.add(new BoolSetting.Builder()
+    private final Setting<Boolean> autoLava = sgGlobal.add(new BoolSetting.Builder()
             .name("auto-lava")
             .description("places a lava bucket to attempt to kill you")
             .defaultValue(false)
+            .build()
+    );
+    private final Setting<Boolean> rotate = sgGlobal.add(new BoolSetting.Builder()
+            .name("rotate")
+            .description("Rotates player head.")
+            .defaultValue(true)
+            .visible(autoLava::get)
+            .build()
+    );
+    private final Setting<Boolean> swing = sgGlobal.add(new BoolSetting.Builder()
+            .name("swing")
+            .description("Swings you hand when the block is placed.")
+            .defaultValue(true)
+            .visible(autoLava::get)
             .build()
     );
 
@@ -42,7 +56,9 @@ public class AutoKys extends Module {
     @Override
     public void onActivate() {
         sendMessage();
-        autoLava();
+        if (autoLava.get()) {
+            placeLava();
+        }
         super.onActivate();
     }
 
@@ -58,21 +74,22 @@ public class AutoKys extends Module {
         }
     }
 
-    private void autoLava() {
+    private void placeLava() {
         Item lavaBucket = Items.LAVA_BUCKET;
+
         FindItemResult result = InvUtils.find(lavaBucket);
 
         PlayerEntity player = mc.player;
 
         BlockPos blockPos = new BlockPos(player.getX(), player.getY() - 1, player.getZ());
 
-        if (autoLava.get()) {
-            if (result.found()) {
-                Rotations.rotate(0, 90);
-                BlockUtils.place(blockPos, result, 90);
-            } else {
-                error("Lava bucket not found, toggling...");
-            }
+        if (result.found()) {
+            BlockUtils.place(blockPos, result, rotate.get(), 100, swing.get(), true);
+            info("Placed a lava bucket...");
+            this.toggle();
+        } else {
+            error("No lava bucket found toggling...");
+            this.toggle();
         }
     }
 }

@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.misc;
+package random.meteor.systems.modules.misc;
 
 import meteordevelopment.meteorclient.events.render.GetFovEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;

@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.commands;
+package random.meteor.systems.modules.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.systems.commands.Command;

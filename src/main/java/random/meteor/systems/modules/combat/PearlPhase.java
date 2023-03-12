@@ -1,7 +1,7 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import random.meteor.Main;
-import random.meteor.systems.Modules.Utils.CombatUtils;
+import random.meteor.systems.modules.utils.CombatUtils;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;

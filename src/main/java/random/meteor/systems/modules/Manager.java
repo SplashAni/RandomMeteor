@@ -1,11 +1,12 @@
-package random.meteor.systems.Modules;
+package random.meteor.systems.modules;
 
+import meteordevelopment.meteorclient.systems.commands.Command;
 import meteordevelopment.meteorclient.systems.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import random.meteor.systems.Modules.combat.*;
+import random.meteor.systems.modules.combat.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import random.meteor.systems.Modules.commands.*;
-import random.meteor.systems.Modules.misc.*;
+import random.meteor.systems.modules.commands.*;
+import random.meteor.systems.modules.misc.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class  Manager {
         c.add(new Center());
         c.add(new Crash());
         c.add(new Stop());
+        c.add(new Ping());
     }
     private static void addHud(){
 

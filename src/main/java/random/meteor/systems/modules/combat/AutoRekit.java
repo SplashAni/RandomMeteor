@@ -1,4 +1,4 @@
-package random.meteor.systems.Modules.combat;
+package random.meteor.systems.modules.combat;
 
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -9,7 +9,7 @@ import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
 
-import static random.meteor.systems.Modules.Utils.CombatUtils.getPlayer;
+import static random.meteor.systems.modules.utils.CombatUtils.getPlayer;
 
 public class AutoRekit extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

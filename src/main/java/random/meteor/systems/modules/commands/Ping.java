@@ -1,21 +1,21 @@
-package random.meteor.systems.Modules.commands;
+package random.meteor.systems.modules.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.systems.commands.Command;
-import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import net.minecraft.command.CommandSource;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+import static meteordevelopment.meteorclient.utils.player.PlayerUtils.getPing;
 
-public class Center extends Command {
-    public Center() {
-        super("center","Centers you, how does meteor not have this");
+public class Ping extends Command {
+    public Ping() {
+        super("ping", "returns you ping");
     }
 
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
-            PlayerUtils.centerPlayer();
+            info("You ping is: " +getPing());
             return SINGLE_SUCCESS;
         });
     }
