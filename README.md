@@ -30,3 +30,4 @@ https://discord.gg/dNyVgyvsYG
 - Ping (returns u ping)
 - betrayed (Unfriends all friends)
 - S (stops excavator faster)
+- Title (changes the minecraft windows title LOL)
