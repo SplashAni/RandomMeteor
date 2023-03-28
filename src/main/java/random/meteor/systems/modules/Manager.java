@@ -1,10 +1,9 @@
 package random.meteor.systems.modules;
 
-import meteordevelopment.meteorclient.systems.commands.Command;
 import meteordevelopment.meteorclient.systems.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import random.meteor.systems.modules.combat.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import random.meteor.systems.modules.combat.*;
 import random.meteor.systems.modules.commands.*;
 import random.meteor.systems.modules.misc.*;
 
@@ -30,8 +29,8 @@ public class  Manager {
         m.add(new LitematicaPrinter());
         m.add(new Excavator());
         m.add(new CustomFov());
-        m.add(new AutoPos());
         m.add(new AutoChunkBan());
+        m.add(new AutoGold());
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){
@@ -49,8 +48,6 @@ public class  Manager {
         c.add(new Title());
     }
     private static void addHud(){
-
-        // hud here
 
     }
     public static void load(){

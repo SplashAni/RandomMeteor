@@ -6,7 +6,7 @@ import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -49,4 +49,27 @@ public class CombatUtils {
             Blocks.RED_SHULKER_BOX,
             Blocks.BLACK_SHULKER_BOX
     };
+
+    public static boolean goldArmor() {
+        for (ItemStack armor : mc.player.getArmorItems()) {
+            if (armor.getItem() instanceof ArmorItem && ((ArmorItem) armor.getItem()).getMaterial() == ArmorMaterials.GOLD) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void switchToGold() {
+        int goldSlot = -1;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.player.getInventory().getStack(i);
+            if (stack.getItem() == Items.GOLD_INGOT || stack.getItem() == Items.GOLD_BLOCK) {
+                goldSlot = i;
+                break;
+            }
+        }
+        if (goldSlot != -1) {
+            mc.player.getInventory().selectedSlot = goldSlot;
+        }
+    }
 }

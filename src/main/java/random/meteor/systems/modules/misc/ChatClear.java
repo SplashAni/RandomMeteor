@@ -4,53 +4,27 @@ import meteordevelopment.meteorclient.events.game.ReceiveMessageEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.text.Text;
 import random.meteor.Main;
 
 public class ChatClear extends Module {
-    public enum When implements IVisible {
-        Always,
-        MessageReceive;
-
-        @Override
-        public boolean isVisible() {
-            return false;
-        }
-    }
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
-
-    public final Setting<When> when = sgGeneral.add(new EnumSetting.Builder<When>()
-            .name("when-to-clear")
-            .defaultValue(When.MessageReceive)
+    private final Setting<Integer> clearAttempts = sgGeneral.add(new IntSetting.Builder()
+            .name("clear-attempts")
+            .description("amounts of times to clear chat")
+            .defaultValue(35)
+            .range(10,100)
+            .sliderMax(100)
             .build()
     );
-    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
-            .name("delay")
-            .description("delay")
-            .defaultValue(1)
-            .min(1)
-            .sliderMax(5)
-            .visible(When.Always)
-            .build()
-    );
-
     public ChatClear() {
-        super(Main.MISC, "chat-clear", "may actually use this");
-    }
-    @EventHandler
-    public void onTick(){
-        if(when.get().equals(When.Always)) {
-            for (int i = 1; i <= delay.get(); i++){
-                mc.inGameHud.getChatHud().clear(false);
-            }
-        }
+        super(Main.MISC, "chat-clear", "constantly clears chat");
     }
 
     @EventHandler
     private void onMessageReceive(ReceiveMessageEvent event) {
-        if(when.get().equals(When.MessageReceive)){
-            mc.inGameHud.getChatHud().clear(false);
-        }
+        for(int i = 1; i <= clearAttempts.get(); i ++)
+        mc.player.sendMessage(Text.literal(" "));
     }
 }

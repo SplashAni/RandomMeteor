@@ -1,6 +1,7 @@
 package random.meteor;
 
 import meteordevelopment.meteorclient.addons.GithubRepo;
+import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import org.slf4j.Logger;
 import random.meteor.systems.modules.Manager;
 import com.mojang.logging.LogUtils;
@@ -11,9 +12,9 @@ import net.minecraft.item.Items;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
-
     public static final Category MISC = new Category("Misc+", Items.AIR.getDefaultStack());
     public static final Category COMBAT= new Category("Combat+", Items.AIR.getDefaultStack());
+    public static final HudGroup FUNNY_HUD = new HudGroup("FunnyHud"); // goign to doo hud so0om
 
     @Override
     public void onInitialize() {
