@@ -1,7 +1,10 @@
 package random.meteor;
 
+import io.github.racoondog.meteorsharedaddonutils.features.TitleScreenCredits;
+import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.systems.hud.HudGroup;
+import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import random.meteor.systems.modules.Manager;
 import com.mojang.logging.LogUtils;
@@ -23,6 +26,8 @@ public class Main extends MeteorAddon {
         }
         System.setProperty("java.awt.headless", "false");
         Manager.load();
+        TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("&c&4Interia Client"))));
+
     }
 
     @Override
