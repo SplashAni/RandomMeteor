@@ -84,7 +84,7 @@ public class AutoKys extends Module {
         BlockPos blockPos = new BlockPos(player.getX(), player.getY() - 1, player.getZ());
 
         if (result.found()) {
-            BlockUtils.place(blockPos, result, rotate.get(), 100, swing.get(), true);
+            BlockUtils.place(blockPos, result, rotate.get(), 100, swing.get(), false);
             info("Placed a lava bucket...");
             this.toggle();
         } else {

@@ -14,7 +14,4 @@ public class MiscUtils {
         long timeSinceLastSwap = System.currentTimeMillis() - lastSwapTime;
         return timeSinceLastSwap >= delay; // custom delay
     }
-    public static DimensionType dimension(){
-        return mc.world.getDimension();
-    }
 }

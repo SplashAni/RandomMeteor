@@ -30,7 +30,14 @@ public class AutoCum extends Module {
             .defaultValue(false)
             .build()
     );
-
+    private final Setting<Integer> renderTime = sgGeneral.add(new IntSetting.Builder()
+            .name("render-time")
+            .description("how long to render")
+            .defaultValue(5)
+            .range(1, 15)
+            .sliderMax(15)
+            .build()
+    );
 
     public AutoCum() {
         super(Main.MISC, "auto-cum", "Renders a cum effect if an entity dies");
@@ -43,12 +50,14 @@ public class AutoCum extends Module {
             if (ignoreSelf.get() && player == mc.player) continue;
             if (Friends.get().isFriend(player) && ignoreFriends.get()) continue;
             if (PlayerUtils.isWithinCamera(player, range.get())) {
-                if(player.getHealth() == 0){
+                if(player.getHealth() == 0) {
                     Double x = player.getX();
                     Double y = player.getX();
                     Double z = player.getX();
-                    mc.world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x, y,z, 0, 0, 0);
-                    mc.world.addParticle(ParticleTypes.SNEEZE, x, y,z, 0, 0, 0);
+                    for (int i = 1; i <= renderTime.get(); i++) {
+                        mc.world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x, y, z, 0, 0, 0);
+                        mc.world.addParticle(ParticleTypes.SNEEZE, x, y, z, 0, 0, 0);
+                    }
                 }
             }
         }
