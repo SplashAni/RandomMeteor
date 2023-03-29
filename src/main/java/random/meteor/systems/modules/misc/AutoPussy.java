@@ -37,12 +37,7 @@ public class AutoPussy extends Module {
             .sliderMax(150)
             .build()
     );
-    private final Setting<posMode> autoSwitch = sgGeneral.add(new EnumSetting.Builder<posMode>()
-            .name("pos-mode")
-            .description("use chat or baritone")
-            .defaultValue(posMode.Baritone)
-            .build()
-    );
+
 
     public AutoPussy() {
         super(Main.MISC, "auto-pussy", "Runs away from nearby players");
@@ -65,15 +60,11 @@ public class AutoPussy extends Module {
         if (!event.entity.getUuid().equals(mc.player.getUuid())) {
             if (event.entity instanceof PlayerEntity) {
                 if ((!ignoreFriends.get() || !Friends.get().isFriend(((PlayerEntity) event.entity)))) {
-                    if (autoSwitch.get().equals(posMode.Client))
-                        ChatUtils.sendPlayerMsg("#stop");
-                } else if (autoSwitch.get().equals(posMode.Baritone)) {
-                    BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().onLostControl();
+                    ChatUtils.sendPlayerMsg("#stop");
                 }
             }
         }
     }
-
 
     private void pussyTime() {
         PlayerEntity player = mc.player;
@@ -85,18 +76,7 @@ public class AutoPussy extends Module {
         int i1 = (int) (z + distance.get());
 
         if (player.getHealth() < health.get()) {
-            if(autoSwitch.get().equals(posMode.Client)){
                 ChatUtils.sendPlayerMsg("#goto " + i + " ~ " + i1);
             }
-            else if(autoSwitch.get().equals(posMode.Baritone)){
-                BaritoneAPI.getProvider().getPrimaryBaritone();
-                GoalBlock newPos = new GoalBlock(i,y,i1);
-                BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoal(newPos);
-            }
-        }
-    }
-    public enum posMode {
-        Client,
-        Baritone
     }
 }

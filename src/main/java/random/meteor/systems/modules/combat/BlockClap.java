@@ -155,7 +155,7 @@ public class BlockClap extends Module {
     @EventHandler
     private void onRender(Render3DEvent event) {
         if (render.get()) {
-            event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(),1);
+            event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(),0);
         }
     }
 }

@@ -20,12 +20,6 @@ public class CustomFov extends Module {
             .sliderMax(180)
             .build()
     );
-    private final Setting<Boolean> overideNew = sgGeneral.add(new BoolSetting.Builder()
-            .name("override-new")
-            .description("changes back to ")
-            .defaultValue(true)
-            .build()
-    );
 
     public CustomFov() {
         super(Main.MISC,"custom-fov","CLEANNN");
@@ -33,7 +27,7 @@ public class CustomFov extends Module {
     @EventHandler
     private void onFov(GetFovEvent event) {
         event.fov = fovVal.get();
-        if(fovVal.wasChanged() && overideNew.get()){
+        if(fovVal.wasChanged()){
             fovVal.set(fovVal.get());
         }
     }
