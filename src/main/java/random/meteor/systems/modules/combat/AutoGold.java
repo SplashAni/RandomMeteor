@@ -32,16 +32,26 @@ public class AutoGold extends Module {
             .description("for ohio")
             .defaultValue(false)
             .build());
-
+    private final Setting<Integer> switchDelay = sgGeneral.add(new IntSetting.Builder()
+            .name("switch-delay")
+            .description("delay")
+            .defaultValue(1)
+            .range(1,5)
+            .sliderMax(5)
+            .build()
+    );
+    public int tick = 0;
     public AutoGold() {
         super(Main.COMBAT, "Auto Gold", "Switches to gold armor or items when near piglins.");
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
+        tick++;
         for (Entity entity : mc.world.getEntities()) {
             if (entity.getType() == EntityType.PIGLIN && entity.getPos().isInRange(mc.player.getPos(), range.get())) {
-                if (!goldArmor()) {
+                if (!goldArmor() && tick >= switchDelay.get()) {
+                    tick = 0;
                     if (!findInHotbar(Items.GOLD_INGOT, Items.GOLD_BLOCK).isHotbar() && netherCheck()) {
                         switchToGold();
                     }

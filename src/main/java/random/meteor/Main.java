@@ -26,7 +26,7 @@ public class Main extends MeteorAddon {
         }
         System.setProperty("java.awt.headless", "false");
         Manager.load();
-        TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("&c&4Interia Client"))));
+        TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("Interia Client"))));
 
     }
 
