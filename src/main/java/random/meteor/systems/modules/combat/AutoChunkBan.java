@@ -1,12 +1,15 @@
 package random.meteor.systems.modules.combat;
 
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -16,9 +19,12 @@ import random.meteor.Main;
 import random.meteor.systems.modules.utils.CombatUtils;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AutoChunkBan extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
             .name("blocks")
@@ -42,9 +48,9 @@ public class AutoChunkBan extends Module {
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
             .name("range")
             .description("range to place")
-            .defaultValue(15)
-            .range(5, 30)
-            .sliderMax(30)
+            .defaultValue(6)
+            .range(1,7)
+            .sliderMax(7)
             .build()
     );
 
@@ -63,25 +69,52 @@ public class AutoChunkBan extends Module {
     private final Setting<Boolean> autoMine = sgGeneral.add(new BoolSetting.Builder()
             .name("auto-mine")
             .description("mines the shulker after being sorted")
-            .defaultValue(false)
+            .defaultValue(true)
             .build()
     );
-    private final Setting<Integer> startDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("start-delay")
+    private final Setting<Integer> mineSpeed = sgGeneral.add(new IntSetting.Builder()
+            .name("mine-speed")
             .description("delay before sorting")
-            .defaultValue(10)
-            .range(1,10)
-            .sliderMax(20)
+            .defaultValue(3)
+            .range(1, 10)
+            .sliderMax(10)
             .visible(autoMine::get)
             .build()
     );
-    private final Setting<Boolean> mineDebug = sgGeneral.add(new BoolSetting.Builder()
-            .name("mine-debug")
-            .description("send timer to chat")
-            .defaultValue(false)
-            .visible(autoMine::get)
+
+    private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder()
+            .name("render")
+            .description("renderinggg")
+            .defaultValue(true)
             .build()
     );
+    private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+            .name("shape-mode")
+            .description("How the shapes are rendered.")
+            .defaultValue(ShapeMode.Both)
+            .visible(render::get)
+            .build()
+    );
+
+    private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
+            .name("side-color")
+            .description("The side color of the rendering.")
+            .defaultValue(new SettingColor(125, 69, 245, 75))
+            .visible(render::get)
+            .build()
+    );
+
+    private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
+            .name("line-color")
+            .description("The line color of the rendering.")
+            .defaultValue(new SettingColor(100, 34, 53, 255))
+            .visible(render::get)
+            .build()
+    );
+
+
+    private BlockPos blockPos;
+
     public AutoChunkBan() {
         super(Main.COMBAT, "auto-chunk-ban", "");
 
@@ -108,23 +141,29 @@ public class AutoChunkBan extends Module {
             if (distance <= range.get()) {
 
                 BlockPos targetBlockPos = target.getBlockPos();
-                BlockPos blockPos = targetBlockPos.north();
+                blockPos = targetBlockPos.north();
                 BlockUtils.place(blockPos, shulkerResult(), rotate.get(), 100, swing.get(), true);
                 autoMine(blockPos);
             }
         }
     }
-    private void autoMine(BlockPos pos) {
-        Direction direction = mc.player.getHorizontalFacing().getOpposite();
 
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, direction));
-        for (int i = 1; i <= startDelay.get() + 1000; i++) {
-            if (mineDebug.get() && i % 100 == 0) {
-                info("Starting in: " + i);
+    private void autoMine(BlockPos pos) {
+        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.NORTH));
+
+        new Timer().schedule(new TimerTask() { // fuck integers dealys
+            @Override
+            public void run() {
+                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.NORTH));
+                info("Successfully mined shulker now run...");
             }
-            if (i == startDelay.get() + 1000) {
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, direction));
-            }
+        }, mineSpeed.get() * 1000);
+    }
+
+    @EventHandler
+    private void onRender(Render3DEvent event) {
+        if(render.get()) {
+            event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         }
     }
 }

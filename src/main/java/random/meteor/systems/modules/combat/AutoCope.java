@@ -1,36 +1,50 @@
 package random.meteor.systems.modules.combat;
 
-import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPlus;
-import meteordevelopment.meteorclient.systems.modules.Category;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
-import net.minecraft.client.gui.screen.DeathScreen;
 import random.meteor.Main;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import static meteordevelopment.meteorclient.MeteorClient.mc;
+import java.util.*;
 
 public class AutoCope extends Module {
 
     private final List<String> messages = new ArrayList<>();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
+    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
+            .name("delay")
+            .description("delay before sending mesg")
+            .defaultValue(2)
+            .range(1, 10)
+            .sliderMax(10)
+            .build()
+    );
     public AutoCope() {
         super(Main.MISC,"auto-cope","sends message on deth");
     }
 
-    public void ok(){
-
+    @EventHandler
+    public void onTick() {
+        if (!mc.player.isAlive() && mc.player.getHealth() == 0) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    String message = messages.get(new Random().nextInt(messages.size()));
+                    ChatUtils.sendPlayerMsg(message);
+                }
+            }, delay.get() * 1000);
+        }
     }
     @Override
     public WWidget getWidget(GuiTheme theme) {
@@ -41,9 +55,9 @@ public class AutoCope extends Module {
 
         return table;
     }
+
     private void fillTable(GuiTheme theme, WTable table) {
-        messages.add("I lagged");
-        table.add(theme.horizontalSeparator("Cope messages")).expandX();
+        table.add(theme.horizontalSeparator("Cope list")).expandX();
         table.row();
 
         for (int i = 0; i < messages.size(); i++) {
@@ -71,16 +85,5 @@ public class AutoCope extends Module {
             table.clear();
             fillTable(theme, table);
         };
-    }
-
-
-    @EventHandler(priority = EventPriority.HIGH)
-    private void onOpenScreenEvent(OpenScreenEvent event) {
-        if (!(event.screen instanceof DeathScreen)) return;
-        if (!messages.isEmpty() && !mc.player.isAlive()) {
-            String message = messages.get(new Random().nextInt(messages.size()));
-            ChatUtils.sendPlayerMsg(message);
-        }
-        event.cancel();
     }
 }

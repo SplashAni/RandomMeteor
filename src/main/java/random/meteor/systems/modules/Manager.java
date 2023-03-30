@@ -30,7 +30,6 @@ public class  Manager {
         m.add(new Excavator());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
-        m.add(new ChatClear());
         m.add(new AutoSwim());
         m.add(new AutoCope());
         m.add(new AutoGold());
