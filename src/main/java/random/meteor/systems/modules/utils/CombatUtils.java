@@ -5,8 +5,10 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.util.math.Direction;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -71,5 +73,23 @@ public class CombatUtils {
         if (goldSlot != -1) {
             mc.player.getInventory().selectedSlot = goldSlot;
         }
+    }
+    public static Direction direction(Entity player) {
+        Direction direction = null;
+
+        float yaw = mc.player.getYaw();
+
+        // Convert the yaw angle to a compass direction
+        if (yaw >= 45 && yaw < 135) {
+            direction = Direction.SOUTH;
+        } else if (yaw >= 135 && yaw < 225) {
+            direction = Direction.WEST;
+        } else if (yaw >= 225 && yaw < 315) {
+            direction = Direction.NORTH;
+        } else {
+            direction = Direction.EAST;
+        }
+
+        return direction;
     }
 }
