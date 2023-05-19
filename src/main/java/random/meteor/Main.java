@@ -17,7 +17,7 @@ public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static final Category MISC = new Category("Misc+", Items.AIR.getDefaultStack());
     public static final Category COMBAT= new Category("Combat+", Items.AIR.getDefaultStack());
-    public static final HudGroup FUNNY_HUD = new HudGroup("FunnyHud"); // goign to doo hud so0om
+
 
     @Override
     public void onInitialize() {

@@ -5,7 +5,6 @@ import meteordevelopment.meteorclient.systems.commands.Command;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import net.minecraft.command.CommandSource;
-import random.meteor.systems.modules.misc.Excavator;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 

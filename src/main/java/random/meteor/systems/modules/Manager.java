@@ -5,6 +5,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.systems.modules.combat.*;
 import random.meteor.systems.modules.commands.*;
+import random.meteor.systems.modules.dupetop.AutoDupe;
 import random.meteor.systems.modules.misc.*;
 
 import java.util.ArrayList;
@@ -18,20 +19,8 @@ public class  Manager {
         m.add(new PearlPhase());
         m.add(new Prefix());
         m.add(new BlockClap());
-        m.add(new AutoPvp());
-        m.add(new LeftClickArmor());
-        m.add(new AutoPussy());
-        m.add(new AutoKys());
-        m.add(new AutoCum());
-        m.add(new AutoRekit());
-        m.add(new PopCrash());
-        m.add(new AutoReply());
-        m.add(new LitematicaPrinter());
-        m.add(new Excavator());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
-        m.add(new AutoSwim());
-        m.add(new AutoCope());
         m.add(new AutoGold());
         m.forEach(module -> Modules.get().add(module));
     }
