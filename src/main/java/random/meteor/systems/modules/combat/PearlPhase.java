@@ -17,9 +17,19 @@ public class PearlPhase extends Module {
     );
     public final Setting<Mode> pearlPos = sgGeneral.add(new EnumSetting.Builder<Mode>()
             .name("pearl-pos")
-            .defaultValue(Mode.DEFAULT)
+            .defaultValue(Mode.Default)
             .build()
     );
+    private final Setting<Integer> customPitch = sgGeneral.add(new IntSetting.Builder()
+            .name("custom-pitch")
+            .description("")
+            .defaultValue(45)
+            .range(1,90)
+            .sliderMax(90)
+            .visible(Mode.Custom)
+            .build()
+    );
+
     public final Setting<Boolean> notify = sgGeneral.add(new BoolSetting.Builder()
             .name("notify")
             .description("Sends chat message if pearl is thrown")
@@ -46,13 +56,16 @@ public class PearlPhase extends Module {
 
             for(int i = 1; i <= attempts.get();i++ ) {
                 switch (pearlPos.get()) {
-                    case DEFAULT -> {
+                    case Default -> {
                         CombatUtils.throwPearl(72);
                     }
-                    case TOP -> {
+                    case Custom -> {
+                        CombatUtils.throwPearl(customPitch.get());
+                    }
+                    case Top -> {
                         CombatUtils.throwPearl(-90);
                     }
-                    case BOTTOM -> {
+                    case Bottom -> {
                         CombatUtils.throwPearl(90);
                     }
                 }
@@ -66,9 +79,16 @@ public class PearlPhase extends Module {
         super.onActivate();
     }
 
-    public enum Mode {
-        DEFAULT,
-        TOP,
-        BOTTOM,
+    public enum Mode implements IVisible {
+        Custom,
+        Default,
+        Top,
+        Bottom,
+        ;
+
+        @Override
+        public boolean isVisible() {
+            return false;
+        }
     }
 }

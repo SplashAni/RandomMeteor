@@ -4,7 +4,6 @@ import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.movement.Velocity;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -16,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.CombatUtils;
 
@@ -102,27 +102,29 @@ public class BlockClap extends Module {
 
     @Override
     public void onActivate() {
-        if (findStartingItems()) {
+
+        if (!hasItems()) {
+            error("No pearls found, toggling...");
+            toggle();
             return;
         }
-        // begin this shit
-        toggleVelocity();
-        if (center.get()) {PlayerUtils.centerPlayer();}
-        if (jump.get() && mc.player.isOnGround()) {mc.player.jump();}
+
+        if (center.get()) {
+            PlayerUtils.centerPlayer();
+        }
+        if (jump.get() && mc.player.isOnGround()) {
+            mc.player.jump();
+
+        }
         clapAttempt();
         super.onActivate();
     }
 
-    private void toggleVelocity() {
-        Velocity velocity = new Velocity();
-        if (toggleVelocity.get() && !velocity.isActive()) {
-            velocity.toggle();
-        }
-    }
-
     private void clapAttempt() {
 
+        assert mc.player != null;
         BlockPos playerPos = mc.player.getBlockPos();
+
         blockPos = playerPos.north();
         BlockUtils.place(blockPos, getInvBlock(), rotate.get(), 100, swing.get(), true);
         throwPearl();
@@ -138,19 +140,31 @@ public class BlockClap extends Module {
     private FindItemResult getInvBlock() {
         return findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
     }
-    private boolean findStartingItems() {
+    private boolean hasItems() {
         List<Item> blockItems = blocks.get().stream()
                 .map(Item::fromBlock).toList();
         for (Item block : blockItems) {
+            assert mc.player != null;
             if (mc.player.getInventory().contains(new ItemStack(block)) && mc.player.getInventory().contains(new ItemStack(Items.ENDER_PEARL))) {
                 return false;
             }
         }
-        error("Items not found toggling...");
-        this.toggle();
         return true;
     }
 
+    private int getYaw(Direction direction) {
+        if (direction == null) {
+            assert mc.player != null;
+            return (int) mc.player.getYaw();
+        }
+        return switch (direction) {
+            case NORTH -> 180;
+            case SOUTH -> 0;
+            case WEST -> 90;
+            case EAST -> -90;
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        };
+    }
 
     @EventHandler
     private void onRender(Render3DEvent event) {
