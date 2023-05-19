@@ -9,9 +9,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.math.Direction;
 
+import java.util.Random;
+
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class Utils {
+    private static final Random random = new Random();
+
     public static void throwPearl(int value) {
         FindItemResult pearl = InvUtils.findInHotbar(Items.ENDER_PEARL);
         if (!pearl.found()) return;
@@ -71,19 +75,20 @@ public class Utils {
             mc.player.getInventory().selectedSlot = goldSlot;
         }
     }
-    public static Direction currentDirection() {
-        assert mc.player != null;
-        float yaw = mc.player.getYaw();
-        if (yaw >= -45 && yaw < 45) {
-            return Direction.SOUTH;
-        } else if (yaw >= 45 && yaw < 135) {
-            return Direction.WEST;
-        } else if (yaw >= 135 || yaw < -135) {
-            return Direction.NORTH;
-        } else if (yaw >= -135) {
-            return Direction.EAST;
-        } else {
-            return Direction.NORTH;
-        }
+    public static Direction getBestDirection() {
+        Direction[] directions = { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
+        return directions[random.nextInt(directions.length)];
     }
+        public static float getYawFromDirection(Direction direction) {
+            if (direction == Direction.NORTH) {
+                return 180;
+            } else if (direction == Direction.SOUTH) {
+                return 360;
+            } else if (direction == Direction.WEST) {
+                return 90;
+            } else if (direction == Direction.EAST) {
+                return 270;
+            }
+            return 0;
+        }
 }
