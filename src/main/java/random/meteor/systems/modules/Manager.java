@@ -33,7 +33,6 @@ public class  Manager {
         c.add(new Panic());
         c.add(new Center());
         c.add(new Crash());
-        c.add(new Stop());
         c.add(new Ping());
         c.add(new Title());
     }

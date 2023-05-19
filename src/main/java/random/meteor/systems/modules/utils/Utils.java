@@ -1,6 +1,5 @@
 package random.meteor.systems.modules.utils;
 
-import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
@@ -8,34 +7,28 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
-import org.spongepowered.asm.util.PrettyPrinter;
+import net.minecraft.util.math.Direction;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
-public class CombatUtils {
+public class Utils {
     public static void throwPearl(int value) {
         FindItemResult pearl = InvUtils.findInHotbar(Items.ENDER_PEARL);
         if (!pearl.found()) return;
 
+        assert mc.player != null;
         Rotations.rotate(mc.player.getYaw(), value, () -> {
             if (pearl.getHand() != null) {
                 mc.interactionManager.interactItem(mc.player, pearl.getHand());
             } else {
                 InvUtils.swap(pearl.slot(), true);
+                assert mc.interactionManager != null;
                 mc.interactionManager.interactItem(mc.player, pearl.getHand());
                 InvUtils.swapBack();
             }
         });
     }
 
-    public static PlayerEntity nearestTarget() {
-        if(mc.world != null || mc.player != null){
-            for(PlayerEntity player : mc.world.getPlayers()){
-            return player;
-            }
-        }
-        return null;
-}
     public static final Block[] SHULKER_BLOCKS = new Block[]{
             Blocks.SHULKER_BOX,
             Blocks.WHITE_SHULKER_BOX,
@@ -76,6 +69,21 @@ public class CombatUtils {
         }
         if (goldSlot != -1) {
             mc.player.getInventory().selectedSlot = goldSlot;
+        }
+    }
+    public static Direction currentDirection() {
+        assert mc.player != null;
+        float yaw = mc.player.getYaw();
+        if (yaw >= -45 && yaw < 45) {
+            return Direction.SOUTH;
+        } else if (yaw >= 45 && yaw < 135) {
+            return Direction.WEST;
+        } else if (yaw >= 135 || yaw < -135) {
+            return Direction.NORTH;
+        } else if (yaw >= -135) {
+            return Direction.EAST;
+        } else {
+            return Direction.NORTH;
         }
     }
 }

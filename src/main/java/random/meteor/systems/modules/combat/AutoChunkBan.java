@@ -16,7 +16,7 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
-import random.meteor.systems.modules.utils.CombatUtils;
+import random.meteor.systems.modules.utils.Utils;
 
 import java.util.List;
 import java.util.Timer;
@@ -29,7 +29,7 @@ public class AutoChunkBan extends Module {
     private final Setting<List<Block>> blocks = sgGeneral.add(new BlockListSetting.Builder()
             .name("blocks")
             .description("incase i missed smtj")
-            .defaultValue(CombatUtils.SHULKER_BLOCKS)
+            .defaultValue(Utils.SHULKER_BLOCKS)
             .build()
     );
 

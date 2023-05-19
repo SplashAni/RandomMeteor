@@ -13,8 +13,8 @@ import net.minecraft.item.Items;
 import random.meteor.Main;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
-import static random.meteor.systems.modules.utils.CombatUtils.goldArmor;
-import static random.meteor.systems.modules.utils.CombatUtils.switchToGold;
+import static random.meteor.systems.modules.utils.Utils.goldArmor;
+import static random.meteor.systems.modules.utils.Utils.switchToGold;
 
 public class AutoGold extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();

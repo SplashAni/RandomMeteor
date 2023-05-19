@@ -2,7 +2,7 @@ package random.meteor.systems.modules.combat;
 
 import meteordevelopment.meteorclient.settings.*;
 import random.meteor.Main;
-import random.meteor.systems.modules.utils.CombatUtils;
+import random.meteor.systems.modules.utils.Utils;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 
@@ -57,16 +57,16 @@ public class PearlPhase extends Module {
             for(int i = 1; i <= attempts.get();i++ ) {
                 switch (pearlPos.get()) {
                     case Default -> {
-                        CombatUtils.throwPearl(72);
+                        Utils.throwPearl(72);
                     }
                     case Custom -> {
-                        CombatUtils.throwPearl(customPitch.get());
+                        Utils.throwPearl(customPitch.get());
                     }
                     case Top -> {
-                        CombatUtils.throwPearl(-90);
+                        Utils.throwPearl(-90);
                     }
                     case Bottom -> {
-                        CombatUtils.throwPearl(90);
+                        Utils.throwPearl(90);
                     }
                 }
             }
