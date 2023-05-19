@@ -1,5 +1,6 @@
 package random.meteor.systems.modules.combat;
 
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
@@ -165,5 +166,16 @@ public class BlockClap extends Module {
         Placing,
         Pearling,
         Toggle
+    }
+    @Override
+    public String getInfoString() {
+        return getBestDirection().asString();
+    }
+
+    @EventHandler
+    private void onRender(Render3DEvent event) {
+        if (blockPos == null) return;
+
+        event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 }
