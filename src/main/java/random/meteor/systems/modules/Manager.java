@@ -19,7 +19,9 @@ public class  Manager {
         m.add(new BlockClap());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
+        m.add(new TntAura());
         m.add(new AutoGold());
+
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){

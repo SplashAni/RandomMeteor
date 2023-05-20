@@ -61,7 +61,7 @@ public class PearlPhase extends Module {
                     }
                 }
             if (notify.get()) {
-                info("Attempted to phase");
+                info("Threw pearl, toggling...");
             }
 
             this.toggle();

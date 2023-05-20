@@ -1,12 +1,12 @@
 package random.meteor.systems.modules.utils;
 
-import meteordevelopment.meteorclient.utils.entity.EntityUtils;
+import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
-import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.math.Direction;
@@ -95,5 +95,8 @@ public class Utils {
     }
     public static boolean isNether() {
         return mc.world.getDimension().respawnAnchorWorks();
+    }
+    public static boolean isSelf(LivingEntity target) {
+        return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
     }
 }

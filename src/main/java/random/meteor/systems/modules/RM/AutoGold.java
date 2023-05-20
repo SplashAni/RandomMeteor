@@ -39,10 +39,12 @@ public class AutoGold extends Module {
             .sliderMax(5)
             .build()
     );
+
     public int tick = 0;
     public AutoGold() {
         super(Main.RM, "Auto Gold", "Switches to gold armor or items when near piglins.");
     }
+
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
@@ -61,6 +63,7 @@ public class AutoGold extends Module {
             }
         }
     }
+
 
     private boolean netherCheck() {
         return !onlyNether.get() || isNether();
