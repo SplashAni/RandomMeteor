@@ -1,4 +1,4 @@
-package random.meteor.systems.modules.misc;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.render.GetFovEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
@@ -22,7 +22,7 @@ public class CustomFov extends Module {
     );
 
     public CustomFov() {
-        super(Main.MISC,"custom-fov","CLEANNN");
+        super(Main.RM,"custom-fov","CLEANNN");
     }
     @EventHandler
     private void onFov(GetFovEvent event) {

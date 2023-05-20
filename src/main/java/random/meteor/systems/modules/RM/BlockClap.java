@@ -1,4 +1,4 @@
-package random.meteor.systems.modules.combat;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -16,13 +16,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
@@ -92,7 +89,7 @@ public class BlockClap extends Module {
     Direction direction = getBestDirection();
 
     public BlockClap() {
-        super(Main.COMBAT, "block-clap", "Burrow that should work on almost any server");
+        super(Main.RM, "block-clap", "Burrow that should work on almost any server");
     }
 
     @Override

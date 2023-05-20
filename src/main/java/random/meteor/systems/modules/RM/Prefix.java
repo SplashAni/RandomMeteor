@@ -1,4 +1,4 @@
-package random.meteor.systems.modules.misc;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -12,7 +12,7 @@ import random.meteor.Main;
 
 public class Prefix extends Module {
     public Prefix(){
-        super(Main.MISC, "prefix", "real!1!1");
+        super(Main.RM, "prefix", "real!1!1");
     }
     private SettingGroup sgGeneral = settings.getDefaultGroup();
 

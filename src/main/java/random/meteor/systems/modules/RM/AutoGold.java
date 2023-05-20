@@ -1,4 +1,4 @@
-package random.meteor.systems.modules.combat;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
@@ -13,8 +13,7 @@ import net.minecraft.item.Items;
 import random.meteor.Main;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
-import static random.meteor.systems.modules.utils.Utils.goldArmor;
-import static random.meteor.systems.modules.utils.Utils.switchToGold;
+import static random.meteor.systems.modules.utils.Utils.*;
 
 public class AutoGold extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -42,7 +41,7 @@ public class AutoGold extends Module {
     );
     public int tick = 0;
     public AutoGold() {
-        super(Main.COMBAT, "Auto Gold", "Switches to gold armor or items when near piglins.");
+        super(Main.RM, "Auto Gold", "Switches to gold armor or items when near piglins.");
     }
 
     @EventHandler
@@ -64,6 +63,6 @@ public class AutoGold extends Module {
     }
 
     private boolean netherCheck() {
-        return !onlyNether.get() || mc.world.getDimension().respawnAnchorWorks();
+        return !onlyNether.get() || isNether();
     }
 }

@@ -92,6 +92,8 @@ public class Utils {
                 return 270;
             }
             return 0;
-
+    }
+    public static boolean isNether() {
+        return mc.world.getDimension().respawnAnchorWorks();
     }
 }

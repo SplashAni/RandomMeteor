@@ -1,4 +1,4 @@
-package random.meteor.systems.modules.combat;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.settings.*;
 import random.meteor.Main;
@@ -36,17 +36,9 @@ public class PearlPhase extends Module {
             .defaultValue(true)
             .build()
     );
-    private final Setting<Integer> attempts = sgGeneral.add(new IntSetting.Builder()
-            .name("attempts")
-            .description("amount of times to throw the pearls")
-            .defaultValue(1)
-            .range(1, 5)
-            .sliderMax(5)
-            .build()
-    );
 
     public PearlPhase() {
-        super(Main.COMBAT, "pearl-phase", "Attempts to phase with pearls");
+        super(Main.RM, "pearl-phase", "Attempts to phase with pearls");
     }
 
     @Override
@@ -54,7 +46,6 @@ public class PearlPhase extends Module {
         if (center.get()) {
             PlayerUtils.centerPlayer();
 
-            for(int i = 1; i <= attempts.get();i++ ) {
                 switch (pearlPos.get()) {
                     case Default -> {
                         Utils.throwPearl(72);
@@ -69,7 +60,6 @@ public class PearlPhase extends Module {
                         Utils.throwPearl(90);
                     }
                 }
-            }
             if (notify.get()) {
                 info("Attempted to phase");
             }

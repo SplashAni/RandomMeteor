@@ -1,6 +1,7 @@
-package random.meteor.systems.modules.combat;
+package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.friends.Friends;
@@ -11,16 +12,15 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.Utils;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class AutoChunkBan extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -72,12 +72,10 @@ public class AutoChunkBan extends Module {
             .defaultValue(true)
             .build()
     );
-    private final Setting<Integer> mineSpeed = sgGeneral.add(new IntSetting.Builder()
-            .name("mine-speed")
-            .description("delay before sorting")
-            .defaultValue(3)
-            .range(1, 10)
-            .sliderMax(10)
+    private final Setting<Boolean> bestool = sgGeneral.add(new BoolSetting.Builder()
+            .name("best-tool")
+            .description("finds best tool to mine shulker")
+            .defaultValue(true)
             .visible(autoMine::get)
             .build()
     );
@@ -112,58 +110,111 @@ public class AutoChunkBan extends Module {
             .build()
     );
 
-
-    private BlockPos blockPos;
+    private Stage stage;
+    PlayerEntity target;
+    BlockPos placePos;
+    int slot;
 
     public AutoChunkBan() {
-        super(Main.COMBAT, "auto-chunk-ban", "");
+        super(Main.RM, "auto-chunk-ban", "");
 
     }
 
     @Override
     public void onActivate() {
-        start();
+
+        if(!shulkerResult().found()){
+            error("No shulkers found...");
+            toggle();
+            return;
+        }
+
+
+        target = null;
+        placePos = null;
+
+        stage = Stage.Preparing;
         super.onActivate();
     }
+
+    @EventHandler
+    private void onTick(TickEvent.Pre event) {
+
+        switch (stage) {
+            case Preparing -> {
+                slot = mc.player.getInventory().selectedSlot;
+                assert mc.player != null;
+
+                assert mc.world != null;
+                for (PlayerEntity player : mc.world.getPlayers()) {
+                    if (ignoreSelf.get() && player == mc.player) continue;
+                    if (Friends.get().isFriend(player) && ignoreFriends.get()) continue;
+                    if (player.distanceTo(mc.player) <= range.get()) {
+                        target = player;
+                        stage = Stage.Placing;
+                        break;
+                    } else if (target == null) {
+                        error("No targets found toggling...");
+                        stage = Stage.Toggling;
+                        break;
+                    }
+                }
+            }
+            case Placing -> {
+                placePos = target.getBlockPos().north().add(1,0,0);
+                BlockUtils.place(placePos, shulkerResult(), rotate.get(), 100, swing.get(), true);
+                if(autoMine.get()) {
+                    stage = Stage.Mining;
+                }
+                else {
+                    stage = Stage.Toggling;
+                }
+            }
+            case Mining -> {
+                placePos = target.getBlockPos().north().add(1,0,0);
+
+                if(bestool.get() && picaxeResult().isHotbar()){
+                    InvUtils.swap(picaxeResult().slot(),false);
+                }
+
+                BlockUtils.breakBlock(placePos,swing.get());
+                assert mc.world != null;
+                BlockState state = mc.world.getBlockState(placePos);
+
+                if(state.getBlock() == Blocks.AIR){
+                    assert mc.player != null;
+                    mc.player.getInventory().selectedSlot = slot;
+                    info("Broke shulker, toggling...");
+                    stage = Stage.Toggling;
+                }
+            }
+            case Toggling -> {
+                toggle();
+            }
+        }
+    }
+
 
     private FindItemResult shulkerResult() {
         return InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
     }
-
-    private void start() {
-        if (!shulkerResult().found()) error("No shulkers found...");
-        this.toggle();
-        for (PlayerEntity target : mc.world.getPlayers()) {
-            if (ignoreSelf.get() && target == mc.player) continue;
-            if (Friends.get().isFriend(target) && ignoreFriends.get()) continue;
-
-            double distance = target.distanceTo(mc.player);
-            if (distance <= range.get()) {
-
-                BlockPos targetBlockPos = target.getBlockPos();
-                blockPos = targetBlockPos.north();
-                BlockUtils.place(blockPos, shulkerResult(), rotate.get(), 100, swing.get(), true);
-                autoMine(blockPos);
-            }
-        }
+    private FindItemResult picaxeResult() {
+        return InvUtils.findInHotbar(itemStack ->
+                itemStack.getItem() == Items.DIAMOND_PICKAXE || itemStack.getItem() == Items.NETHERITE_PICKAXE
+        );
     }
 
-    private void autoMine(BlockPos pos) {
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.NORTH));
 
-        new Timer().schedule(new TimerTask() { // fuck integers dealys
-            @Override
-            public void run() {
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.NORTH));
-                info("Successfully mined shulker now run...");
-            }
-        }, mineSpeed.get() * 1000);
+    private enum Stage{
+        Preparing,
+        Placing,
+        Mining,
+        Toggling
     }
-
     @EventHandler
     private void onRender(Render3DEvent event) {
-        if(render.get()) {
-            event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-        }
+        if (placePos == null) return;
+
+        event.renderer.box(placePos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 }
