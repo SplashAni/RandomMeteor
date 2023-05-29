@@ -22,13 +22,13 @@ public class Prefix extends Module {
         .defaultValue(new SettingColor(255, 128, 69)) //colors no work??
         .build()
     );
-    private Setting<String> PrefixText = sgGeneral.add(
+    private final Setting<String> PrefixText = sgGeneral.add(
         new StringSetting.Builder()
             .name("Prefix Text")
             .defaultValue("RandomMeteor")
             .build()
     );
-    private Setting<String> Left = sgGeneral.add(
+    private final Setting<String> Left = sgGeneral.add(
        new StringSetting.Builder()
             .name("Left")
             .defaultValue("[")

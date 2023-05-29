@@ -9,11 +9,16 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
+import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
 
 public class Utils {
     private static final Random random = new Random();
@@ -27,7 +32,7 @@ public class Utils {
             if (pearl.getHand() != null) {
                 mc.interactionManager.interactItem(mc.player, pearl.getHand());
             } else {
-                InvUtils.swap(pearl.slot(), true);
+                swap(pearl.slot(), true);
                 assert mc.interactionManager != null;
                 mc.interactionManager.interactItem(mc.player, pearl.getHand());
                 InvUtils.swapBack();
@@ -77,25 +82,29 @@ public class Utils {
             mc.player.getInventory().selectedSlot = goldSlot;
         }
     }
+
     public static Direction getBestDirection() {
-        Direction[] directions = { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
+        Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
         return directions[random.nextInt(directions.length)];
     }
-        public static float getYawFromDirection(Direction direction) {
-            if (direction == Direction.NORTH) {
-                return 180;
-            } else if (direction == Direction.SOUTH) {
-                return 360;
-            } else if (direction == Direction.WEST) {
-                return 90;
-            } else if (direction == Direction.EAST) {
-                return 270;
-            }
-            return 0;
+
+    public static float getYawFromDirection(Direction direction) {
+        if (direction == Direction.NORTH) {
+            return 180;
+        } else if (direction == Direction.SOUTH) {
+            return 360;
+        } else if (direction == Direction.WEST) {
+            return 90;
+        } else if (direction == Direction.EAST) {
+            return 270;
+        }
+        return 0;
     }
+
     public static boolean isNether() {
         return mc.world.getDimension().respawnAnchorWorks();
     }
+
     public static boolean isSelf(LivingEntity target) {
         return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
     }
