@@ -6,19 +6,21 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
+import static meteordevelopment.meteorclient.utils.player.PlayerUtils.distanceTo;
 
 public class Utils {
     private static final Random random = new Random();
@@ -101,6 +103,27 @@ public class Utils {
         return 0;
     }
 
+    public static double distanceTo(BlockPos blockPos1, BlockPos blockPos2) {
+        double d = blockPos1.getX() - blockPos2.getX();
+        double e = blockPos1.getY() - blockPos2.getY();
+        double f = blockPos1.getZ() - blockPos2.getZ();
+        return MathHelper.sqrt((float) (d * d + e * e + f * f));
+    }
+    public static List<BlockPos> getSphere(BlockPos centerPos, double radius, double height) {
+        ArrayList<BlockPos> blocks = new ArrayList<>();
+
+        for (int i = centerPos.getX() - (int) radius; i < centerPos.getX() + radius; i++) {
+            for (int j = centerPos.getY() - (int) height; j < centerPos.getY() + height; j++) {
+                for (int k = centerPos.getZ() - (int) radius; k < centerPos.getZ() + radius; k++) {
+                    BlockPos pos = new BlockPos(i, j, k);
+
+                    if (distanceTo(centerPos, pos) <= radius && !blocks.contains(pos)) blocks.add(pos);
+                }
+            }
+        }
+
+        return blocks;
+    }
     public static boolean isNether() {
         return mc.world.getDimension().respawnAnchorWorks();
     }
@@ -108,4 +131,56 @@ public class Utils {
     public static boolean isSelf(LivingEntity target) {
         return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
     }
+    public static boolean isSurrounded(PlayerEntity player){
+        ArrayList<BlockPos> positions = new ArrayList<>();
+        List<Entity> getEntityBoxes;
+
+        for (BlockPos blockPos : getSphere(player.getBlockPos(), 3, 1)) {
+            if (!mc.world.getBlockState(blockPos).getMaterial().isReplaceable()) continue;
+            getEntityBoxes = mc.world.getOtherEntities(null, new Box(blockPos), entity -> entity == player);
+            if (!getEntityBoxes.isEmpty()) continue;
+
+            for (Direction direction : Direction.values()) {
+                if (direction == Direction.UP || direction == Direction.DOWN) continue;
+
+                getEntityBoxes = mc.world.getOtherEntities(null, new Box(blockPos.offset(direction)), entity -> entity == player);
+                if (!getEntityBoxes.isEmpty()) positions.add(blockPos);
+            }
+        }
+
+        return positions.isEmpty();
+    }
+
+
+    public static BlockPos nearstBlock(Block block) {
+        assert mc.player != null;
+        ChunkPos chunkPos = mc.player.getChunkPos();
+        int chunkX = chunkPos.getStartX();
+        int chunkZ = chunkPos.getStartZ();
+        int chunkMinX = chunkX << 4;
+        int chunkMinZ = chunkZ << 4;
+        int chunkMaxX = chunkMinX + 15;
+        int chunkMaxZ = chunkMinZ + 15;
+
+        BlockPos neasrt = null;
+        double nearestDistance = Double.MAX_VALUE;
+
+        for (int x = chunkMinX; x <= chunkMaxX; x++) {
+            for (int z = chunkMinZ; z <= chunkMaxZ; z++) {
+                for (int y = 0; y < 256; y++) {
+                    BlockPos blockPos = new BlockPos(x, y, z);
+                    if (mc.world.getBlockState(blockPos).isOf(block)) {
+                        double distance = blockPos.getSquaredDistanceFromCenter(chunkMinX + 8, y + 0.5, chunkMinZ + 8);
+                        if (distance < nearestDistance) {
+                            nearestDistance = distance;
+                            neasrt = blockPos;
+                        }
+                    }
+                }
+            }
+        }
+
+        return neasrt;
+    }
+
 }

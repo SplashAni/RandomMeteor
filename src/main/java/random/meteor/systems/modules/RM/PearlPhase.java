@@ -7,7 +7,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 
 public class PearlPhase extends Module {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+        private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> center = sgGeneral.add(new BoolSetting.Builder()
             .name("center")

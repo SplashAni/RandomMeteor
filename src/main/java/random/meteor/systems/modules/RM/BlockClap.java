@@ -23,7 +23,6 @@ import random.meteor.systems.modules.utils.Utils;
 import java.util.List;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 import static random.meteor.systems.modules.utils.Utils.getBestDirection;
 
 public class BlockClap extends Module {

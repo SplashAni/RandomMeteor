@@ -22,7 +22,8 @@ public class  Manager {
         m.add(new TntAura());
         m.add(new KillAuraBetter());
         m.add(new AutoGold());
-
+        m.add(new Twerk());
+        m.add(new BurrowEsp());
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){
