@@ -177,37 +177,4 @@ public class Utils {
 
         return positions.isEmpty();
     }
-
-
-    public static BlockPos nearstBlock(Block block) {
-        assert mc.player != null;
-        ChunkPos chunkPos = mc.player.getChunkPos();
-        int chunkX = chunkPos.getStartX();
-        int chunkZ = chunkPos.getStartZ();
-        int chunkMinX = chunkX << 4;
-        int chunkMinZ = chunkZ << 4;
-        int chunkMaxX = chunkMinX + 15;
-        int chunkMaxZ = chunkMinZ + 15;
-
-        BlockPos neasrt = null;
-        double nearestDistance = Double.MAX_VALUE;
-
-        for (int x = chunkMinX; x <= chunkMaxX; x++) {
-            for (int z = chunkMinZ; z <= chunkMaxZ; z++) {
-                for (int y = 0; y < 256; y++) {
-                    BlockPos blockPos = new BlockPos(x, y, z);
-                    if (mc.world.getBlockState(blockPos).isOf(block)) {
-                        double distance = blockPos.getSquaredDistanceFromCenter(chunkMinX + 8, y + 0.5, chunkMinZ + 8);
-                        if (distance < nearestDistance) {
-                            nearestDistance = distance;
-                            neasrt = blockPos;
-                        }
-                    }
-                }
-            }
-        }
-
-        return neasrt;
-    }
-
 }
