@@ -3,6 +3,7 @@ package random.meteor.systems.modules;
 import meteordevelopment.meteorclient.systems.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.combat.AutoCity;
 import random.meteor.systems.modules.RM.*;
 import random.meteor.systems.modules.commands.*;
 
@@ -25,6 +26,7 @@ public class  Manager {
         m.add(new Twerk());
         m.add(new MinecartAura());
         m.add(new BurrowEsp());
+        m.add(new Blocker());
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){

@@ -90,7 +90,7 @@ public class MinecartAura extends Module {
             .defaultValue(explode.BowFlame)
             .build()
     );
-    private final Setting<Integer> explodeDelay = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> explodeDelay = sgExplode.add(new IntSetting.Builder()
             .name("explode-delay")
             .description("Delay to place tnt")
             .defaultValue(15)
