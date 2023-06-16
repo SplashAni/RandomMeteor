@@ -25,6 +25,7 @@ public class Twerk extends Module {
     }
     @EventHandler
     public void onTick(TickEvent.Pre event){
+        ticks++;
         if(ticks >= delay.get()) {
             mc.options.sneakKey.setPressed(!mc.player.isSneaking()); // the most simplest way tbh
         }

@@ -1,17 +1,21 @@
 package random.meteor.systems.modules.utils;
 
-import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.fluid.FlowableFluid;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterials;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
@@ -20,7 +24,6 @@ import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
-import static meteordevelopment.meteorclient.utils.player.PlayerUtils.distanceTo;
 
 public class Utils {
     private static final Random random = new Random();
@@ -41,7 +44,10 @@ public class Utils {
             }
         });
     }
-
+    private boolean canPlace(BlockPos pos,int range) {
+      //  return (mc.world.getBlockState(pos).isAir() || mc.world.getBlockState(pos).getFluidState().getFluid() instanceof FlowableFluid) && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(pos)) <= placeRange.get() && getDamagePlace(pos);
+        return false;
+    }
     public static final Block[] SHULKER_BLOCKS = new Block[]{
             Blocks.SHULKER_BOX,
             Blocks.WHITE_SHULKER_BOX,
@@ -69,6 +75,27 @@ public class Utils {
             }
         }
         return false;
+    }
+    public static void rotate(EntityType en) {
+        double closest = Double.MAX_VALUE;
+        Vec3d pos = mc.player.getPos();
+        Vec3d nearest = null;
+
+        for (Entity entity : mc.world.getEntities()) {
+            if (entity.getType() == en) {
+                double distance = entity.getPos().squaredDistanceTo(pos);
+                if (distance < closest) {
+                    closest = distance;
+                    nearest = entity.getPos();
+                }
+            }
+        }
+
+        if (nearest != null) {
+            double yaw = Math.atan2(nearest.getZ() - pos.getZ(), nearest.getX() - pos.getX()) * (180 / Math.PI) - 90;
+            double pitch = Math.atan2(nearest.getY() - pos.getY(), Math.sqrt(Math.pow(nearest.getX() - pos.getX(), 2) + Math.pow(nearest.getZ() - pos.getZ(), 2))) * (180 / Math.PI);
+            Rotations.rotate(yaw, pitch, 100);
+        }
     }
 
     public static void switchToGold() {

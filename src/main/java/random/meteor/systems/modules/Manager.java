@@ -20,9 +20,10 @@ public class  Manager {
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
         m.add(new TntAura());
-        m.add(new KillAuraBetter());
+        m.add(new Blockpos());
         m.add(new AutoGold());
         m.add(new Twerk());
+        m.add(new MinecartAura());
         m.add(new BurrowEsp());
         m.forEach(module -> Modules.get().add(module));
     }
