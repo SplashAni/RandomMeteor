@@ -5,17 +5,14 @@ import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
@@ -177,4 +174,17 @@ public class Utils {
 
         return positions.isEmpty();
     }
+    public static Block state(BlockPos pos){
+        return mc.world.getBlockState(pos).getBlock();
+    }
+    public static Direction mineDirection(BlockPos targetPos){
+        return (mc.player.getY() > targetPos.getY()) ? Direction.UP : Direction.DOWN;
+    }
+    public static Entity crystal(){
+        for(Entity e : mc.world.getEntities()){
+            if(e.getType().equals(EntityType.END_CRYSTAL)) return e;
+        }
+        return null;
+    }
+
 }

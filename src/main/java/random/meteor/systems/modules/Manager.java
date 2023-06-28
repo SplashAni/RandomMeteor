@@ -1,6 +1,8 @@
 package random.meteor.systems.modules;
 
-import meteordevelopment.meteorclient.systems.commands.Commands;
+import meteordevelopment.meteorclient.commands.Command;
+import meteordevelopment.meteorclient.commands.Command;
+import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.combat.AutoCity;
@@ -9,6 +11,7 @@ import random.meteor.systems.modules.commands.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import meteordevelopment.meteorclient.commands.Commands;
 
 public class  Manager {
     private static void addModules(){
@@ -27,20 +30,20 @@ public class  Manager {
         m.add(new MinecartAura());
         m.add(new BurrowEsp());
         m.add(new Blocker());
+        m.add(new CrystalBomb());
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){
         // Commands here
-        Commands c = Commands.get();
 
-        c.add(new Betrayed());
-        c.add(new Dupe());
-        c.add(new Unbind());
-        c.add(new Panic());
-        c.add(new Center());
-        c.add(new Crash());
-        c.add(new Ping());
-        c.add(new Title());
+        Commands.add(new Betrayed());
+        Commands.add(new Dupe());
+        Commands.add(new Unbind());
+        Commands.add(new Panic());
+        Commands.add(new Center());
+        Commands.add(new Crash());
+        Commands.add(new Ping());
+        Commands.add(new Title());
     }
     private static void addHud(){
 

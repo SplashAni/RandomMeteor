@@ -1,8 +1,9 @@
 package random.meteor.systems.modules.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import meteordevelopment.meteorclient.systems.commands.Command;
-import meteordevelopment.meteorclient.systems.commands.arguments.ModuleArgumentType;
+
+import meteordevelopment.meteorclient.commands.Command;
+import meteordevelopment.meteorclient.commands.arguments.ModuleArgumentType;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.misc.Keybind;
 import net.minecraft.command.CommandSource;
