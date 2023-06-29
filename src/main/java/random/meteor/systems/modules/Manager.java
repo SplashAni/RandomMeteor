@@ -1,17 +1,13 @@
 package random.meteor.systems.modules;
 
-import meteordevelopment.meteorclient.commands.Command;
-import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.combat.AutoCity;
 import random.meteor.systems.modules.RM.*;
 import random.meteor.systems.modules.commands.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import meteordevelopment.meteorclient.commands.Commands;
 
 public class  Manager {
     private static void addModules(){
@@ -30,6 +26,7 @@ public class  Manager {
         m.add(new MinecartAura());
         m.add(new BurrowEsp());
         m.add(new Blocker());
+        m.add(new PistonBurrow());
         m.add(new CrystalBomb());
         m.forEach(module -> Modules.get().add(module));
     }
