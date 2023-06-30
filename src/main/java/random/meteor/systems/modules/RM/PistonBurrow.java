@@ -8,6 +8,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -162,7 +163,6 @@ public class PistonBurrow extends Module {
                 pistonPos = pos.add(-2,0,0);
                 redstonePos = pos.add(-3,0,0);
 
-                mc.player.setYaw(90);
                 if(trap.get()){
                     stage = Stage.Trap;
                 }
@@ -200,7 +200,7 @@ public class PistonBurrow extends Module {
                     FindItemResult piston = InvUtils.findInHotbar(Items.PISTON, Items.STICKY_PISTON);
                     if (!piston.isHotbar()) return;
                     float yawBack = mc.player.getYaw();
-                    mc.player.setYaw(90);
+                    Rotations.rotate(90,0);
                     if (mc.player.getYaw() == 90f) {
                         if (BlockUtils.canPlace(pistonPos))
                             BlockUtils.place(pistonPos, piston, false, 50, swing.get(), true);

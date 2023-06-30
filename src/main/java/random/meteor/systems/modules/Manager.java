@@ -16,6 +16,7 @@ public class  Manager {
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
         m.add(new Prefix());
+        m.add(new PistonPush());
         m.add(new BlockClap());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
