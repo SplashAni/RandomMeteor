@@ -17,21 +17,28 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.Utils;
 
+import java.util.Objects;
+
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
+import static meteordevelopment.meteorclient.utils.player.Rotations.getYaw;
 import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 
 public class PistonPush extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
+    public int prevSlot;
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
         .name("target-range")
@@ -160,33 +167,30 @@ public class PistonPush extends Module {
             return;
         }
 
-     /*   if(alwaysRotate){
-            Rotations.rotate(pistonYaw(pistonPos), 0);
+        if(pistonPos != null && strictBypass.get()){
+            mc.player.setYaw(pistonYaw(pistonPos));
+            mc.player.setPitch(0);
         }
-
-      */
         switch (stage) {
             case Preparing -> {
                 BlockPos pos = target.getBlockPos();
                 pistonPos = pistonPos(pos);
                 buttonPos = pushPos(pos);
+                prevSlot = mc.player.getInventory().selectedSlot;
+
                 if (pistonPos == null) {
                     if (debug.get()) error("No possible positions found, toggling...");
                     toggle();
                     return;
                 }
-                //  alwaysRotate = true;
                 stage = Stage.Piston;
             }
             case Piston -> {
                 pistonTick++;
                 if (pistonTick >= pistonDelay.get()) {
-                    if (strictBypass.get()) {
-                        mc.player.setYaw(pistonYaw(pistonPos));
-                        mc.player.setPitch(0);
-                    }
-                    BlockUtils.place(pistonPos, piston, false, 0, swing.get(), true);
-                    stage = Stage.Push;
+                    place(piston);
+                        stage = Stage.Push;
+
                 }
             }
             case Push -> {
@@ -222,6 +226,20 @@ public class PistonPush extends Module {
             }
         }
     }
+    private void place(FindItemResult result) {
+        Hand hand = result.isOffhand() ? Hand.OFF_HAND : Hand.MAIN_HAND;
+
+        Rotations.rotate(getYaw(pistonPos), 0, () -> {
+            InvUtils.swap(piston.slot(), true);
+            Vec3d hitPos = Vec3d.ofCenter(pistonPos);
+            BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, pistonPos, false);
+
+            mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,bhr,1));
+            InvUtils.swapBack();
+        });
+    }
+
+
     private BlockPos pistonPos(BlockPos pos) {
         BlockPos p = pos.up(1);
         if(canPlace(p.add(-1,0,0))) return p.add(-1,0,0); // 90
