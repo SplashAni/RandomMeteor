@@ -30,7 +30,6 @@ public class PingSpoof extends Module {
 
     private final Setting<Integer> ping = sgGeneral.add(new IntSetting.Builder()
         .name("ping")
-        .description("The ping in milliseconds to add to your ping.")
         .defaultValue(500)
         .sliderMin(100)
         .sliderMax(10000)
@@ -53,7 +52,7 @@ public class PingSpoof extends Module {
     private boolean jitterSpoof = false;
 
     public PingSpoof() {
-        super(Categories.Misc, "ping-spoof", "Modify your ping.");
+        super(Categories.Misc, "ping-spoof", "");
     }
 
     @Override
