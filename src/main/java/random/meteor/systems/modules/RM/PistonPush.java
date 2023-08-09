@@ -17,18 +17,15 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.Utils;
-
-import java.util.Objects;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
@@ -38,7 +35,6 @@ import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 public class PistonPush extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
-    public int prevSlot;
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
         .name("target-range")
@@ -77,9 +73,16 @@ public class PistonPush extends Module {
         .defaultValue(true)
         .build()
     );
-    private final Setting<Boolean> strictBypass = sgGeneral.add(new BoolSetting.Builder()
-        .name("strict-bypass")
+    private final Setting<Boolean> holeFill = sgGeneral.add(new BoolSetting.Builder()
+        .name("holefill")
         .defaultValue(true)
+        .build()
+    );
+    private final Setting<Integer> holefillDelay = sgGeneral.add(new IntSetting.Builder()
+        .name("hole-fill-delay")
+        .defaultValue(1)
+        .min(1)
+        .sliderRange(1, 50)
         .build()
     );
     //k
@@ -95,6 +98,7 @@ public class PistonPush extends Module {
         .sliderRange(1, 50)
         .build()
     );
+
     // RENDER
 
     private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder()
@@ -125,32 +129,32 @@ public class PistonPush extends Module {
     public PistonPush() {
         super(Main.RM,"piston-push","button mode");
     }
-    BlockPos pistonPos,buttonPos;
+    BlockPos pistonPos,buttonPos,holefillPos;
     PlayerEntity target;
     Stage stage;
-    int rotationTick,pistonTick,buttonTick,clearTick;
+    int rotationTick,pistonTick,buttonTick,clearTick,holefillTick;
     FindItemResult piston,push;
-    boolean alwaysRotate;
     @Override
     public void onActivate() {
+        holefillPos = null;
         pistonPos =  null;
         buttonPos = null;
         target = null;
         piston = null;
         push = null;
 
+
         buttonTick = 0;
         clearTick = 0;
         pistonTick = 0;
         rotationTick = 0;
-
-        alwaysRotate = false;
+        holefillTick = 0;
 
         stage = Stage.Preparing;
         super.onActivate();
     }
     @EventHandler
-    public void onTick(TickEvent.Pre event) {
+    public void onTick(TickEvent.Post event) {
         target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
         if (isBadTarget(target, range.get())) {
             if (debug.get()) error("No target found, toggling...");
@@ -167,16 +171,12 @@ public class PistonPush extends Module {
             return;
         }
 
-        if(pistonPos != null && strictBypass.get()){
-            mc.player.setYaw(pistonYaw(pistonPos));
-            mc.player.setPitch(0);
-        }
         switch (stage) {
             case Preparing -> {
                 BlockPos pos = target.getBlockPos();
+                holefillPos = pos;
                 pistonPos = pistonPos(pos);
                 buttonPos = pushPos(pos);
-                prevSlot = mc.player.getInventory().selectedSlot;
 
                 if (pistonPos == null) {
                     if (debug.get()) error("No possible positions found, toggling...");
@@ -186,11 +186,11 @@ public class PistonPush extends Module {
                 stage = Stage.Piston;
             }
             case Piston -> {
+                Rotations.rotate(pistonYaw(pistonPos),0);
                 pistonTick++;
                 if (pistonTick >= pistonDelay.get()) {
-                    place(piston);
-                        stage = Stage.Push;
-
+                    place();
+                    stage = Stage.Push;
                 }
             }
             case Push -> {
@@ -218,26 +218,43 @@ public class PistonPush extends Module {
                         InvUtils.swap(pic.slot(), true);
                     }
                     BlockUtils.breakBlock(pistonPos, swing.get());
-                    if (Utils.state(pistonPos) == Blocks.AIR) toggle();
+                    if (Utils.state(pistonPos) == Blocks.AIR){
+                        if(holeFill.get()){
+                            stage = Stage.HoleFill;
+                        }else {
+                            toggle();
+                        }
+                    }
                     if (pic.isHotbar()) {
                         InvUtils.swapBack();
                     }
                 }
             }
+            case HoleFill -> {
+                FindItemResult obby = InvUtils.findInHotbar(Items.OBSIDIAN);
+                if(!obby.isHotbar()) {
+                    toggle();
+                }
+                else {
+                    holefillTick++;
+                    if (holefillTick >= holefillDelay.get()) {
+                        BlockUtils.place(holefillPos, obby, rotate.get(), 50, swing.get(), false);
+                        holefillTick = 0;
+                        toggle();
+                    }
+                }
+            }
         }
     }
-    private void place(FindItemResult result) {
-        Hand hand = result.isOffhand() ? Hand.OFF_HAND : Hand.MAIN_HAND;
-
-        Rotations.rotate(getYaw(pistonPos), 0, () -> {
-            InvUtils.swap(piston.slot(), true);
-            Vec3d hitPos = Vec3d.ofCenter(pistonPos);
-            BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, pistonPos, false);
-
-            mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,bhr,1));
-            InvUtils.swapBack();
-        });
+    private void place() {
+        InvUtils.swap(piston.slot(), true);
+        Vec3d hitPos = Vec3d.ofCenter(pistonPos);
+        BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, pistonPos, false);
+        if(swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
+        mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,bhr,1));
+        InvUtils.swapBack();
     }
+
 
 
     private BlockPos pistonPos(BlockPos pos) {
@@ -265,9 +282,11 @@ public class PistonPush extends Module {
         return null;
     }
 
+
     @EventHandler
     private void onRender3D(Render3DEvent event) {
         if (!render.get()) return;
+        if(holefillPos != null) event.renderer.box(buttonPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         if(buttonPos != null) event.renderer.box(buttonPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         if(pistonPos != null) event.renderer.box(pistonPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
@@ -277,6 +296,8 @@ public class PistonPush extends Module {
         Preparing,
         Piston,
         Push,
+        HoleFill,
+
         Clear
     }
 }
