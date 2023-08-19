@@ -1,17 +1,40 @@
 package random.meteor.systems.modules.RM;
 
+import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
+import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
+
 public class TargetEsp extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    private final Setting<Integer> targetRange = sgGeneral.add(new IntSetting.Builder()
+        .name("target-range")
+        .description("Range to find target.")
+        .defaultValue(8)
+        .range(1,16)
+        .sliderMax(16)
+        .build()
+    );
+    private final Setting<Boolean> self = sgGeneral.add(new BoolSetting.Builder()
+        .name("self")
+        .description("")
+        .defaultValue(true)
+        .build()
+    );
     private final Setting<shape> mode = sgGeneral.add(new EnumSetting.Builder<shape>()
         .name("shape")
         .description("what shape to render")
@@ -56,15 +79,18 @@ public class TargetEsp extends Module {
 
 
     public TargetEsp() {
-        super(Main.RM, "circle", "renders circle around player");
+        super(Main.RM, "target-esp", "very kewl renderer");
     }
 
     double currentHeight = 0.0;
     private boolean isUp = true;
 
 
+
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+
+
 
         if (isUp) {
             currentHeight += incrementSpeed.get() * 0.1;
@@ -84,33 +110,31 @@ public class TargetEsp extends Module {
 
 
     public void renderShape(Render3DEvent event) {
-        Vec3d center = mc.player.getPos();
+            Vec3d center = mc.player.getPos();
 
-        int segments = shapeSegment();
+            int segments = shapeSegment();
 
-        double yOffset = 0.0;
+            double yOffset = 0.0;
 
-        for (int i = 0; i < size.get() * 10; i++) {
-            for (int j = 0; j < segments; j++) {
-                double a1 = Math.PI * 2 * j / segments;
-                double a2 = Math.PI * 2 * (j + 1) / segments;
+            for (int i = 0; i < size.get() * 10; i++) {
+                for (int j = 0; j < segments; j++) {
+                    double a1 = Math.PI * 2 * j / segments;
+                    double a2 = Math.PI * 2 * (j + 1) / segments;
 
-                double x1 = center.x + range.get() * Math.cos(a1);
-                double y1 = center.y + currentHeight + yOffset;
-                double z1 = center.z + range.get() * Math.sin(a1);
+                    double x1 = center.x + range.get() * Math.cos(a1);
+                    double y1 = center.y + currentHeight + yOffset;
+                    double z1 = center.z + range.get() * Math.sin(a1);
 
-                double x2 = center.x + range.get() * Math.cos(a2);
-                double y2 = center.y + currentHeight + yOffset;
-                double z2 = center.z + range.get() * Math.sin(a2);
+                    double x2 = center.x + range.get() * Math.cos(a2);
+                    double y2 = center.y + currentHeight + yOffset;
+                    double z2 = center.z + range.get() * Math.sin(a2);
 
-                event.renderer.line(x1, y1, z1, x2, y2, z2, color.get());
+                    event.renderer.line(x1, y1, z1, x2, y2, z2, color.get());
+                }
+
+                yOffset -= 0.001;
             }
-
-            yOffset -= 0.001;
-        }
     }
-
-
     public int shapeSegment(){
         switch (mode.get()){
             case circle -> {
