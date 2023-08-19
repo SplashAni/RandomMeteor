@@ -8,15 +8,15 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -41,28 +41,30 @@ public class Utils {
             }
         });
     }
-    private boolean canPlace(BlockPos pos,int range) {
-      //  return (mc.world.getBlockState(pos).isAir() || mc.world.getBlockState(pos).getFluidState().getFluid() instanceof FlowableFluid) && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(pos)) <= placeRange.get() && getDamagePlace(pos);
+
+    private boolean canPlace(BlockPos pos, int range) {
+        //  return (mc.world.getBlockState(pos).isAir() || mc.world.getBlockState(pos).getFluidState().getFluid() instanceof FlowableFluid) && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(pos)) <= placeRange.get() && getDamagePlace(pos);
         return false;
     }
+
     public static final Block[] SHULKER_BLOCKS = new Block[]{
-            Blocks.SHULKER_BOX,
-            Blocks.WHITE_SHULKER_BOX,
-            Blocks.ORANGE_SHULKER_BOX,
-            Blocks.MAGENTA_SHULKER_BOX,
-            Blocks.LIGHT_BLUE_SHULKER_BOX,
-            Blocks.YELLOW_SHULKER_BOX,
-            Blocks.LIME_SHULKER_BOX,
-            Blocks.PINK_SHULKER_BOX,
-            Blocks.GRAY_SHULKER_BOX,
-            Blocks.LIGHT_GRAY_SHULKER_BOX,
-            Blocks.CYAN_SHULKER_BOX,
-            Blocks.PURPLE_SHULKER_BOX,
-            Blocks.BLUE_SHULKER_BOX,
-            Blocks.BROWN_SHULKER_BOX,
-            Blocks.GREEN_SHULKER_BOX,
-            Blocks.RED_SHULKER_BOX,
-            Blocks.BLACK_SHULKER_BOX
+        Blocks.SHULKER_BOX,
+        Blocks.WHITE_SHULKER_BOX,
+        Blocks.ORANGE_SHULKER_BOX,
+        Blocks.MAGENTA_SHULKER_BOX,
+        Blocks.LIGHT_BLUE_SHULKER_BOX,
+        Blocks.YELLOW_SHULKER_BOX,
+        Blocks.LIME_SHULKER_BOX,
+        Blocks.PINK_SHULKER_BOX,
+        Blocks.GRAY_SHULKER_BOX,
+        Blocks.LIGHT_GRAY_SHULKER_BOX,
+        Blocks.CYAN_SHULKER_BOX,
+        Blocks.PURPLE_SHULKER_BOX,
+        Blocks.BLUE_SHULKER_BOX,
+        Blocks.BROWN_SHULKER_BOX,
+        Blocks.GREEN_SHULKER_BOX,
+        Blocks.RED_SHULKER_BOX,
+        Blocks.BLACK_SHULKER_BOX
     };
 
     public static boolean goldArmor() {
@@ -73,6 +75,7 @@ public class Utils {
         }
         return false;
     }
+
     public static void rotate(EntityType en) {
         double closest = Double.MAX_VALUE;
         Vec3d pos = mc.player.getPos();
@@ -133,21 +136,7 @@ public class Utils {
         double f = blockPos1.getZ() - blockPos2.getZ();
         return MathHelper.sqrt((float) (d * d + e * e + f * f));
     }
-    public static List<BlockPos> getSphere(BlockPos centerPos, double radius, double height) {
-        ArrayList<BlockPos> blocks = new ArrayList<>();
 
-        for (int i = centerPos.getX() - (int) radius; i < centerPos.getX() + radius; i++) {
-            for (int j = centerPos.getY() - (int) height; j < centerPos.getY() + height; j++) {
-                for (int k = centerPos.getZ() - (int) radius; k < centerPos.getZ() + radius; k++) {
-                    BlockPos pos = new BlockPos(i, j, k);
-
-                    if (distanceTo(centerPos, pos) <= radius && !blocks.contains(pos)) blocks.add(pos);
-                }
-            }
-        }
-
-        return blocks;
-    }
     public static boolean isNether() {
         return mc.world.getDimension().respawnAnchorWorks();
     }
@@ -155,36 +144,21 @@ public class Utils {
     public static boolean isSelf(LivingEntity target) {
         return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
     }
-    public static boolean isSurrounded(PlayerEntity player){
-        ArrayList<BlockPos> positions = new ArrayList<>();
-        List<Entity> getEntityBoxes;
 
-        for (BlockPos blockPos : getSphere(player.getBlockPos(), 3, 1)) {
-            if (!mc.world.getBlockState(blockPos).getMaterial().isReplaceable()) continue;
-            getEntityBoxes = mc.world.getOtherEntities(null, new Box(blockPos), entity -> entity == player);
-            if (!getEntityBoxes.isEmpty()) continue;
-
-            for (Direction direction : Direction.values()) {
-                if (direction == Direction.UP || direction == Direction.DOWN) continue;
-
-                getEntityBoxes = mc.world.getOtherEntities(null, new Box(blockPos.offset(direction)), entity -> entity == player);
-                if (!getEntityBoxes.isEmpty()) positions.add(blockPos);
-            }
-        }
-
-        return positions.isEmpty();
-    }
-    public static Block state(BlockPos pos){
+    public static Block state(BlockPos pos) {
         return mc.world.getBlockState(pos).getBlock();
     }
-    public static Direction mineDirection(BlockPos targetPos){
-        return (mc.player.getY() > targetPos.getY()) ? Direction.UP : Direction.DOWN;
-    }
-    public static Entity crystal(){
-        for(Entity e : mc.world.getEntities()){
-            if(e.getType().equals(EntityType.END_CRYSTAL)) return e;
+
+    public static Entity crystal() {
+        for (Entity e : mc.world.getEntities()) {
+            if (e.getType().equals(EntityType.END_CRYSTAL)) return e;
         }
         return null;
     }
 
+    public static void swapRun(int slot, boolean back, Runnable execute) {
+        InvUtils.swap(slot, back);
+        execute.run();
+        if (back) InvUtils.swapBack();
+    }
 }

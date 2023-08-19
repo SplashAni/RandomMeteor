@@ -21,6 +21,7 @@ public class  Manager {
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
         m.add(new TntAura());
+        m.add(new TargetEsp());;
         m.add(new Blockpos());
         m.add(new AutoGold());
         m.add(new Twerk());
@@ -29,6 +30,7 @@ public class  Manager {
         m.add(new Blocker());
         m.add(new PistonBurrow());
         m.add(new CrystalBomb());
+        m.add(new GodHand());
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){
