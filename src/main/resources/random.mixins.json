@@ -1,9 +1,12 @@
 {
-  "required": false,
-  "package": "",
+  "required": true,
+  "package": "random.meteor.mixins",
   "compatibilityLevel": "JAVA_17",
-  "client": [],
+  "client": [
+  ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+  ]
 }

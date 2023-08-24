@@ -1,16 +1,16 @@
 package random.meteor;
 
+import com.mojang.logging.LogUtils;
 import io.github.racoondog.meteorsharedaddonutils.features.TitleScreenCredits;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.GithubRepo;
-import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import random.meteor.systems.modules.Manager;
-import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.item.Items;
+import net.minecraft.text.Text;
+import org.slf4j.Logger;
+import random.meteor.systems.modules.Manager;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
@@ -24,6 +24,8 @@ public class Main extends MeteorAddon {
         Manager.load();
         TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("Interia Client"))));
     }
+
+
 
     @Override
     public void onRegisterCategories() {

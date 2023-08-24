@@ -1,23 +1,14 @@
 package random.meteor.systems.modules.RM;
 
-import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
-import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
 public class TargetEsp extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -110,7 +101,10 @@ public class TargetEsp extends Module {
 
 
     public void renderShape(Render3DEvent event) {
-            Vec3d center = mc.player.getPos();
+        for (PlayerEntity player : mc.world.getPlayers()) {
+            if (!self.get() && player == mc.player) continue;
+            if(player.isInRange(mc.player,range.get())) continue;
+            Vec3d center = player.getPos();
 
             int segments = shapeSegment();
 
@@ -134,6 +128,7 @@ public class TargetEsp extends Module {
 
                 yOffset -= 0.001;
             }
+        }
     }
     public int shapeSegment(){
         switch (mode.get()){

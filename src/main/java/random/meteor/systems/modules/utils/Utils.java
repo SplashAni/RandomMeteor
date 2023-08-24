@@ -1,8 +1,10 @@
 package random.meteor.systems.modules.utils;
 
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
+import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -41,6 +43,7 @@ public class Utils {
             }
         });
     }
+
 
     private boolean canPlace(BlockPos pos, int range) {
         //  return (mc.world.getBlockState(pos).isAir() || mc.world.getBlockState(pos).getFluidState().getFluid() instanceof FlowableFluid) && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(pos)) <= placeRange.get() && getDamagePlace(pos);
@@ -161,4 +164,15 @@ public class Utils {
         execute.run();
         if (back) InvUtils.swapBack();
     }
-}
+
+        @EventHandler
+        public void tick(TickEvent.Pre event) {
+            executeTick(() -> {
+            });
+        }
+
+        public static void executeTick(Runnable run) {
+            run.run();
+        }
+    }
+

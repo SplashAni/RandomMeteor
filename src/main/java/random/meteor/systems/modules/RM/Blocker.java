@@ -79,10 +79,7 @@ public class Blocker extends Module {
     }
     BlockPos pos;
     int ticks;
-    @Override
-    public void onActivate() {
-        super.onActivate();
-    }
+
     @EventHandler
     public void onTick(TickEvent.Pre event){
         for(Entity entity : mc.world.getEntities()){
@@ -95,8 +92,9 @@ public class Blocker extends Module {
                         if (rotate.get())
                             Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity, Target.Body));
                         mc.interactionManager.attackEntity(mc.player, entity);
-                        BlockUtils.place(pos, block, rotate.get(), 50, swing.get(), true);
+                        BlockUtils.place(pos, block, rotate.get(), 50, swing.get(), false);
                         if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
+                        ticks = 0;
                         }
                     }
                 }
