@@ -1,5 +1,7 @@
 package random.meteor.systems.modules.utils;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -10,15 +12,20 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import java.awt.*;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -45,9 +52,16 @@ public class Utils {
     }
 
 
-    private boolean canPlace(BlockPos pos, int range) {
-        //  return (mc.world.getBlockState(pos).isAir() || mc.world.getBlockState(pos).getFluidState().getFluid() instanceof FlowableFluid) && Math.sqrt(mc.player.getBlockPos().getSquaredDistance(pos)) <= placeRange.get() && getDamagePlace(pos);
-        return false;
+ /*thanks daddy @EurekaEffect :wink:
+ * https://media.discordapp.net/attachments/955857188130283621/1144293552550068224/image.png?width=593&height=456*/
+
+    public static void move(int from, int to) {
+        ScreenHandler handler = mc.player.currentScreenHandler;
+
+        Int2ObjectArrayMap<ItemStack> stack = new Int2ObjectArrayMap<>();
+        stack.put(to, handler.getSlot(to).getStack());
+
+        mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(handler.syncId, handler.getRevision(), PlayerInventory.MAIN_SIZE + from, to, SlotActionType.SWAP, handler.getCursorStack().copy(), stack));
     }
 
     public static final Block[] SHULKER_BLOCKS = new Block[]{
@@ -101,6 +115,8 @@ public class Utils {
         }
     }
 
+    public void renderGradient(Render3DEvent event,BlockPos pos, Color c , Color c1){
+    }
     public static void switchToGold() {
         int goldSlot = -1;
         for (int i = 0; i < 9; i++) {
@@ -146,6 +162,9 @@ public class Utils {
 
     public static boolean isSelf(LivingEntity target) {
         return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
+    }
+    public static boolean canContinue(int timer,int delay){
+        return timer >= delay;
     }
 
     public static Block state(BlockPos pos) {

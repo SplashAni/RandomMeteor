@@ -14,25 +14,20 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 import random.meteor.systems.modules.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
-import static meteordevelopment.meteorclient.utils.player.Rotations.getYaw;
-import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
+import static random.meteor.systems.modules.utils.Utils.canContinue;
 
 public class PistonPush extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -46,13 +41,24 @@ public class PistonPush extends Module {
         .sliderMax(12)
         .build()
     );
-    public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
-        .name("mode")
-        .defaultValue(Mode.Redstone)
+    public final Setting<RotationMode> rotationMode = sgGeneral.add(new EnumSetting.Builder<RotationMode>()
+        .name("rotation-mode")
+        .defaultValue(RotationMode.None)
         .build()
     );
     private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
         .name("debug")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> instant = sgGeneral.add(new BoolSetting.Builder()
+        .name("0-tick")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> oldPistons = sgGeneral.add(new BoolSetting.Builder()
+        .name("old-pistons")
+        .description("Uses pistons that are already placed")
         .defaultValue(true)
         .build()
     );
@@ -80,6 +86,7 @@ public class PistonPush extends Module {
         .defaultValue(true)
         .build()
     );
+
     private final Setting<Boolean> holeFill = sgGeneral.add(new BoolSetting.Builder()
         .name("holefill")
         .defaultValue(true)
@@ -90,8 +97,10 @@ public class PistonPush extends Module {
         .defaultValue(1)
         .min(1)
         .sliderRange(1, 50)
+        .visible(holeFill::get)
         .build()
     );
+
     //k
     private final Setting<Boolean> clearAfter = sgGeneral.add(new BoolSetting.Builder()
         .name("clear-after")
@@ -103,6 +112,7 @@ public class PistonPush extends Module {
         .defaultValue(1)
         .min(1)
         .sliderRange(1, 50)
+        .visible(clearAfter::get)
         .build()
     );
 
@@ -136,7 +146,7 @@ public class PistonPush extends Module {
     public PistonPush() {
         super(Main.RM,"piston-push","button mode");
     }
-    BlockPos pistonPos, pushPos,holefillPos;
+    BlockPos pistonPos,holefillPos;
     PlayerEntity target;
     Stage stage;
     int rotationTick,pistonTick, pushTick,clearTick,holefillTick;
@@ -144,8 +154,7 @@ public class PistonPush extends Module {
     @Override
     public void onActivate() {
         holefillPos = null;
-        pistonPos =  null;
-        pushPos = null;
+        pistonPos = null;
         target = null;
         piston = null;
         push = null;
@@ -170,10 +179,7 @@ public class PistonPush extends Module {
         }
 
         piston = InvUtils.find(Items.PISTON, Items.STICKY_PISTON);
-        switch (mode.get()){
-            case Redstone -> push = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
-            case Button -> push = InvUtils.findInHotbar(itemStack -> Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
-        }
+        push = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
 
         if (!piston.isHotbar() || !push.isHotbar()) {
             if (debug.get()) error("Required items found, toggling...");
@@ -183,44 +189,63 @@ public class PistonPush extends Module {
 
         switch (stage) {
             case Preparing -> {
-                BlockPos pos = target.getBlockPos();
-                holefillPos = pos;
-                pistonPos = pistonPos(pos);
+                holefillPos = target.getBlockPos();
 
-                switch(mode.get()) {
-                    case Button -> pushPos = buttonPos(pos);
-                    case Redstone -> pushPos = redstonePos(pistonPos);
-                }
-                if (pistonPos == null) {
-                    if (debug.get()) error("No possible positions found, toggling...");
-                    toggle();
-                    return;
-                }
                 stage = Stage.Piston;
             }
             case Piston -> {
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(pistonPos),0,true));
-                /*
-                * first silent piston push ever? , thanks cally (:
-                * */
-                pistonTick++;
-                if (pistonTick >= pistonDelay.get() +1) {
-                    place();
-                    stage = Stage.Push;
+
+                pistonStats result = pistonPos();
+
+                if(result != null) {
+                    pistonPos = result.blockPos;
+
+                    if(instant.get()){
+                        stage = Stage.Push;
+                        return;
+                    }
+                    switch(rotationMode.get()){
+                        case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(result.direction),0,true));
+                        case PistonYaw -> Rotations.rotate(pistonYaw(result.direction),0);
+                        case PistonBlock -> Rotations.rotate(Rotations.getYaw(pistonPos),Rotations.getPitch(pistonPos));
+                    }
+
+                    pistonTick++;
+                    if (canContinue(pistonTick, pistonDelay.get() + 2)) {
+                        BlockUtils.place(result.blockPos, piston, false, 50, true, false);
+                        pistonTick = 0;
+                        if (debug.get()) info("Placed piston facing ", +pistonYaw(result.direction));
+                        if (instant.get()) {
+                            if(clearAfter.get()) {
+                                stage = Stage.Clear;
+                            }else {
+                                toggle();
+                            }
+                        } else {
+                            stage = Stage.Push;
+                        }
+                    }
+
+                }else {
+                    if (debug.get()) error("No possible positions found, toggling...");
+                    toggle();
                 }
             }
             case Push -> {
                 pushTick++;
                 if (pushTick >= pushDelay.get()) {
-                    if (pushPos == null) {
+                    if (redstonePos(pistonPos) == null) {
                         if (debug.get()) error("No push positions found,toggling...");
                         toggle();
                         return;
                     }
-                    BlockUtils.place(pushPos, push, rotate.get(), 50, swing.get(), true);
+
+                    BlockUtils.place(redstonePos(pistonPos), push, rotate.get(), 50, swing.get(), true);
 
                     if (clearAfter.get()) {
                         stage = Stage.Clear;
+                    } else if (instant.get()) {
+                        stage = Stage.Piston;
                     } else {
                         toggle();
                     }
@@ -262,50 +287,58 @@ public class PistonPush extends Module {
             }
         }
     }
-    private void place() {
-        InvUtils.swap(piston.slot(), true);
-        Vec3d hitPos = Vec3d.ofCenter(pistonPos);
-        BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, pistonPos, false);
-        if(swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
-        mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND,bhr,1));
-        InvUtils.swapBack();
+
+
+
+    public pistonStats pistonPos() {
+        BlockPos p = target.getBlockPos().up();
+
+        List<pistonStats> results = new ArrayList<>();
+
+        for (Direction d : Direction.values()) {
+            if(d == Direction.DOWN || d == Direction.UP) continue;
+
+            if (isValid(p.offset(d), Blocks.PISTON)) {
+                results.add(new pistonStats(p.offset(d), d));
+            }
+        }
+
+        if (results.isEmpty() || results.size() < 2) {/* tf dawg*/
+            return null;
+        }
+
+        return results.get(1);
     }
 
+    public int pistonYaw(Direction d){
 
+        switch (d){
+            case NORTH -> {
+                return 180;
+            }
+            case EAST -> {
+                return -90;
+            }
+            case SOUTH -> {
+                return 0;
+            }
+            case WEST -> {
+                return 90;
+            }
+        }
 
-    private BlockPos pistonPos(BlockPos pos) {
-        BlockPos p = pos.up(1);
-        if(canPlace(p.add(-1,0,0))) return p.add(-1,0,0); // 90
-        else if (canPlace(p.add(0,0,1))) return  p.add(0,0,1); // 360
-        else if (canPlace(p.add(1,0,0))) return  p.add(1,0,0); // -90
-        else if (canPlace(p.add(0,0,-1))) return  p.add(0,0,-1); //180
-        return null;
-    }
-    private float pistonYaw(BlockPos pos) {
-        BlockPos p = pos.up(1);
-        if(canPlace(p.add(-1,0,0))) return 90;
-        else if (canPlace(p.add(0,0,1))) return 360;
-        else if (canPlace(p.add(1,0,0))) return  -90;
-        else if (canPlace(p.add(0,0,-1))) return  180;
         return 0;
     }
-    private BlockPos buttonPos(BlockPos pos) {
-        BlockPos p = pos.up(1);
-        if(canPlace(p.add(-1,0,0))) return p.add(-2,0,0); // 90
-        else if (canPlace(p.add(0,0,1))) return  p.add(0,0,2); // 360
-        else if (canPlace(p.add(1,0,0))) return  p.add(2,0,0); // -90
-        else if (canPlace(p.add(0,0,-1))) return  p.add(0,0,-2); //180
-        return null;
+    public boolean isValid(BlockPos pos, Block block) {
+        return BlockUtils.canPlace(pos) || (oldPistons.get() && Utils.state(pos).equals(block));
     }
+
+    public record pistonStats(BlockPos blockPos, Direction direction) {}
+
     private BlockPos redstonePos(BlockPos pos){
+        if(pos == null) return null;
         ArrayList<BlockPos> poses = new ArrayList<>();
         for(Direction dir : Direction.values()) {
-            /*
-            * insane epxlaning by splashabi
-            * streams all directions , basically - 1 and 1
-            * once that is done it checks if can place if it can place it adds to arraylis
-            * if aray lis is empty it null otherwise it returns the blockpowos (:
-            * */
             if(BlockUtils.canPlace(pos.offset(dir))) poses.add(pos.offset(dir));
         }
         if(poses.isEmpty()) return null;
@@ -317,9 +350,8 @@ public class PistonPush extends Module {
     @EventHandler
     private void onRender3D(Render3DEvent event) {
         if (!render.get()) return;
-        if(holefillPos != null) event.renderer.box(pushPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-        if(pushPos != null) event.renderer.box(pushPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         if(pistonPos != null) event.renderer.box(pistonPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+        if(redstonePos(pistonPos)!= null) event.renderer.box(redstonePos(pistonPos), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 
 
@@ -331,8 +363,9 @@ public class PistonPush extends Module {
 
         Clear
     }
-    public enum Mode{
-        Button,
-        Redstone;
+    public enum RotationMode {
+        PistonYaw,
+        PistonBlock,
+        None
     }
 }

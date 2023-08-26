@@ -30,11 +30,13 @@ public class  Manager {
         m.add(new Blocker());
         m.add(new PistonBurrow());
         m.add(new CrystalBomb());
-        m.add(new Trails());
         m.add(new GodHand());
+        m.add(new InstantMend());
         m.add(new Stats());
+        m.add(new AutoBed());
         m.add(new FakeKick());
-        m.add(new NoInterp());
+        m.add(new PistonAura());
+
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){

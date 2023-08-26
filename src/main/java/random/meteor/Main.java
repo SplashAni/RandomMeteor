@@ -16,7 +16,11 @@ public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static final Category RM = new Category("RM", Items.AIR.getDefaultStack());
 
-
+/*
+* todo
+*  https://stackoverflow.com/questions/34490218/how-to-make-a-windows-notification-in-java
+* make notifications use windows totast
+* */
     @Override
     public void onInitialize() {
         LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
