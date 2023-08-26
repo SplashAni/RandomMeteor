@@ -14,6 +14,7 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -28,6 +29,7 @@ import java.util.List;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 import static random.meteor.systems.modules.utils.Utils.canContinue;
+import static random.meteor.systems.modules.utils.Utils.increment;
 
 public class PistonPush extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -46,16 +48,17 @@ public class PistonPush extends Module {
         .defaultValue(RotationMode.None)
         .build()
     );
+    public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
+        .name("item-mode")
+        .defaultValue(Mode.RedstoneBlock)
+        .build()
+    );
     private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
         .name("debug")
         .defaultValue(true)
         .build()
     );
-    private final Setting<Boolean> instant = sgGeneral.add(new BoolSetting.Builder()
-        .name("0-tick")
-        .defaultValue(true)
-        .build()
-    );
+
     private final Setting<Boolean> oldPistons = sgGeneral.add(new BoolSetting.Builder()
         .name("old-pistons")
         .description("Uses pistons that are already placed")
@@ -179,7 +182,15 @@ public class PistonPush extends Module {
         }
 
         piston = InvUtils.find(Items.PISTON, Items.STICKY_PISTON);
-        push = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
+
+        switch (mode.get()){
+            case Button -> {
+                push = InvUtils.findInHotbar(itemStack ->  Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
+            }
+            case RedstoneBlock -> {
+                push = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
+            }
+        }
 
         if (!piston.isHotbar() || !push.isHotbar()) {
             if (debug.get()) error("Required items found, toggling...");
@@ -200,10 +211,6 @@ public class PistonPush extends Module {
                 if(result != null) {
                     pistonPos = result.blockPos;
 
-                    if(instant.get()){
-                        stage = Stage.Push;
-                        return;
-                    }
                     switch(rotationMode.get()){
                         case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(result.direction),0,true));
                         case PistonYaw -> Rotations.rotate(pistonYaw(result.direction),0);
@@ -214,16 +221,10 @@ public class PistonPush extends Module {
                     if (canContinue(pistonTick, pistonDelay.get() + 2)) {
                         BlockUtils.place(result.blockPos, piston, false, 50, true, false);
                         pistonTick = 0;
-                        if (debug.get()) info("Placed piston facing ", +pistonYaw(result.direction));
-                        if (instant.get()) {
-                            if(clearAfter.get()) {
-                                stage = Stage.Clear;
-                            }else {
-                                toggle();
-                            }
-                        } else {
-                            stage = Stage.Push;
-                        }
+                        if (debug.get()) info("Placed piston facing " + result.direction.toString());
+
+                        stage = Stage.Push;
+
                     }
 
                 }else {
@@ -234,18 +235,27 @@ public class PistonPush extends Module {
             case Push -> {
                 pushTick++;
                 if (pushTick >= pushDelay.get()) {
-                    if (redstonePos(pistonPos) == null) {
+                    pistonStats result = pistonPos();
+
+                    BlockPos targetPos = null;
+
+                    switch (mode.get()){
+                        case RedstoneBlock -> targetPos = redstonePos(pistonPos);
+                        case Button -> targetPos = incrementPos(pistonPos,result.direction);
+                    }
+
+
+
+                    if (targetPos== null) {
                         if (debug.get()) error("No push positions found,toggling...");
                         toggle();
                         return;
                     }
 
-                    BlockUtils.place(redstonePos(pistonPos), push, rotate.get(), 50, swing.get(), true);
+                    BlockUtils.place(targetPos, push, rotate.get(), 50, swing.get(), true);
 
                     if (clearAfter.get()) {
                         stage = Stage.Clear;
-                    } else if (instant.get()) {
-                        stage = Stage.Piston;
                     } else {
                         toggle();
                     }
@@ -329,6 +339,18 @@ public class PistonPush extends Module {
 
         return 0;
     }
+    public BlockPos incrementPos(BlockPos pos, Direction d) {
+        switch (d) {
+            case NORTH, SOUTH -> {
+                return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + increment(pos.getZ()));
+            }
+            case WEST, EAST -> {
+                return new BlockPos(pos.getX() + increment(pos.getX()), pos.getY(), pos.getZ());
+            }
+        }
+        return pos;
+    }
+
     public boolean isValid(BlockPos pos, Block block) {
         return BlockUtils.canPlace(pos) || (oldPistons.get() && Utils.state(pos).equals(block));
     }
@@ -345,7 +367,6 @@ public class PistonPush extends Module {
 
         return poses.get(0);
     }
-
 
     @EventHandler
     private void onRender3D(Render3DEvent event) {
@@ -367,5 +388,9 @@ public class PistonPush extends Module {
         PistonYaw,
         PistonBlock,
         None
+    }
+    public enum Mode {
+        Button,
+        RedstoneBlock
     }
 }

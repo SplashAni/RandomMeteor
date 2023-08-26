@@ -2,11 +2,9 @@ package random.meteor.systems.modules.utils;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
-import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -52,8 +50,8 @@ public class Utils {
     }
 
 
- /*thanks daddy @EurekaEffect :wink:
- * https://media.discordapp.net/attachments/955857188130283621/1144293552550068224/image.png?width=593&height=456*/
+    /*thanks daddy @EurekaEffect :wink:
+     * https://media.discordapp.net/attachments/955857188130283621/1144293552550068224/image.png?width=593&height=456*/
 
     public static void move(int from, int to) {
         ScreenHandler handler = mc.player.currentScreenHandler;
@@ -115,8 +113,9 @@ public class Utils {
         }
     }
 
-    public void renderGradient(Render3DEvent event,BlockPos pos, Color c , Color c1){
+    public void renderGradient(Render3DEvent event, BlockPos pos, Color c, Color c1) {
     }
+
     public static void switchToGold() {
         int goldSlot = -1;
         for (int i = 0; i < 9; i++) {
@@ -163,7 +162,8 @@ public class Utils {
     public static boolean isSelf(LivingEntity target) {
         return mc.player.getBlockPos().getX() == target.getBlockPos().getX() && mc.player.getBlockPos().getZ() == target.getBlockPos().getZ() && mc.player.getBlockPos().getY() == target.getBlockPos().getY();
     }
-    public static boolean canContinue(int timer,int delay){
+
+    public static boolean canContinue(int timer, int delay) {
         return timer >= delay;
     }
 
@@ -184,14 +184,12 @@ public class Utils {
         if (back) InvUtils.swapBack();
     }
 
-        @EventHandler
-        public void tick(TickEvent.Pre event) {
-            executeTick(() -> {
-            });
-        }
-
-        public static void executeTick(Runnable run) {
-            run.run();
+    public static int increment(int i) {
+        if (i < 0) {
+            return i - 1;
+        } else {
+            return i + 1;
         }
     }
 
+}
