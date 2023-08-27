@@ -1,10 +1,8 @@
 package random.meteor.systems.modules.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -52,7 +50,7 @@ public class StatsScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Stats s= Modules.get().get(Stats.class);
+        Stats s = Modules.get().get(Stats.class);
         int width = this.client.getWindow().getScaledWidth();
         int height = this.client.getWindow().getScaledHeight();
         int bWidth = 263;
@@ -60,9 +58,10 @@ public class StatsScreen extends Screen {
 
         int bX = (width - bWidth) / 2;
         int bY = (height - bHeight) / 2;
+
         DrawableHelper.fill(matrices, bX, bY, bX + bWidth, bY + bHeight, new Color(20, 20, 20, 200).getRGB());
 
-        int borderColor = new Color(255, 255, 255, 200).getRGB(); // You can adjust the color as needed
+        int borderColor = new Color(255, 255, 255, 200).getRGB();
 
         for (int i = 0; i < 4; i++) {
             int startX, startY, endX, endY;
@@ -86,7 +85,7 @@ public class StatsScreen extends Screen {
                     endX = bX + bWidth + 1;
                     endY = bY + bHeight;
                 }
-                case 3 -> { // Bottom line
+                case 3 -> {
                     startX = bX - 1;
                     startY = bY + bHeight;
                     endX = bX + bWidth + 1;
@@ -98,15 +97,20 @@ public class StatsScreen extends Screen {
             DrawableHelper.fill(matrices, startX, startY, endX, endY, borderColor);
         }
 
-        DrawableHelper.fill(matrices, bX, bY, bX + bWidth, bY + bHeight, new Color(20, 20, 20, 200).getRGB());
-
-        String title = "Stats of " + mc.getNetworkHandler().getProfile().getName();
+        // Title
+        String title = "Stats of " + mc.getSession().getUsername();
         int textWidth = (int) TextRenderer.get().getWidth(title);
         int textX = bX + (bWidth - textWidth) / 2;
 
-        RenderSystem.setShaderTexture(0, mc.player.getSkinTexture());
-        PlayerSkinDrawer.draw(matrices, bX + 208, 50, 20, true, false);
-        TextRenderer.get().render(title, textX, -5, new meteordevelopment.meteorclient.utils.render.color.Color(Color.WHITE));
+        int skinX = bX + (bWidth - 20) / 2;  // Adjust skin X position based on box width
+        int skinY = bY + 50;  // Keep the same skin Y position
+
+        int titleX = bX + (bWidth - textWidth) / 2;  // Adjust title X position based on box width
+        int titleY = bY - 5;  // Keep the same title Y position
+
+//        RenderSystem.setShaderTexture(0, mc.player.getSkinTexture());
+  //      PlayerSkinDrawer.draw(matrices, skinX, skinY, 20, true, false);
+        TextRenderer.get().render(title, titleX, titleY, new meteordevelopment.meteorclient.utils.render.color.Color(Color.WHITE));
 
         String[] info = {
             "Kills: ",
@@ -117,15 +121,19 @@ public class StatsScreen extends Screen {
         };
 
         int lineHeight = (int) TextRenderer.get().getHeight();
-        int incrementY = 45;
+        int incrementY = bY + 45;
 
         for (String line : info) {
             TextRenderer.get().render(line, textX, incrementY, new meteordevelopment.meteorclient.utils.render.color.Color(Color.WHITE));
             incrementY += lineHeight + 5;
         }
 
-        GuiUtils.renderButton(matrices,268,250,"Delete",-62);
-        GuiUtils.renderButton(matrices,350,250,"Reset",-62);
+        int buttonY = bY + bHeight - 50;
+        int buttonDeleteX = bX + 5;
+        int buttonResetX = bX + bWidth - 70;
+
+        GuiUtils.renderButton(matrices, buttonDeleteX, buttonY, "Delete", -62);
+        GuiUtils.renderButton(matrices, buttonResetX, buttonY, "Reset", -62);
 
         super.render(matrices, mouseX, mouseY, delta);
     }

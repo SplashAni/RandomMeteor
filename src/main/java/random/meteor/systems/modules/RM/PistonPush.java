@@ -21,6 +21,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
+import random.meteor.systems.modules.utils.PistonInfo;
 import random.meteor.systems.modules.utils.Utils;
 
 import java.util.ArrayList;
@@ -154,6 +155,8 @@ public class PistonPush extends Module {
     Stage stage;
     int rotationTick,pistonTick, pushTick,clearTick,holefillTick;
     FindItemResult piston,push;
+    private PistonInfo pistonInfo;
+
     @Override
     public void onActivate() {
         holefillPos = null;
@@ -201,27 +204,33 @@ public class PistonPush extends Module {
         switch (stage) {
             case Preparing -> {
                 holefillPos = target.getBlockPos();
+                pistonInfo = pistonPos();
 
-                stage = Stage.Piston;
+                if (pistonInfo == null) {
+                    if (debug.get()) error("No possible positions found, toggling...");
+                    toggle();
+                } else {
+                    stage = Stage.Piston;
+                }
             }
             case Piston -> {
 
-                pistonStats result = pistonPos();
+                PistonInfo result = pistonPos();
 
                 if(result != null) {
-                    pistonPos = result.blockPos;
+                    pistonPos = pistonInfo.pos();
 
                     switch(rotationMode.get()){
-                        case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(result.direction),0,true));
-                        case PistonYaw -> Rotations.rotate(pistonYaw(result.direction),0);
+                        case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(pistonInfo.direction()),0,true));
+                        case PistonYaw -> Rotations.rotate(pistonYaw(pistonInfo.direction()),0);
                         case PistonBlock -> Rotations.rotate(Rotations.getYaw(pistonPos),Rotations.getPitch(pistonPos));
                     }
 
                     pistonTick++;
                     if (canContinue(pistonTick, pistonDelay.get() + 2)) {
-                        BlockUtils.place(result.blockPos, piston, false, 50, true, false);
+                        BlockUtils.place(pistonInfo.pos(), piston, false, 50, true, false);
                         pistonTick = 0;
-                        if (debug.get()) info("Placed piston facing " + result.direction.toString());
+                        if (debug.get()) info("Placed piston facing " + pistonInfo.direction());
 
                         stage = Stage.Push;
 
@@ -235,13 +244,12 @@ public class PistonPush extends Module {
             case Push -> {
                 pushTick++;
                 if (pushTick >= pushDelay.get()) {
-                    pistonStats result = pistonPos();
 
                     BlockPos targetPos = null;
 
                     switch (mode.get()){
                         case RedstoneBlock -> targetPos = redstonePos(pistonPos);
-                        case Button -> targetPos = incrementPos(pistonPos,result.direction);
+                        case Button -> targetPos = incrementPos(pistonPos,pistonInfo.direction());
                     }
 
 
@@ -300,25 +308,26 @@ public class PistonPush extends Module {
 
 
 
-    public pistonStats pistonPos() {
+    public PistonInfo pistonPos() {
         BlockPos p = target.getBlockPos().up();
 
-        List<pistonStats> results = new ArrayList<>();
+        List<PistonInfo> results = new ArrayList<>();
 
         for (Direction d : Direction.values()) {
-            if(d == Direction.DOWN || d == Direction.UP) continue;
+            if (d == Direction.DOWN || d == Direction.UP) continue;
 
             if (isValid(p.offset(d), Blocks.PISTON)) {
-                results.add(new pistonStats(p.offset(d), d));
+                results.add(new PistonInfo(p.offset(d), d));
             }
         }
 
-        if (results.isEmpty() || results.size() < 2) {/* tf dawg*/
+        if (results.isEmpty() || results.size() < 2) {
             return null;
         }
 
         return results.get(1);
     }
+
 
     public int pistonYaw(Direction d){
 
@@ -355,7 +364,6 @@ public class PistonPush extends Module {
         return BlockUtils.canPlace(pos) || (oldPistons.get() && Utils.state(pos).equals(block));
     }
 
-    public record pistonStats(BlockPos blockPos, Direction direction) {}
 
     private BlockPos redstonePos(BlockPos pos){
         if(pos == null) return null;
