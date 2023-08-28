@@ -4,6 +4,7 @@ import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.systems.modules.RM.*;
+import random.meteor.systems.modules.RM.PistonAura.PistonAura;
 import random.meteor.systems.modules.commands.*;
 
 import java.util.ArrayList;

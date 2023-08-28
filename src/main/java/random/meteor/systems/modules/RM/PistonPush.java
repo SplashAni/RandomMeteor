@@ -154,14 +154,16 @@ public class PistonPush extends Module {
         .defaultValue(new SettingColor(225, 0, 0, 255))
         .build()
     );
+
     public PistonPush() {
-        super(Main.RM,"piston-push","button mode");
+        super(Main.RM, "piston-push", "button mode");
     }
-    BlockPos pistonPos,holefillPos;
+
+    BlockPos pistonPos, holefillPos;
     PlayerEntity target;
     Stage stage;
-    int rotationTick,pistonTick, pushTick,clearTick,holefillTick;
-    FindItemResult piston,push;
+    int rotationTick, pistonTick, pushTick, clearTick, holefillTick;
+    FindItemResult piston, push;
     private PistonInfo pistonInfo;
 
     @Override
@@ -182,6 +184,7 @@ public class PistonPush extends Module {
         stage = Stage.Preparing;
         super.onActivate();
     }
+
     @EventHandler
     public void onTick(TickEvent.Post event) {
         target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
@@ -193,9 +196,9 @@ public class PistonPush extends Module {
 
         piston = InvUtils.find(Items.PISTON, Items.STICKY_PISTON);
 
-        switch (mode.get()){
+        switch (mode.get()) {
             case Torch -> {
-              // soon trademarks  push = InvUtils.findInHotbar(itemStack ->  Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
+                // soon trademarks  push = InvUtils.findInHotbar(itemStack ->  Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
                 push = InvUtils.findInHotbar(Items.REDSTONE_TORCH);
             }
             case RedstoneBlock -> {
@@ -225,13 +228,14 @@ public class PistonPush extends Module {
 
                 PistonInfo result = pistonPos();
 
-                if(result != null) {
+                if (result != null) {
                     pistonPos = pistonInfo.pos();
 
-                    switch(rotationMode.get()){
-                        case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(pistonInfo.direction()),0,true));
-                        case PistonYaw -> Rotations.rotate(pistonYaw(pistonInfo.direction()),0);
-                        case PistonBlock -> Rotations.rotate(Rotations.getYaw(pistonPos),Rotations.getPitch(pistonPos));
+                    switch (rotationMode.get()) {
+                        case None ->
+                            mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(pistonInfo.direction()), 0, true));
+                        case PistonYaw -> Rotations.rotate(pistonYaw(pistonInfo.direction()), 0);
+                        case PistonBlock -> Rotations.rotate(Rotations.getYaw(pistonPos), Rotations.getPitch(pistonPos));
                     }
 
                     pistonTick++;
@@ -244,7 +248,7 @@ public class PistonPush extends Module {
 
                     }
 
-                }else {
+                } else {
                     if (debug.get()) error("No possible positions found, toggling...");
                     toggle();
                 }
@@ -255,7 +259,7 @@ public class PistonPush extends Module {
 
                     BlockPos targetPos = null;
 
-                    switch (mode.get()){
+                    switch (mode.get()) {
                         case RedstoneBlock -> {
                             targetPos = redstonePos(pistonPos);
                         }
@@ -265,7 +269,7 @@ public class PistonPush extends Module {
                         }
                     }
 
-                    if (targetPos== null) {
+                    if (targetPos == null) {
                         if (debug.get()) error("No push positions found,toggling...");
                         toggle();
                         return;
@@ -289,10 +293,10 @@ public class PistonPush extends Module {
                         InvUtils.swap(pic.slot(), true);
                     }
                     BlockUtils.breakBlock(pistonPos, swing.get());
-                    if (Utils.state(pistonPos) == Blocks.AIR){
-                        if(holeFill.get()){
+                    if (Utils.state(pistonPos) == Blocks.AIR) {
+                        if (holeFill.get()) {
                             stage = Stage.HoleFill;
-                        }else {
+                        } else {
                             toggle();
                         }
                     }
@@ -303,10 +307,9 @@ public class PistonPush extends Module {
             }
             case HoleFill -> {
                 FindItemResult obby = InvUtils.findInHotbar(Items.OBSIDIAN);
-                if(!obby.isHotbar()) {
+                if (!obby.isHotbar()) {
                     toggle();
-                }
-                else {
+                } else {
                     holefillTick++;
                     if (holefillTick >= holefillDelay.get()) {
                         BlockUtils.place(holefillPos, obby, rotate.get(), 50, swing.get(), false);
@@ -317,7 +320,6 @@ public class PistonPush extends Module {
             }
         }
     }
-
 
 
     public PistonInfo pistonPos() {
@@ -341,25 +343,14 @@ public class PistonPush extends Module {
     }
 
 
-    public int pistonYaw(Direction d){
-
-        switch (d){
-            case NORTH -> {
-                return 180;
-            }
-            case EAST -> {
-                return -90;
-            }
-            case SOUTH -> {
-                return 0;
-            }
-            case WEST -> {
-                return 90;
-            }
-
-        }
-
-        return 0;
+    public int pistonYaw(Direction d) {
+        return switch (d) {
+            case NORTH -> 180;
+            case EAST -> -90;
+            case SOUTH -> 0;
+            case WEST -> 90;
+            default -> throw new IllegalStateException("Unexpected value: " + d);
+        };
     }
 
 
