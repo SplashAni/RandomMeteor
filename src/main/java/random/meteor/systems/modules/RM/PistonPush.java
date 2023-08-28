@@ -14,8 +14,8 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
@@ -29,8 +29,9 @@ import java.util.List;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
+import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 import static random.meteor.systems.modules.utils.Utils.canContinue;
-import static random.meteor.systems.modules.utils.Utils.increment;
+import static random.meteor.systems.modules.utils.Utils.isBlock;
 
 public class PistonPush extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -52,6 +53,12 @@ public class PistonPush extends Module {
     public final Setting<Mode> mode = sgGeneral.add(new EnumSetting.Builder<Mode>()
         .name("item-mode")
         .defaultValue(Mode.RedstoneBlock)
+        .build()
+    );
+    private final Setting<Boolean> torchBase = sgGeneral.add(new BoolSetting.Builder()
+        .name("torch-base")
+        .visible(() -> mode.get().equals(Mode.Torch))
+        .defaultValue(true)
         .build()
     );
     private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
@@ -187,8 +194,9 @@ public class PistonPush extends Module {
         piston = InvUtils.find(Items.PISTON, Items.STICKY_PISTON);
 
         switch (mode.get()){
-            case Button -> {
-                push = InvUtils.findInHotbar(itemStack ->  Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
+            case Torch -> {
+              // soon trademarks  push = InvUtils.findInHotbar(itemStack ->  Block.getBlockFromItem(itemStack.getItem()) instanceof ButtonBlock);
+                push = InvUtils.findInHotbar(Items.REDSTONE_TORCH);
             }
             case RedstoneBlock -> {
                 push = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
@@ -248,17 +256,21 @@ public class PistonPush extends Module {
                     BlockPos targetPos = null;
 
                     switch (mode.get()){
-                        case RedstoneBlock -> targetPos = redstonePos(pistonPos);
-                        case Button -> targetPos = incrementPos(pistonPos,pistonInfo.direction());
+                        case RedstoneBlock -> {
+                            targetPos = redstonePos(pistonPos);
+                        }
+                        case Torch -> {
+                            targetPos = torchPos(pistonPos);
+
+                        }
                     }
-
-
 
                     if (targetPos== null) {
                         if (debug.get()) error("No push positions found,toggling...");
                         toggle();
                         return;
                     }
+
 
                     BlockUtils.place(targetPos, push, rotate.get(), 50, swing.get(), true);
 
@@ -344,32 +356,45 @@ public class PistonPush extends Module {
             case WEST -> {
                 return 90;
             }
+
         }
 
         return 0;
     }
-    public BlockPos incrementPos(BlockPos pos, Direction d) {
-        switch (d) {
-            case NORTH, SOUTH -> {
-                return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + increment(pos.getZ()));
-            }
-            case WEST, EAST -> {
-                return new BlockPos(pos.getX() + increment(pos.getX()), pos.getY(), pos.getZ());
-            }
-        }
-        return pos;
-    }
+
 
     public boolean isValid(BlockPos pos, Block block) {
-        return BlockUtils.canPlace(pos) || (oldPistons.get() && Utils.state(pos).equals(block));
+        return canPlace(pos) || (oldPistons.get() && Utils.state(pos).equals(block));
     }
 
+    private BlockPos torchPos(BlockPos pos) {
+        if (pos == null) return null;
 
+        for (Direction d : Direction.values()) {
+
+            if (d == Direction.DOWN || d == Direction.UP) continue;
+            BlockPos p = pos.offset(d).down();
+
+                if (isBlock(p)) {
+                    return p.up();
+                } else if (torchBase.get() && canPlace(p)) {
+                    FindItemResult i = InvUtils.findInHotbar(j -> j.getItem() instanceof BlockItem);
+                    if (!i.isHotbar()) return null;
+                    BlockUtils.place(p, i, rotate.get(), 69, true);
+                    return p.up();
+
+                } else return null;
+
+        }
+        return null;
+    }
     private BlockPos redstonePos(BlockPos pos){
         if(pos == null) return null;
         ArrayList<BlockPos> poses = new ArrayList<>();
-        for(Direction dir : Direction.values()) {
-            if(BlockUtils.canPlace(pos.offset(dir))) poses.add(pos.offset(dir));
+        for(Direction d : Direction.values()) {
+
+            if(canPlace(pos.offset(d))) poses.add(pos.offset(d));
+
         }
         if(poses.isEmpty()) return null;
 
@@ -382,7 +407,6 @@ public class PistonPush extends Module {
         if(pistonPos != null) event.renderer.box(pistonPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         if(redstonePos(pistonPos)!= null) event.renderer.box(redstonePos(pistonPos), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
-
 
     private enum Stage{
         Preparing,
@@ -398,7 +422,7 @@ public class PistonPush extends Module {
         None
     }
     public enum Mode {
-        Button,
+        Torch,
         RedstoneBlock
     }
 }

@@ -1,7 +1,6 @@
 package random.meteor.systems.modules.utils;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
@@ -23,7 +22,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.awt.*;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -113,8 +111,7 @@ public class Utils {
         }
     }
 
-    public void renderGradient(Render3DEvent event, BlockPos pos, Color c, Color c1) {
-    }
+
 
     public static void switchToGold() {
         int goldSlot = -1;
@@ -183,13 +180,7 @@ public class Utils {
         execute.run();
         if (back) InvUtils.swapBack();
     }
-
-    public static int increment(int i) {
-        if (i < 0) {
-            return i - 1;
-        } else {
-            return i + 1;
-        }
+    public static boolean isBlock(BlockPos p){
+        return state(p).equals(Blocks.AIR);
     }
-
 }

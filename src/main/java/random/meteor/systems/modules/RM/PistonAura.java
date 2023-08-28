@@ -6,16 +6,16 @@ import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import random.meteor.Main;
-
-import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
-import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
+import random.meteor.systems.modules.utils.Utils;
 
 public class PistonAura extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -32,29 +32,50 @@ public class PistonAura extends Module {
         .defaultValue(true)
         .build()
     );
+
     public PistonAura() {
-        super(Main.RM,"piston-aura","");
+        super(Main.RM, "piston-aura", "");
     }
+
     int ticks;
     PlayerEntity target;
+
     @Override
     public void onActivate() {
 
         super.onActivate();
     }
+
     @EventHandler
-    public void onTick(TickEvent.Pre event){
+    public void onTick(TickEvent.Pre event) {
 
-        target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
-        if (isBadTarget(target, range.get())) {
-            if (debug.get()) error("No target found, toggling...");
-            toggle();
-            return;
+
+        FindItemResult torch = InvUtils.findInHotbar(Items.REDSTONE_TORCH);
+
+        if (torch.isHotbar()) {
+            BlockPos p = mc.player.getBlockPos().up().add(1, 0, 0);
+            BlockUtils.place(torchPos(p), torch, 60, true);
+        }
+    }
+
+    public BlockPos torchPos(BlockPos pos) {
+        FindItemResult blockToPlace = InvUtils.findInHotbar(Items.OBSIDIAN);
+        BlockPos blockPosToPlace = null;
+
+        for (Direction d : Direction.values()) {
+            if (d == Direction.UP || d == Direction.DOWN) continue;
+
+            BlockPos p = pos.down().offset(d);
+
+            if (Utils.isBlock(p)) {
+                blockPosToPlace = p.up();
+            } else {
+                blockPosToPlace = p;
+                if (BlockUtils.place(p, blockToPlace, true, 60, true)) {
+                }
+            }
         }
 
-        FindItemResult piston = InvUtils.findInHotbar(Items.PISTON);
-
-        }
-
-
+        return blockPosToPlace;
+    }
 }

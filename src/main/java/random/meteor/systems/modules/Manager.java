@@ -33,6 +33,7 @@ public class  Manager {
         m.add(new GodHand());
         m.add(new InstantMend());
         m.add(new Stats());
+        m.add(new AutoMine());
         m.add(new AutoBed());
         m.add(new FakeKick());
         m.add(new PistonAura());
