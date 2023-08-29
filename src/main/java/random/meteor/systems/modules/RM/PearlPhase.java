@@ -47,18 +47,10 @@ public class PearlPhase extends Module {
             PlayerUtils.centerPlayer();
 
                 switch (pearlPos.get()) {
-                    case Default -> {
-                        Utils.throwPearl(72);
-                    }
-                    case Custom -> {
-                        Utils.throwPearl(customPitch.get());
-                    }
-                    case Top -> {
-                        Utils.throwPearl(-90);
-                    }
-                    case Bottom -> {
-                        Utils.throwPearl(90);
-                    }
+                    case Default -> Utils.throwPearl(72);
+                    case Custom -> Utils.throwPearl(customPitch.get());
+                    case Top -> Utils.throwPearl(-90);
+                    case Bottom -> Utils.throwPearl(90);
                 }
             if (notify.get()) {
                 info("Threw pearl, toggling...");

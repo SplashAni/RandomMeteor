@@ -1,18 +1,17 @@
 package random.meteor.systems.modules.RM.PistonAura;
 
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
-import meteordevelopment.orbit.EventHandler;
-import net.minecraft.entity.player.PlayerEntity;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
+import random.meteor.systems.modules.utils.PistonInfo;
 
 public class PistonAura extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -34,25 +33,39 @@ public class PistonAura extends Module {
         super(Main.RM, "piston-aura", "");
     }
 
-    int ticks;
-    PlayerEntity target;
+
 
     @Override
     public void onActivate() {
+        PistonPosition pistonPosition = new PistonPosition(mc.player.getBlockPos(),true);
 
+        PistonPosition.Position p = pistonPosition.calculated();
+
+        if(p == null){
+            toggle();
+            return;
+        }
+        PistonInfo pi = p.pi();
+
+
+        if (p.createBase() && p.base() != null) {
+            FindItemResult ob = InvUtils.findInHotbar(Items.OBSIDIAN);
+            BlockUtils.place(p.base(), ob, true, 100, true);
+            ChatUtils.sendPlayerMsg(p.base().toShortString());
+
+            if(pi == null) return;
+            FindItemResult o= InvUtils.findInHotbar(Items.PISTON);
+
+
+            BlockUtils.place(p.pi().pos().up(),o, true, 100, true);
+            ChatUtils.sendPlayerMsg(p.base().up().toShortString() + " piston");
+        }
+
+
+        assert mc.player != null;
+
+        toggle();
         super.onActivate();
     }
-
-    @EventHandler
-    public void onTick(TickEvent.Pre event) {
-
-
-        FindItemResult torch = InvUtils.findInHotbar(Items.REDSTONE_TORCH);
-
-        if (torch.isHotbar()) {
-            BlockPos p = mc.player.getBlockPos().up().add(1, 0, 0);
-        }
-    }
-
 
 }
