@@ -8,5 +8,8 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "DiscordPresenceMixin",
+    "KillAuraMixin",
+    "SurroundMixin"
   ]
 }

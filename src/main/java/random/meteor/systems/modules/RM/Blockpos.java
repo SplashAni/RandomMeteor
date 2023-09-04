@@ -2,11 +2,12 @@ package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
+import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import meteordevelopment.meteorclient.utils.world.Dir;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -54,29 +55,29 @@ public class Blockpos extends Module {
             .build()
     );
 
-    //RENDER
-    private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode")
-            .description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both)
-            .build()
-    );
 
-    private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color")
+    private final Setting<SettingColor> tp = sgRender.add(new ColorSetting.Builder()
+            .name("top")
             .description("The side color of the rendering.")
             .defaultValue(new SettingColor(225, 0, 0, 75))
             .build()
     );
 
-    private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color")
+    private final Setting<SettingColor> br = sgRender.add(new ColorSetting.Builder()
+            .name("bottom")
             .description("The line color of the rendering.")
             .defaultValue(new SettingColor(225, 0, 0, 255))
             .build()
     );
 
 
+    private final Setting<Integer> h = sgGeneral.add(new IntSetting.Builder()
+        .name("height")
+        .defaultValue(1)
+        .range(1,4)
+        .sliderMax(4)
+        .build()
+    );
 
     public Blockpos() {
         super(Main.RM,"blockpos-test","mikght stay cuz very usefull");
@@ -98,9 +99,25 @@ public class Blockpos extends Module {
     }
     @EventHandler
     private void onRender(Render3DEvent event) {
-        if (target == null) return;
 
-        event.renderer.box(render, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+        if (target == null) return;
+        Color top = tp.get();
+        int height = h.get();
+        Color bottom = br.get();
+
+        int x = (int) target.getX();
+        int y = (int) target.getY();
+        int z = (int) target.getZ();
+
+        if (Dir.isNot(0, Dir.UP)) event.renderer.quad(x, y + height, z, x, y + height, z + 1, x + 1, y + height, z + 1, x + 1, y + height, z, top); // Top
+        if (Dir.isNot(0, Dir.DOWN)) event.renderer.quad(x, y, z, x, y, z + 1, x + 1, y, z + 1, x + 1, y, z, bottom);
+
+        if (Dir.isNot(0, Dir.NORTH)) event.renderer.gradientQuadVertical(x, y, z, x + 1, y + height, z, top, bottom);
+        if (Dir.isNot(0, Dir.SOUTH)) event.renderer.gradientQuadVertical(x, y, z + 1, x + 1, y + height, z + 1, top, bottom);
+
+        if (Dir.isNot(0, Dir.WEST)) event.renderer.gradientQuadVertical(x, y, z, x, y + height, z + 1, top, bottom);
+        if (Dir.isNot(0, Dir.EAST)) event.renderer.gradientQuadVertical(x + 1, y, z, x + 1, y + height, z + 1, top, bottom);
+
     }
 
     public enum Direction{

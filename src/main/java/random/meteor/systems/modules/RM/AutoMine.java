@@ -50,15 +50,13 @@ public class AutoMine extends Module {
 
             if(tool.slot() != -1){
                 /*
-                    Utils.move(tool.slot(),mc.player.getInventory().selectedSlot);
-                Utils.move(mc.player.getInventory().selectedSlot,tool.slot());
-                * */
-
 
                 InvUtils.move().from(tool.slot()).to(mc.player.getInventory().selectedSlot);
                 InvUtils.move().from(mc.player.getInventory().selectedSlot).to(tool.slot());
 
-                
+                * */
+
+
             }
         }
     }

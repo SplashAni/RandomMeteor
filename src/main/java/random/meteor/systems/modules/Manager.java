@@ -17,12 +17,12 @@ public class  Manager {
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
         m.add(new Prefix());
+        m.add(new GradientOverlay());
         m.add(new PistonPush());
         m.add(new BlockClap());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
         m.add(new TntAura());
-        m.add(new TargetEsp());;
         m.add(new Blockpos());
         m.add(new AutoGold());
         m.add(new Twerk());
@@ -33,9 +33,9 @@ public class  Manager {
         m.add(new CrystalBomb());
         m.add(new GodHand());
         m.add(new InstantMend());
-        m.add(new Stats());
         m.add(new AutoMine());
-        m.add(new AutoBed());
+        m.add(new PlayerTp());
+        m.add(new CustomRpc());
         m.add(new FakeKick());
         m.add(new PistonAura());
 

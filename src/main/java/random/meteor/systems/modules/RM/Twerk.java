@@ -6,7 +6,6 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import random.meteor.Main;
 
 public class Twerk extends Module {
@@ -26,11 +25,13 @@ public class Twerk extends Module {
     }
     @EventHandler
     public void onTick(TickEvent.Pre event){
-
-        ticks++;
-        if(ticks >= delay.get()) {
-            mc.options.sneakKey.setPressed(!mc.player.isSneaking()); // the most simplest way tbh
-            ticks = 0;
+        if(ticks > 0 ){ /*deincrementing hits different :wear:*/
+            ticks--;
+            return;
         }
+
+        mc.options.sneakKey.setPressed(!mc.player.isSneaking());
+        ticks = delay.get();
+
     }
 }
