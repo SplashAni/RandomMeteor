@@ -3,13 +3,15 @@
   "package": "random.meteor.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "DisconnectScreenMixin",
+    "MainMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
     "DiscordPresenceMixin",
+    "HeldItemRendererMixin",
     "KillAuraMixin",
-    "SurroundMixin"
   ]
 }

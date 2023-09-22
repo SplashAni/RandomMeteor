@@ -1,10 +1,7 @@
 package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.IntSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.settings.StringListSetting;
+import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -14,6 +11,7 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.text.Text;
 import random.meteor.Main;
+import random.meteor.events.KickEvent;
 
 import java.util.List;
 import java.util.Random;
@@ -33,6 +31,11 @@ public class FakeKick extends Module {
         .defaultValue(5)
         .min(1)
         .sliderRange(1, 36)
+        .build()
+    );
+    private final Setting<Boolean> toggleKick = sgGeneral.add(new BoolSetting.Builder()
+        .name("toggle-kick")
+        .defaultValue(true)
         .build()
     );
     private final Setting<List<String>> msges = sgGeneral.add(new StringListSetting.Builder()
@@ -60,5 +63,10 @@ public class FakeKick extends Module {
             mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket(Text.literal(msg)));
             toggle();
         }
+    }
+    @EventHandler
+    public void onKick(KickEvent event){
+        if(!toggleKick.get()) return;
+        toggle();
     }
 }

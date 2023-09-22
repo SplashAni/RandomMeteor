@@ -8,8 +8,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
-import meteordevelopment.meteorclient.utils.world.Dir;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 
@@ -53,15 +53,15 @@ public class GradientOverlay extends Module {
         int y = (int) pos.y;
         int z = (int) pos.z;
 
-        if (Dir.isNot(0, Dir.UP)) event.renderer.quad(x, y + height, z, x, y + height, z + 1, x + 1, y + height, z + 1, x + 1, y + height, z, top); // Top
-        if (Dir.isNot(0, Dir.DOWN)) event.renderer.quad(x, y, z, x, y, z + 1, x + 1, y, z + 1, x + 1, y, z, bottom);
-
-        if (Dir.isNot(0, Dir.NORTH)) event.renderer.gradientQuadVertical(x, y, z, x + 1, y + height, z, top, bottom);
-        if (Dir.isNot(0, Dir.SOUTH)) event.renderer.gradientQuadVertical(x, y, z + 1, x + 1, y + height, z + 1, top, bottom);
-
-        if (Dir.isNot(0, Dir.WEST)) event.renderer.gradientQuadVertical(x, y, z, x, y + height, z + 1, top, bottom);
-        if (Dir.isNot(0, Dir.EAST)) event.renderer.gradientQuadVertical(x + 1, y, z, x + 1, y + height, z + 1, top, bottom);
-
+        for (Direction d : Direction.values()) {
+            switch (d) {
+                case UP -> event.renderer.quad(x, y + height, z, x, y + height, z + 1, x + 1, y + height, z + 1, x + 1, y + height, z, top);
+                case DOWN -> event.renderer.quad(x, y, z, x, y, z + 1, x + 1, y, z + 1, x + 1, y, z, bottom);
+                case NORTH -> event.renderer.gradientQuadVertical(x, y, z, x + 1, y + height, z, top, bottom);
+                case SOUTH -> event.renderer.gradientQuadVertical(x, y, z + 1, x + 1, y + height, z + 1, top, bottom);
+                case WEST -> event.renderer.gradientQuadVertical(x, y, z, x, y + height, z + 1, top, bottom);
+                case EAST -> event.renderer.gradientQuadVertical(x + 1, y, z, x + 1, y + height, z + 1, top, bottom);
+            }
+        }
     }
-
 }

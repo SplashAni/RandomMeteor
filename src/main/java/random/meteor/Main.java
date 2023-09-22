@@ -18,13 +18,12 @@ public class Main extends MeteorAddon {
 
 /*
 * todo
-*  https://stackoverflow.com/questions/34490218/how-to-make-a-windows-notification-in-java
+*  https://stackoverflow.com/questions/34490218/how-to-make-a-windows-notification-in-java, DONE EZ
 * make notifications use windows totast
 * */
     @Override
     public void onInitialize() {
         LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
-        System.setProperty("java.awt.headless", "false");
         Manager.load();
         TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("Interia Client"))));
     }

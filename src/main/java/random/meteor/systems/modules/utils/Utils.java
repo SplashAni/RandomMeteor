@@ -15,6 +15,8 @@ import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +24,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -30,6 +34,36 @@ import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
 public class Utils {
     private static final Random random = new Random();
 
+    public static void updateHotbar() {
+        assert mc.player != null;
+        mc.player.getInventory();
+        mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
+    }
+    public static void updatePosition(){
+        mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
+                mc.player.getX(),
+                mc.player.getY(),
+                mc.player.getZ(),
+                mc.player.isOnGround()
+        ));
+    }
+    public static List placeableBlocks(double reach) { // checks for blocks in reach and returns a table with their positions
+        List<BlockPos> blocks = new ArrayList<>();
+
+        reach = reach / 2;
+
+        assert mc.player != null;
+        BlockPos pos = mc.player.getBlockPos();
+
+        for (int x = (int) (pos.getX() - reach); x < (int) (pos.getX() + reach + 1); x++) {
+            for (int z = (int) (pos.getZ() - reach); z < (int) (pos.getZ() + reach + 1); z++) {
+                for (int y = (int) (pos.getY() - reach); y < (int) (pos.getY() + reach + 1); y++) {
+                    blocks.add(new BlockPos(x, y, z));
+                }
+            }
+        }
+        return blocks;
+    }
     public static void throwPearl(int value) {
         FindItemResult pearl = InvUtils.findInHotbar(Items.ENDER_PEARL);
         if (!pearl.found()) return;

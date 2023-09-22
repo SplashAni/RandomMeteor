@@ -7,8 +7,8 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import random.meteor.Main;
+import random.meteor.systems.modules.utils.Utils;
 
 public class PlayerTp extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -49,14 +49,7 @@ public class PlayerTp extends Module {
             );
 
             /* update position u silly*/
-
-            mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
-                mc.player.getX(),
-                mc.player.getY(),
-                mc.player.getZ(),
-                mc.player.isOnGround()
-            ));
-
+            Utils.updatePosition();
             toggle();
         }
         super.onActivate();

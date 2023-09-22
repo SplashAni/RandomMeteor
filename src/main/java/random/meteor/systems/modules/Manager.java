@@ -4,7 +4,6 @@ import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.systems.modules.RM.*;
-import random.meteor.systems.modules.RM.PistonAura.PistonAura;
 import random.meteor.systems.modules.commands.*;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class  Manager {
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
         m.add(new Prefix());
-        m.add(new GradientOverlay());
+        m.add(new GradientEsp());
         m.add(new PistonPush());
         m.add(new BlockClap());
         m.add(new CustomFov());
@@ -31,13 +30,13 @@ public class  Manager {
         m.add(new Blocker());
         m.add(new PistonBurrow());
         m.add(new CrystalBomb());
+        m.add(new ToastNotifier());
         m.add(new GodHand());
         m.add(new InstantMend());
         m.add(new AutoMine());
         m.add(new PlayerTp());
         m.add(new CustomRpc());
         m.add(new FakeKick());
-        m.add(new PistonAura());
 
         m.forEach(module -> Modules.get().add(module));
     }
