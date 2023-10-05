@@ -9,7 +9,6 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.block.BlockState;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
@@ -30,15 +29,11 @@ public class GodHand extends Module {
         BlockState state = Utils.state(pos).getDefaultState();
 
         FindItemResult tool = InvUtils.findFastestTool(state);
-        if(!BlockUtils.canBreak(pos) || mc.player.getInventory().selectedSlot == tool.slot()) return;
+        if(!BlockUtils.canBreak(pos) || mc.player.getInventory().selectedSlot == tool.slot() || tool.equals(-1)) return;
 
-        Utils.swapRun(
-            tool.slot(),true,()->{
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, dir));
-                mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, dir));
-            }
-        );
+        InvUtils.swap(tool.slot(),true);
 
+        InvUtils.swapBack();
     }
 
 

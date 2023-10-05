@@ -12,11 +12,11 @@ import java.util.List;
 public class  Manager {
     private static void addModules(){
 
-        // Modules here
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
         m.add(new Prefix());
         m.add(new GradientEsp());
+        m.add(new ItemRenderer());
         m.add(new PistonPush());
         m.add(new BlockClap());
         m.add(new CustomFov());
@@ -51,6 +51,7 @@ public class  Manager {
         Commands.add(new Crash());
         Commands.add(new Ping());
         Commands.add(new Title());
+        Commands.add(new Tts());
     }
     private static void addHud(){
 

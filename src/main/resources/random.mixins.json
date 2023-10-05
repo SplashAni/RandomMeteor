@@ -10,8 +10,11 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "BreakIndicatorsMixin",
     "DiscordPresenceMixin",
+    "FakePlayerMixin",
     "HeldItemRendererMixin",
-    "KillAuraMixin",
+    "ItemMixin",
+    "KillAuraMixin"
   ]
 }

@@ -2,9 +2,12 @@ package random.meteor.systems.modules.RM;
 
 import meteordevelopment.meteorclient.events.entity.player.StartBreakingBlockEvent;
 import meteordevelopment.meteorclient.events.render.Render2DEvent;
-import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.EnumSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -12,82 +15,165 @@ import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 import random.meteor.Main;
+import random.meteor.systems.modules.utils.Utils;
+
+import java.util.Objects;
+
+import static random.meteor.systems.modules.utils.Utils.getCrystal;
+import static random.meteor.systems.modules.utils.Utils.updateHotbar;
 
 public class AutoMine extends Module {
+    public enum mineMode {
+        Instant,
+        Normal
+    }
+    public enum switchMode{
+        None,
+        Normal,
+        Silent,
+        SwapSilent
+    }
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+    private final Setting<switchMode> swapMode = sgGeneral.add(new EnumSetting.Builder<switchMode>()
+            .name("swap-mode")
+            .defaultValue(switchMode.Silent)
+            .build()
+    );
+
+    private final Setting<Boolean> remine = sgGeneral.add(new BoolSetting.Builder()
+            .name("auto-remine")
+            .defaultValue(true)
+            .build()
+    );
+
+    private final Setting<mineMode> remineMode = sgGeneral.add(new EnumSetting.Builder<mineMode>()
+            .name("remine-mode")
+            .visible(remine::get)
+            .defaultValue(mineMode.Instant)
+            .build()
+    );
     public AutoMine() {
         super(Main.RM, "auto-mine", "insane");
     }
 
-    BlockPos pos;
-    float progress = 0.0f;
+    public BlockPos pos,prev;
+
+    public float progress = 0.0f;
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
         if (!BlockUtils.canBreak(event.blockPos)) return;
-
         pos = event.blockPos;
         progress = 0.0f;
     }
-    Color top = Color.RED.a(15);
-    Color bottom = Color.RED.a(15);
+
+    boolean didMine = false;
+
     @EventHandler
     public void onTick(TickEvent.Pre event) {
-        if (pos == null) return;
 
-        if (progress < 30) {
-            top = Color.RED;
-        } else if (progress >= 30 && progress <= 50) {
-            top = Color.ORANGE;
-        } else if (progress >= 51 && progress <= 70) {
-            top = Color.YELLOW;
+        if (prev != null && remine.get())
+            if (Utils.state(prev) != Blocks.AIR) switch (remineMode.get()) {
+                case Normal -> {
+                    pos = prev;
+                    prev = null;
+                }
+                case Instant ->
+                        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
+            }
 
-        } else if (progress >= 71 && progress < 95) {
-            int r = (int) (top.r + ((95 - progress) * (top.r - bottom.r) / 25));
-            int g = (int) (top.g + ((95 - progress) * (top.g - bottom.g) / 25));
-            int b = (int) (top.b + ((95 - progress) * (top.b - bottom.b) / 25));
-            top = new Color(r, g, b);
+        if(didMine) {
+            assert mc.world != null;
+            if(mc.world.getBlockState(pos).isAir()){
+                Entity e = getCrystal(pos);
+                if(e != null){
+                    assert mc.player != null;
+                    mc.player.networkHandler.sendPacket(PlayerInteractEntityC2SPacket.attack(e, mc.player.isSneaking()));
+                }
+            }
+
+
+            updateHotbar();
+            progress = 0f;
+            prev = pos;
+            pos = null;
+            didMine = false;
         }
-        System.lineSeparator();
 
+
+        if (pos  == null) return;
+
+        assert mc.world != null;
         FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
 
-        progress += BlockUtils.getBreakDelta(tool.slot() != -1 ? tool.slot() : mc.player.getInventory().selectedSlot, mc.world.getBlockState(pos));
+        progress += BlockUtils.getBreakDelta(tool.slot() != -1 ? tool.slot() : Objects.requireNonNull(mc.player).getInventory().selectedSlot, mc.world.getBlockState(pos));
 
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
+        if(swapMode.get().equals(switchMode.Normal)){
+            InvUtils.swap(tool.slot(),true);
+        }
+
+        Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
 
         if (progress >= 1) {
-            pos = null;
-            progress = 0.0f;
 
             if (tool.slot() != -1) {
-                /*
 
-                InvUtils.move().from(tool.slot()).to(mc.player.getInventory().selectedSlot);
-                InvUtils.move().from(mc.player.getInventory().selectedSlot).to(tool.slot());
+                doCrystal();
 
-                * */
-                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(tool.slot()));
+                assert mc.player != null;
 
-               // Utils.updateHotbar();
-                pos = null;
+                switch (swapMode.get()){
+                    case Silent -> mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(tool.slot()));
+                    case SwapSilent -> Utils.move(mc.player.getInventory().selectedSlot,tool.slot());
+                }
+
             }
+
+            if(swapMode.get().equals(switchMode.SwapSilent)) {
+                assert mc.player != null;
+                Utils.move(mc.player.getInventory().selectedSlot,tool.slot());
+            }
+
+            didMine = true;
         }
     }
+    public void swap(){
 
+    }
+    public void doCrystal(){
+
+        FindItemResult crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
+
+        if((Utils.state(pos) == Blocks.OBSIDIAN) && crystal.isHotbar()) {
+
+            if (getCrystal(pos) == null) {
+
+                InvUtils.swap(crystal.slot(), true);
+                mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(pos.toCenterPos().toVector3f()), Direction.UP, pos, true));
+                InvUtils.swapBack();
+
+            }
+
+
+        }
+    }
     @EventHandler
     private void onRender2D(Render2DEvent event) {
-        int i = 1;
-        if (i == 1) return;
-
-        if (pos == null) return;
+        if (pos == null || progress == Float.POSITIVE_INFINITY || progress > 100)  return;
         Vector3d v = new Vector3d();
         v.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
 
@@ -101,31 +187,6 @@ public class AutoMine extends Module {
 
             TextRenderer.get().end();
             NametagUtils.end();
-        }
-    }
-
-    @EventHandler
-    private void onRender(Render3DEvent event) {
-        if(this.pos == null) return;
-
-
-        int height = 1;
-
-        Vec3d pos = Vec3d.of(this.pos);
-
-        int x = (int) pos.x;
-        int y = (int) pos.y;
-        int z = (int) pos.z;
-
-        for (Direction d : Direction.values()) {
-            switch (d) {
-                case UP -> event.renderer.quad(x, y + height, z, x, y + height, z + 1, x + 1, y + height, z + 1, x + 1, y + height, z, top);
-                case DOWN -> event.renderer.quad(x, y, z, x, y, z + 1, x + 1, y, z + 1, x + 1, y, z, bottom);
-                case NORTH -> event.renderer.gradientQuadVertical(x, y, z, x + 1, y + height, z, top, bottom);
-                case SOUTH -> event.renderer.gradientQuadVertical(x, y, z + 1, x + 1, y + height, z + 1, top, bottom);
-                case WEST -> event.renderer.gradientQuadVertical(x, y, z, x, y + height, z + 1, top, bottom);
-                case EAST -> event.renderer.gradientQuadVertical(x + 1, y, z, x + 1, y + height, z + 1, top, bottom);
-            }
         }
     }
 }

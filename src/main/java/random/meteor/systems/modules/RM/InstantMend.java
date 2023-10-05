@@ -29,26 +29,13 @@ public class InstantMend extends Module {
         super(Main.RM,"instant-mend","fastest exploit bro");
     }
     @EventHandler
-    public void onTick(TickEvent.Pre event){
-        FindItemResult exp = InvUtils.findInHotbar(Items.EXPERIENCE_BOTTLE);
+    public void onTick(TickEvent.Pre event) {
+        FindItemResult exp = InvUtils.find(Items.EXPERIENCE_BOTTLE);
 
-        int oldslot = -1;
-        if(exp.isHotbar()) {
-            InvUtils.swap(exp.slot(),true);
-        }else {
-            oldslot = exp.slot();
+        for (int i = 0; i <= speed.get(); i++) {
             Utils.move(exp.slot(),mc.player.getInventory().selectedSlot);
-        }
-
-
-        for(int i = 0 ; i <= speed.get();i++){
             mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
-            if(oldslot != -1){
-                Utils.move(mc.player.getInventory().selectedSlot,oldslot);
-                oldslot = -1;
-            }
-
-
+            Utils.move(exp.slot(),mc.player.getInventory().selectedSlot);
         }
     }
 }

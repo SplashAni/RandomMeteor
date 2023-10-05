@@ -5,26 +5,29 @@ import io.github.racoondog.meteorsharedaddonutils.features.TitleScreenCredits;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
+import meteordevelopment.meteorclient.mixin.WorldRendererAccessor;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import net.minecraft.client.render.BlockBreakingInfo;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import random.meteor.systems.modules.Manager;
 
+import java.util.Map;
+
+import static meteordevelopment.meteorclient.MeteorClient.mc;
+
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static final Category RM = new Category("RM", Items.AIR.getDefaultStack());
 
-/*
-* todo
-*  https://stackoverflow.com/questions/34490218/how-to-make-a-windows-notification-in-java, DONE EZ
-* make notifications use windows totast
-* */
     @Override
     public void onInitialize() {
         LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
         Manager.load();
+        Map<Integer, BlockBreakingInfo> blocks = ((WorldRendererAccessor) mc.worldRenderer).getBlockBreakingInfos();
+
         TitleScreenCredits.modifyAddonCredit(MeteorClient.ADDON, credit -> credit.sections.set(0, new TitleScreenCredits.Section(Text.literal("Interia Client"))));
     }
 

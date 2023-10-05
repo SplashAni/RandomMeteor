@@ -135,7 +135,6 @@ public class KillAuraMixin extends Module {
             Vec3d center = player.getPos();
 
             int segments = switch (mode.get()) {
-
                 case Triangle -> 3;
                 case Square -> 4;
                 case Hexagon -> 6;

@@ -5,7 +5,6 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -13,11 +12,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.util.Hand;
@@ -209,13 +204,13 @@ public class CrystalBomb extends Module {
                     progress += BlockUtils.getBreakDelta(pic.slot(), mc.world.getBlockState(obsidianPos.up()));
                     if (progress >= 1.0f){
                         canInstant = true;
-                        stage = Stage.Crystal;
                     }  else {
                         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, obsidianPos.up(), Direction.UP));
-                        stage = Stage.Crystal;
                     }
+                    stage = Stage.Crystal;
                 }
             }
+            default -> throw new IllegalStateException("Unexpected value: " + stage);
         }
     }
     private enum Stage{

@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
@@ -19,6 +20,8 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +37,11 @@ import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
 public class Utils {
     private static final Random random = new Random();
 
+    public static void placeCrystal(BlockPos pos, FindItemResult crystal){
+        InvUtils.swap(crystal.slot(),false);
+        assert mc.interactionManager != null;
+        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(pos.toCenterPos(), Direction.UP, pos, true));
+    }
     public static void updateHotbar() {
         assert mc.player != null;
         mc.player.getInventory();
@@ -47,7 +55,7 @@ public class Utils {
                 mc.player.isOnGround()
         ));
     }
-    public static List placeableBlocks(double reach) { // checks for blocks in reach and returns a table with their positions
+    public static List placeableBlocks(double reach) {
         List<BlockPos> blocks = new ArrayList<>();
 
         reach = reach / 2;
@@ -205,6 +213,14 @@ public class Utils {
     public static Entity crystal() {
         for (Entity e : mc.world.getEntities()) {
             if (e.getType().equals(EntityType.END_CRYSTAL)) return e;
+        }
+        return null;
+    }
+    public static EndCrystalEntity getCrystal(BlockPos pos){
+        assert mc.world != null;
+        for (Entity entity : mc.world.getEntities()){
+            if (entity == null) continue;
+            if (entity.getBlockPos().equals(pos.up())) return (EndCrystalEntity) entity;
         }
         return null;
     }

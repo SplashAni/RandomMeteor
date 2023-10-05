@@ -51,25 +51,19 @@ public class ToastNotifier extends Module {
         super(Main.RM, "toast-notifier", "uses windows notifciation system to notify u");
     }
 
-    public List<notifications> saved = new ArrayList<>();
+    public List<String> toSend = new ArrayList<>();
 
-    @Override
-    public void onActivate() {
-        System.setProperty("java.awt.headless", "false");
-
-        renderToast("hi",0);
-
-        super.onActivate();
-    }
 
     int ticks;
 
     @EventHandler
     public void onTick() {
-        if(saved.isEmpty()) return;
 
-        for(notifications n  : saved){
-            if(renderToast(n.info,n.severity)) saved.remove(n);
+        if(toSend.isEmpty()) return;
+
+
+        for(String s : toSend){
+            sendToast(s);
         }
 
     }
@@ -82,7 +76,7 @@ public class ToastNotifier extends Module {
 
         if (event.entity.getUuid().equals(mc.player.getUuid()) && damage.get()) { /*gradle demon im 😰🥶*/
             if (event.amount > 1) return; /*we dont want small shit plz :sob:*/
-            saved.add(new notifications("You took " + event.amount + "damage " + "from " + event.entity, 0));
+            toSend.add(("You took " + event.amount + "damage " + "from " + event.entity));
         }
     }
 
@@ -90,7 +84,7 @@ public class ToastNotifier extends Module {
     private void entityRemoved(EntityRemovedEvent event) {
         assert mc.player != null;
         if (!event.entity.getUuid().equals(mc.player.getUuid()) && visualRange.get()) {
-            saved.add(new notifications(event.entity.getEntityName() + " has left you visual range.", 1));
+            toSend.add((event.entity.getEntityName() + " has left you visual range."));
         }
     }
 
@@ -98,7 +92,7 @@ public class ToastNotifier extends Module {
     private void entityAdded(EntityAddedEvent event) {
         assert mc.player != null;
         if (!event.entity.getUuid().equals(mc.player.getUuid()) && visualRange.get()) {
-            saved.add(new notifications(event.entity.getEntityName() + " has entered you visual range.", 1));
+            toSend.add((event.entity.getEntityName() + " has entered you visual range."));
         }
     }
 
@@ -109,12 +103,12 @@ public class ToastNotifier extends Module {
         if (event.packet instanceof DeathMessageS2CPacket packet) {
             assert mc.world != null;
             if (mc.world.getEntityById(packet.getEntityId()) == mc.player) {
-                saved.add(new notifications("You died.", 0));
+                toSend.add("You have died because of \"" + packet.getMessage() + "\"");
             }
         }
     }
 
-    public boolean renderToast(String info, int severity) {
+    public boolean sendToast(String info) {
         try {
             SystemTray tray = SystemTray.getSystemTray();
             Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
@@ -124,11 +118,7 @@ public class ToastNotifier extends Module {
 
             tray.add(trayIcon);
 
-            TrayIcon.MessageType mt = null;
-            switch (severity) {
-                case 0 -> mt = TrayIcon.MessageType.WARNING;
-                case 1 -> mt = TrayIcon.MessageType.INFO;
-            }
+            TrayIcon.MessageType mt = TrayIcon.MessageType.INFO;
 
             trayIcon.displayMessage("Toast notifier", info, mt);
             return true;
@@ -137,6 +127,4 @@ public class ToastNotifier extends Module {
             return false;
         }
     }
-
-    public record notifications(String info, int severity){} /* sort notifications based on how important it is ok?*/
 }
