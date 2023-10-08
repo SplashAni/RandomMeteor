@@ -14,10 +14,11 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import random.meteor.systems.modules.utils.ShapesUtils;
+import random.meteor.utils.ShapesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +33,18 @@ public class KillAuraMixin extends Module {
     private Setting<Integer> upSpeed;
     private Setting<Integer> downSpeed;
     private Setting<Integer> size;
+    @Unique
     Setting<ShapesUtils.Shapes> mode;
+    @Unique
     private Setting<SettingColor> color;
 
     @Shadow
     @Final
     private final List<Entity> targets = new ArrayList<>();
 
+    @Unique
     double currentHeight = 0.0;
+    @Unique
     private boolean isUp = true;
 
 
@@ -124,6 +129,7 @@ public class KillAuraMixin extends Module {
 
         currentHeight = Math.min(2, currentHeight);
     }
+    @Unique
     public void renderShape(Render3DEvent event) {
 
         List<Entity> targets = this.targets;

@@ -6,12 +6,13 @@ import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import random.meteor.systems.modules.RM.ItemRenderer;
+import random.meteor.systems.modules.ItemRenderer;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 @Mixin(Item.class)
 public class ItemMixin {
+
 
     @Redirect(method = "hasGlint",
             at = @At(value = "INVOKE",

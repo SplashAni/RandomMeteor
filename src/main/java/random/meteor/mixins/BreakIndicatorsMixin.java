@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import random.meteor.systems.modules.RM.AutoMine;
+import random.meteor.systems.modules.AutoMine;
 
 @Mixin(value = BreakIndicators.class,remap = false)
 public abstract class BreakIndicatorsMixin {

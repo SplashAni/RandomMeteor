@@ -53,6 +53,7 @@ public class FakePlayerMixin extends Module {
         );
     }
 
+    @Unique
     @EventHandler
     public void onTick(TickEvent.Pre event) {
         List<FakePlayerEntity> e = FakePlayerManager.getFakePlayers();
