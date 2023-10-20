@@ -17,9 +17,6 @@ repositories {
         name = "meteor-maven-snapshots"
         url = "https://maven.meteordev.org/snapshots"
     }
-    maven {
-        url "https://repo.repsy.io/mvn/ggcrosby/meteorsharedaddonutils"
-    }
 }
 
 dependencies {
@@ -30,14 +27,6 @@ dependencies {
 
     // Meteor
     modImplementation "meteordevelopment:meteor-client:${project.meteor_version}"
-
-    //recon dog
-    modImplementation("io.github.racoondog:MeteorSharedAddonUtils:1.2.9") {
-        transitive = false
-    }
-    include("io.github.racoondog:MeteorSharedAddonUtils:1.2.9") {
-        transitive = false
-    }
 }
 
 processResources {

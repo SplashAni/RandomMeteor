@@ -49,7 +49,7 @@ public class AutoChunkBan extends Module {
             .name("range")
             .description("range to place")
             .defaultValue(6)
-            .range(1,7)
+            .range(1, 7)
             .sliderMax(7)
             .build()
     );
@@ -123,7 +123,7 @@ public class AutoChunkBan extends Module {
     @Override
     public void onActivate() {
 
-        if(!shulkerResult().found()){
+        if (!shulkerResult().found()) {
             error("No shulkers found...");
             toggle();
             return;
@@ -161,27 +161,26 @@ public class AutoChunkBan extends Module {
                 }
             }
             case Placing -> {
-                placePos = target.getBlockPos().north().add(1,0,0);
+                placePos = target.getBlockPos().north().add(1, 0, 0);
                 BlockUtils.place(placePos, shulkerResult(), rotate.get(), 100, swing.get(), true);
-                if(autoMine.get()) {
+                if (autoMine.get()) {
                     stage = Stage.Mining;
-                }
-                else {
+                } else {
                     stage = Stage.Toggling;
                 }
             }
             case Mining -> {
-                placePos = target.getBlockPos().north().add(1,0,0);
+                placePos = target.getBlockPos().north().add(1, 0, 0);
 
-                if(bestool.get() && picaxeResult().isHotbar()){
-                    InvUtils.swap(picaxeResult().slot(),false);
+                if (bestool.get() && picaxeResult().isHotbar()) {
+                    InvUtils.swap(picaxeResult().slot(), false);
                 }
 
-                BlockUtils.breakBlock(placePos,swing.get());
+                BlockUtils.breakBlock(placePos, swing.get());
                 assert mc.world != null;
                 BlockState state = mc.world.getBlockState(placePos);
 
-                if(state.getBlock() == Blocks.AIR){
+                if (state.getBlock() == Blocks.AIR) {
                     assert mc.player != null;
                     mc.player.getInventory().selectedSlot = slot;
                     info("Broke shulker, toggling...");
@@ -198,6 +197,7 @@ public class AutoChunkBan extends Module {
     private FindItemResult shulkerResult() {
         return InvUtils.findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
     }
+
     private FindItemResult picaxeResult() {
         return InvUtils.findInHotbar(itemStack ->
                 itemStack.getItem() == Items.DIAMOND_PICKAXE || itemStack.getItem() == Items.NETHERITE_PICKAXE
@@ -205,12 +205,13 @@ public class AutoChunkBan extends Module {
     }
 
 
-    private enum Stage{
+    private enum Stage {
         Preparing,
         Placing,
         Mining,
         Toggling
     }
+
     @EventHandler
     private void onRender(Render3DEvent event) {
         if (placePos == null) return;

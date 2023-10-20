@@ -6,21 +6,21 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
-import random.meteor.utils.Utils;
 
 import java.util.List;
+import java.util.Objects;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
 
@@ -43,10 +43,11 @@ public class BlockClap extends Module {
     );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
             .name("rotate")
-            .description("Rotates player head.")
+            .description("Rotates on block placement")
             .defaultValue(true)
             .build()
     );
+
     private final Setting<Boolean> swing = sgGeneral.add(new BoolSetting.Builder()
             .name("swing")
             .description("Swings your hand when the block is placed.")
@@ -81,10 +82,6 @@ public class BlockClap extends Module {
     );
 
     private BlockPos blockPos;
-    private Stage stage;
-    private float prevYaw;
-    private float prevPitch;
-    Direction direction = Utils.getBestDirection();
 
     public BlockClap() {
         super(Main.RM, "block-clap", "Burrow that should work on almost any server");
@@ -93,84 +90,74 @@ public class BlockClap extends Module {
     @Override
     public void onActivate() {
         blockPos = null;
-        stage = Stage.Preparing;
     }
 
     @EventHandler
-    public void onTick(TickEvent.Post event){
-        if (!hasItems()) {
+    public void onTick(TickEvent.Post event) {
+        FindItemResult block = findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
+        FindItemResult pearl = InvUtils.findInHotbar(Items.ENDER_PEARL);
+
+        if (!block.isHotbar() || !pearl.isHotbar()) {
             error("No items found, disabling module...");
             toggle();
             return;
         }
 
-        switch (stage) {
-            case Preparing -> {
-                prevPitch = mc.player.getPitch();
-                prevYaw = mc.player.getYaw();
-                blockPos = mc.player.getBlockPos();
 
-                if (center.get()) {
-                    PlayerUtils.centerPlayer();
-                }
+        BlockPos pos = null;
+        Direction direction = null;
 
-                stage = Stage.Placing;
-            }
-            case Placing -> {
-                BlockPos playerPos = mc.player.getBlockPos();
-                blockPos = playerPos.offset(Utils.getBestDirection());
-                BlockUtils.place(blockPos, getInvBlock(), rotate.get(), 100, swing.get(), true);
-                stage = Stage.Pearling;
-            }
-            case Pearling -> {
-                assert mc.player != null;
-                mc.player.setYaw(Utils.getYawFromDirection(direction));
-                mc.player.setPitch(72);
-                Utils.throwPearl(72);
-                stage = Stage.Toggle;
-            }
-            case Toggle -> {
-                assert mc.player != null;
-                mc.player.setYaw(prevYaw);
-                mc.player.setPitch(prevPitch);
-                toggle();
-            }
-        }
-    }
-
-    private FindItemResult getInvBlock() {
-        return findInHotbar(itemStack -> blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
-    }
-
-    private boolean hasItems() {
-        List<Item> blockItems = blocks.get().stream()
-                .map(Item::fromBlock)
-                .toList();
-
-        for (Item block : blockItems) {
-            if (mc.player.getInventory().contains(new ItemStack(block)) && mc.player.getInventory().contains(new ItemStack(Items.ENDER_PEARL))) {
-                return true;
+        for (Direction d : Direction.values()) {
+            if (BlockUtils.canPlace(mc.player.getBlockPos().offset(d))) {
+                pos = mc.player.getBlockPos().offset(d);
+                direction = d;
             }
         }
 
-        return false;
+        if (pos == null) {
+            error("No positions found");
+            toggle();
+            return;
+        }
+
+
+        BlockPos calcedPos = pos;
+        Direction calcedDirection = direction;
+
+        if (BlockUtils.place(calcedPos, block, rotate.get(), 50, swing.get(), true)) {
+            Rotations.rotate(getDirection(calcedDirection), 73, () -> {
+
+                if (center.get()) PlayerUtils.centerPlayer();
+
+                InvUtils.swap(pearl.slot(), true);
+
+                Objects.requireNonNull(mc.interactionManager).interactItem(mc.player, pearl.getHand());
+
+                InvUtils.swapBack();
+
+                PlayerUtils.centerPlayer();
+
+            });
+        }
+
+
+        toggle();
+
     }
 
-    private enum Stage {
-        Preparing,
-        Placing,
-        Pearling,
-        Toggle
-    }
-    @Override
-    public String getInfoString() {
-        return Utils.getBestDirection().asString();
+    public int getDirection(Direction direction) { /* MOST ACCURATE BY SPLASHGOD.CC CUZ IM PRO*/
+        return switch (direction) {
+            case NORTH -> 180;
+            case SOUTH -> 0;
+            case WEST -> 90;
+            case EAST -> 270;
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        };
     }
 
     @EventHandler
     private void onRender(Render3DEvent event) {
-        if (blockPos == null) return;
-
+        if (blockPos == null || !render.get()) return;
         event.renderer.box(blockPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 }
