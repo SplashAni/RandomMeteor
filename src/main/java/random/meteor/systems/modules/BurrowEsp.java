@@ -11,7 +11,6 @@ import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +30,7 @@ public class BurrowEsp extends Module {
             .name("range")
             .description("")
             .defaultValue(12)
-            .range(1,25)
+            .range(1, 25)
             .sliderMax(25)
             .build()
     );
@@ -82,47 +81,57 @@ public class BurrowEsp extends Module {
     );
 
     public BurrowEsp() {
-        super(Main.RM,"burrow-esp","good idea vh");
+        super(Main.RM, "burrow-esp", "good idea vh");
     }
-    private BlockPos burrowPos;
+
+    private BlockPos pos;
     PlayerEntity target;
-    boolean isBurrowed;
+
     @Override
     public void onActivate() {
-        burrowPos = null;
-        isBurrowed = false;
+        pos = null;
         super.onActivate();
     }
 
     @EventHandler
-    public void onTick(TickEvent.Pre event){
+    public void onTick(TickEvent.Pre event) {
+
         target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
+
         if (isBadTarget(target, range.get())) {
             return;
         }
-        burrowPos = target.getBlockPos();
 
-        BlockState state = mc.world.getBlockState(burrowPos);isBurrowed = state.getBlock().getBlastResistance() >= 1200 || state.getBlock() == Blocks.COBWEB; // IMAGINE USING 3 METHODS FOR THIS *COUGH COUHG B+
+        pos = isValid(target.getBlockPos()) ? target.getBlockPos() : null;
     }
+
     @EventHandler
     public void on2DRender(Render2DEvent event) {
-        if(burrowPos != null && isBurrowed) {
-            Vector3d pos = new Vector3d(burrowPos.getX() + 0.5, burrowPos.getY() + 0.5, burrowPos.getZ() + 0.5);
-            if (NametagUtils.to2D(pos, scale.get())) {
-                NametagUtils.begin(pos);
-                TextRenderer.get().begin(1.0, false, true);
-                TextRenderer.get().render(text.toString(), TextRenderer.get().getWidth(text.toString()) / 2.0, 0.0, textColor.get(), true);
-                TextRenderer.get().end();
-                NametagUtils.end();
-            }
+        if (pos == null) return;
+
+        Vector3d vec = new Vector3d(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5);
+
+
+        vec.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
+
+        if (NametagUtils.to2D(vec, scale.get())) {
+            NametagUtils.begin(vec);
+            TextRenderer.get().begin(1.0, false, true);
+            TextRenderer.get().render(text.toString(), TextRenderer.get().getWidth(text.toString()) / 2.0, 0.0, textColor.get(), true);
+
+            TextRenderer.get().end();
+            NametagUtils.end();
+
         }
     }
 
+    public boolean isValid(BlockPos vec) {
+        return (mc.world != null ? mc.world.getBlockState(vec).getBlock().getBlastResistance() : 0) >= 1200 || mc.world.getBlockState(vec).getBlock() == Blocks.COBWEB;
+    }
+
     @EventHandler
-    public void onRender(Render3DEvent event){
-        if (!isBurrowed) return;
-
-        event.renderer.box(burrowPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-
+    public void onRender(Render3DEvent event) {
+        if (pos == null) return;
+        event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 }

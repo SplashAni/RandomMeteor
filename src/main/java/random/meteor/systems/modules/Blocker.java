@@ -19,6 +19,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
 
+import java.util.Objects;
+
 public class Blocker extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -75,31 +77,41 @@ public class Blocker extends Module {
     );
 
     public Blocker() {
-        super(Main.RM,"anti-faceplace","im the most pro alive so pro");
+        super(Main.RM, "anti-faceplace", "im the most pro alive so pro");
     }
+
     BlockPos pos;
     int ticks;
 
     @EventHandler
-    public void onTick(TickEvent.Pre event){
-        for(Entity entity : mc.world.getEntities()){
-            if(entity.getType() == EntityType.END_CRYSTAL){
+    public void onTick(TickEvent.Pre event) {
+        boolean found = false;
+        for (Entity entity : Objects.requireNonNull(mc.world != null ? mc.world.getEntities() : null)) {
+            if (entity.getType() == EntityType.END_CRYSTAL) {
                 pos = entity.getBlockPos();
-                if(entity.isInRange(mc.player,range.get())){
+                if (entity.isInRange(mc.player, range.get())) {
+                    found = true;
                     ticks++;
-                    if(ticks >= delay.get()) {
+                    if (ticks >= delay.get()) {
                         FindItemResult block = InvUtils.findInHotbar(Items.OBSIDIAN);
                         if (rotate.get())
                             Rotations.rotate(Rotations.getYaw(entity), Rotations.getPitch(entity, Target.Body));
+                        assert mc.interactionManager != null;
                         mc.interactionManager.attackEntity(mc.player, entity);
                         BlockUtils.place(pos, block, rotate.get(), 50, swing.get(), false);
-                        if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
-                        ticks = 0;
+                        if (swing.get()) {
+                            assert mc.player != null;
+                            mc.player.swingHand(Hand.MAIN_HAND);
                         }
+                        ticks = 0;
                     }
                 }
             }
         }
+        if (!found) {
+            pos = null;
+        }
+    }
 
     @EventHandler
     private void onRender(Render3DEvent event) {
