@@ -8,6 +8,8 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
 
+import java.util.Objects;
+
 public class Twerk extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -30,7 +32,7 @@ public class Twerk extends Module {
             return;
         }
 
-        mc.options.sneakKey.setPressed(!mc.player.isSneaking());
+        mc.options.sneakKey.setPressed(!Objects.requireNonNull(mc.player).isSneaking());
         ticks = delay.get();
 
     }

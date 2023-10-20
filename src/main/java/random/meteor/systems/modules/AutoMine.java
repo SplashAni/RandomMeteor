@@ -82,6 +82,9 @@ public class AutoMine extends Module {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+        if (progress > 1.0f) {
+            progress = 1.0f;
+        }
 
         if (prev != null && remine.get())
             if (Utils.state(prev) != Blocks.AIR) switch (remineMode.get()) {
@@ -89,8 +92,18 @@ public class AutoMine extends Module {
                     pos = prev;
                     prev = null;
                 }
-                case Instant ->
-                        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
+                case Instant -> {
+                    FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(prev));
+
+                    if(tool.slot() != -1){
+                        InvUtils.swap(tool.slot(), true);
+                    }
+                    doCrystal(prev);
+
+                    mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
+
+                    InvUtils.swapBack();
+                }
             }
 
         if(didMine) {
@@ -130,7 +143,7 @@ public class AutoMine extends Module {
 
             if (tool.slot() != -1) {
 
-                doCrystal();
+                doCrystal(pos);
 
                 assert mc.player != null;
 
@@ -149,7 +162,7 @@ public class AutoMine extends Module {
             didMine = true;
         }
     }
-    public void doCrystal(){
+    public void doCrystal(BlockPos pos){
 
         FindItemResult crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
 
@@ -168,7 +181,9 @@ public class AutoMine extends Module {
     }
     @EventHandler
     private void onRender2D(Render2DEvent event) {
-        if (pos == null || progress == Float.POSITIVE_INFINITY || progress > 100)  return;
+
+        if(progress * 100 > 100) return;
+        if (pos == null || progress == Float.POSITIVE_INFINITY)  return;
         Vector3d v = new Vector3d();
         v.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
 
