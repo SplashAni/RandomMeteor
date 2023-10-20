@@ -31,7 +31,6 @@ public class InstantMend extends Module {
     @EventHandler
     public void onTick(TickEvent.Pre event) {
         FindItemResult exp = InvUtils.find(Items.EXPERIENCE_BOTTLE);
-
         for (int i = 0; i <= speed.get(); i++) {
             Utils.move(exp.slot(),mc.player.getInventory().selectedSlot);
             mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);

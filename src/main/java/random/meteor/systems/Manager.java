@@ -15,14 +15,12 @@ public class  Manager {
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
         m.add(new Prefix());
-        m.add(new GradientEsp());
         m.add(new ItemRenderer());
         m.add(new PistonPush());
         m.add(new BlockClap());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
         m.add(new TntAura());
-        m.add(new Blockpos());
         m.add(new AutoGold());
         m.add(new Twerk());
         m.add(new MinecartAura());
@@ -31,7 +29,6 @@ public class  Manager {
         m.add(new PistonBurrow());
         m.add(new CrystalBomb());
         m.add(new ToastNotifier());
-        m.add(new GodHand());
         m.add(new InstantMend());
         m.add(new AutoMine());
         m.add(new PlayerTp());
@@ -40,7 +37,6 @@ public class  Manager {
         m.forEach(module -> Modules.get().add(module));
     }
     private static void addCommands(){
-
         Commands.add(new Betrayed());
         Commands.add(new Dupe());
         Commands.add(new Unbind());

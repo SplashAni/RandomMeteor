@@ -19,7 +19,9 @@ public class Unbind extends Command {
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("module", ModuleArgumentType.create()).executes(context -> {
             context.getArgument("module", Module.class).keybind.set(Keybind.none());
-            info("Successfully unbinded module!");
+
+            info(context.getArgument("module",Module.class).name.concat( "has been unbinded."));
+
             return SINGLE_SUCCESS;
         }));
     }

@@ -2,7 +2,6 @@ package random.meteor.systems.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.commands.Command;
-import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import net.minecraft.command.CommandSource;
 
@@ -17,17 +16,16 @@ public class Dupe extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
-                    if(mc.player.getServer().isSingleplayer()) { // if this is ever gonna be on anticope its gotta be random not real
-                        String built = "";
-                        for (int i = 1; i < 5; i++) {
-                            built = built + (String.valueOf(r(1,255)) + ".");
-                        }
-                        ChatUtils.sendPlayerMsg("Hey guys im a monkey here's my ip: " + built);
-                    }
-                    else {
-                        ChatUtils.info("Successfully duped " + mc.player.getActiveItem());
-                    }
-                    return SINGLE_SUCCESS;
+            if (mc.player.getServer().isSingleplayer()) { // if this is ever gonna be on anticope its gotta be random not real
+                String built = "";
+                for (int i = 1; i < 5; i++) {
+                    built = built + (String.valueOf(r(1, 255)) + ".");
+                }
+                ChatUtils.sendPlayerMsg("Hey guys im a monkey here's my ip: " + built);
+            } else {
+                ChatUtils.info("Successfully duped " + mc.player.getActiveItem());
+            }
+            return SINGLE_SUCCESS;
         });
     }
 

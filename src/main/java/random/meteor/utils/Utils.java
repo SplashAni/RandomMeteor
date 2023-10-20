@@ -55,23 +55,7 @@ public class Utils {
                 mc.player.isOnGround()
         ));
     }
-    public static List placeableBlocks(double reach) {
-        List<BlockPos> blocks = new ArrayList<>();
 
-        reach = reach / 2;
-
-        assert mc.player != null;
-        BlockPos pos = mc.player.getBlockPos();
-
-        for (int x = (int) (pos.getX() - reach); x < (int) (pos.getX() + reach + 1); x++) {
-            for (int z = (int) (pos.getZ() - reach); z < (int) (pos.getZ() + reach + 1); z++) {
-                for (int y = (int) (pos.getY() - reach); y < (int) (pos.getY() + reach + 1); y++) {
-                    blocks.add(new BlockPos(x, y, z));
-                }
-            }
-        }
-        return blocks;
-    }
     public static void throwPearl(int value) {
         FindItemResult pearl = InvUtils.findInHotbar(Items.ENDER_PEARL);
         if (!pearl.found()) return;

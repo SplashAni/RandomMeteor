@@ -1,16 +1,10 @@
 package random.meteor.systems.modules;
 
-import meteordevelopment.meteorclient.events.entity.DamageEvent;
-import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
-import meteordevelopment.meteorclient.events.entity.EntityRemovedEvent;
-import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.orbit.EventHandler;
-import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
 import random.meteor.Main;
 
 import java.awt.*;
@@ -56,56 +50,10 @@ public class ToastNotifier extends Module {
 
     int ticks;
 
-    @EventHandler
-    public void onTick() {
-
-        if(toSend.isEmpty()) return;
-
-
-        for(String s : toSend){
-            sendToast(s);
-        }
-
-    }
-
-    @EventHandler
-    public void onDamage(DamageEvent event) {
-        if (event.entity.getUuid() == null) return;
-
-        assert mc.player != null;
-
-        if (event.entity.getUuid().equals(mc.player.getUuid()) && damage.get()) { /*gradle demon im 😰🥶*/
-            if (event.amount > 1) return; /*we dont want small shit plz :sob:*/
-            toSend.add(("You took " + event.amount + "damage " + "from " + event.entity));
-        }
-    }
-
-    @EventHandler
-    private void entityRemoved(EntityRemovedEvent event) {
-        assert mc.player != null;
-        if (!event.entity.getUuid().equals(mc.player.getUuid()) && visualRange.get()) {
-            toSend.add((event.entity.getEntityName() + " has left you visual range."));
-        }
-    }
-
-    @EventHandler
-    private void entityAdded(EntityAddedEvent event) {
-        assert mc.player != null;
-        if (!event.entity.getUuid().equals(mc.player.getUuid()) && visualRange.get()) {
-            toSend.add((event.entity.getEntityName() + " has entered you visual range."));
-        }
-    }
-
-    @EventHandler
-    private void onPacketReceive(PacketEvent.Receive event) {
-        if (!death.get()) return;
-
-        if (event.packet instanceof DeathMessageS2CPacket packet) {
-            assert mc.world != null;
-            if (mc.world.getEntityById(packet.getEntityId()) == mc.player) {
-                toSend.add("You have died because of \"" + packet.getMessage() + "\"");
-            }
-        }
+    @Override
+    public void onActivate() {
+        sendToast("hi");
+        super.onActivate();
     }
 
     public boolean sendToast(String info) {
