@@ -50,6 +50,7 @@ public class AutoMine extends Module {
             .build()
     );
 
+
     private final Setting<Boolean> remine = sgGeneral.add(new BoolSetting.Builder()
             .name("auto-remine")
             .defaultValue(true)

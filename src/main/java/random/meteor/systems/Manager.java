@@ -28,6 +28,7 @@ public class  Manager {
         m.add(new Blocker());
         m.add(new PistonBurrow());
         m.add(new CrystalBomb());
+        m.add(new AutoXd());
        // m.add(new ToastNotifier());
         m.add(new InstantMend());
         m.add(new AutoMine());
