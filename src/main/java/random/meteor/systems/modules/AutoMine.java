@@ -183,6 +183,7 @@ public class AutoMine extends Module {
     private void onRender2D(Render2DEvent event) {
 
         if(progress * 100 > 100) return;
+
         if (pos == null || progress == Float.POSITIVE_INFINITY)  return;
         Vector3d v = new Vector3d();
         v.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
