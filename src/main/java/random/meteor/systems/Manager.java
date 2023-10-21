@@ -29,7 +29,6 @@ public class  Manager {
         m.add(new PistonBurrow());
         m.add(new AutoCum());
         m.add(new AutoRun());
-        m.add(new PistonAura());
         m .add(new CrystalBomb());
         m.add(new AutoXd());
         m.add(new InstantMend());

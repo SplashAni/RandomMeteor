@@ -8,15 +8,15 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.player.FindItemResult;
-import meteordevelopment.meteorclient.utils.player.InvUtils;
-import meteordevelopment.meteorclient.utils.player.Rotations;
+import meteordevelopment.meteorclient.utils.player.*;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
@@ -52,8 +52,25 @@ public class AutoMine extends Module {
             .defaultValue(false)
             .build()
     );
-
-
+    private final Setting<Boolean> placeCrystal = sgGeneral.add(new BoolSetting.Builder()
+            .name("place-crystal")
+            .defaultValue(true)
+            .build()
+    );
+    private final Setting<Boolean> breakCrystal = sgGeneral.add(new BoolSetting.Builder()
+            .name("break-crystal")
+            .defaultValue(true)
+            .build()
+    );
+    private final Setting<Integer> maxSelfDmg = sgGeneral.add(new IntSetting.Builder()
+            .name("max-self-dmg")
+            .description("")
+            .defaultValue(5)
+            .range(1,36)
+            .sliderMax(36)
+            .visible(breakCrystal::get)
+            .build()
+    );
     private final Setting<mineMode> remineMode = sgGeneral.add(new EnumSetting.Builder<mineMode>()
             .name("remine-mode")
             .visible(remine::get)
@@ -112,8 +129,22 @@ public class AutoMine extends Module {
 
     boolean didMine = false;
 
+    boolean canClear;
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+
+        if(canClear){
+            for (Entity e : Objects.requireNonNull(mc.world).getEntities()) {
+                if (e instanceof EndCrystalEntity) {
+
+                    double selfDmg = DamageUtils.crystalDamage(mc.player, e.getPos(), false, e.getBlockPos(),true);
+
+                    if(selfDmg > maxSelfDmg.get()) continue;
+
+                    if (PlayerUtils.isWithin(e, 5)) mc.interactionManager.attackEntity(mc.player, e);
+                }
+            }
+        }
 
         if (prev != null && remine.get())
             if (Utils.state(prev) != Blocks.AIR) switch (remineMode.get()) {
@@ -127,13 +158,18 @@ public class AutoMine extends Module {
                     if (tool.slot() != -1) {
                         InvUtils.swap(tool.slot(), true);
                     }
-                    doCrystal(prev);
 
-                    if(rotate.get()) Rotations.rotate(Rotations.getYaw(prev), Rotations.getPitch(prev));
+                    if (placeCrystal.get()) doCrystal(prev);
+
+                    if (rotate.get()) Rotations.rotate(Rotations.getYaw(prev), Rotations.getPitch(prev));
 
                     Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
 
+                    canClear = true;
+
                     InvUtils.swapBack();
+
+                    canClear = false;
                 }
             }
 
@@ -143,6 +179,7 @@ public class AutoMine extends Module {
             prev = pos;
             pos = null;
             didMine = false;
+            canClear = false;
         }
 
 
@@ -157,7 +194,7 @@ public class AutoMine extends Module {
             InvUtils.swap(tool.slot(), true);
         }
 
-        if(rotate.get()) Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos));
+        if (rotate.get()) Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos));
 
         Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
@@ -166,7 +203,7 @@ public class AutoMine extends Module {
 
             if (tool.slot() != -1) {
 
-                doCrystal(pos);
+                if (placeCrystal.get()) doCrystal(pos);
 
                 assert mc.player != null;
 
@@ -181,6 +218,8 @@ public class AutoMine extends Module {
                 assert mc.player != null;
                 Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
             }
+            canClear = true;
+
 
             didMine = true;
         }
@@ -226,9 +265,7 @@ public class AutoMine extends Module {
         }
     }
 
-    public void clearCrystals(){
 
-    }
     @EventHandler
     public void onRender(Render3DEvent event) {
         if (renderMode.get() != RenderMode.Custom) return;
