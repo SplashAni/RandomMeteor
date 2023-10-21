@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import random.meteor.utils.ShapesUtils;
+import random.meteor.utils.enums.Shapes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class KillAuraMixin extends Module {
     private Setting<Integer> downSpeed;
     private Setting<Integer> size;
     @Unique
-    Setting<ShapesUtils.Shapes> mode;
+    Setting<Shapes> mode;
     @Unique
     private Setting<SettingColor> color;
 
@@ -66,10 +66,10 @@ public class KillAuraMixin extends Module {
             .build()
         );
 
-        mode = sgRender.add(new EnumSetting.Builder<ShapesUtils.Shapes>()
+        mode = sgRender.add(new EnumSetting.Builder<Shapes>()
             .name("shape")
             .description("what shape to render")
-            .defaultValue(ShapesUtils.Shapes.Circle)
+            .defaultValue(Shapes.Circle)
             .visible(render::get)
             .build()
         );

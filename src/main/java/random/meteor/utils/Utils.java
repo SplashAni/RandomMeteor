@@ -24,11 +24,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -86,6 +83,10 @@ public class Utils {
         mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(handler.syncId, handler.getRevision(), PlayerInventory.MAIN_SIZE + from, to, SlotActionType.SWAP, handler.getCursorStack().copy(), stack));
     }
 
+    public Block[] xd(){
+        Block[] blocks = new Block[1];
+        return blocks;
+    }
     public static final Block[] SHULKER_BLOCKS = new Block[]{
         Blocks.SHULKER_BOX,
         Blocks.WHITE_SHULKER_BOX,
@@ -138,7 +139,6 @@ public class Utils {
     }
 
 
-
     public static void switchToGold() {
         int goldSlot = -1;
         for (int i = 0; i < 9; i++) {
@@ -151,11 +151,6 @@ public class Utils {
         if (goldSlot != -1) {
             mc.player.getInventory().selectedSlot = goldSlot;
         }
-    }
-
-    public static Direction getBestDirection() {
-        Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
-        return directions[random.nextInt(directions.length)];
     }
 
     public static float getYawFromDirection(Direction direction) {
@@ -171,12 +166,6 @@ public class Utils {
         return 0;
     }
 
-    public static double distanceTo(BlockPos blockPos1, BlockPos blockPos2) {
-        double d = blockPos1.getX() - blockPos2.getX();
-        double e = blockPos1.getY() - blockPos2.getY();
-        double f = blockPos1.getZ() - blockPos2.getZ();
-        return MathHelper.sqrt((float) (d * d + e * e + f * f));
-    }
 
     public static boolean isNether() {
         return mc.world.getDimension().respawnAnchorWorks();
@@ -209,11 +198,6 @@ public class Utils {
         return null;
     }
 
-    public static void swapRun(int slot, boolean back, Runnable execute) {
-        InvUtils.swap(slot, back);
-        execute.run();
-        if (back) InvUtils.swapBack();
-    }
     public static boolean isBlock(BlockPos p){
         return state(p).equals(Blocks.AIR);
     }

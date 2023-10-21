@@ -8,8 +8,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import random.meteor.systems.modules.AutoMine;
+import random.meteor.utils.enums.RenderMode;
 
-@Mixin(value = BreakIndicators.class,remap = false)
+@Mixin(value = BreakIndicators.class, remap = false)
 public abstract class BreakIndicatorsMixin {
 
 
@@ -23,20 +24,20 @@ public abstract class BreakIndicatorsMixin {
     private BlockPos kys(ClientPlayerInteractionManagerAccessor instance) {
         AutoMine autoMine = Modules.get().get(AutoMine.class);
 
-        if(!autoMine.isActive() || autoMine.pos == null) return instance.getCurrentBreakingBlockPos();
+        if (!autoMine.isActive() || autoMine.pos == null || autoMine.renderMode.get() != RenderMode.BreakIndicators) return instance.getCurrentBreakingBlockPos();
         return autoMine.pos;
     }
 
     @Redirect(method = "renderNormal",
-    at = @At(
-            value = "INVOKE",
-            target = "Lmeteordevelopment/meteorclient/mixin/ClientPlayerInteractionManagerAccessor;getBreakingProgress()F"
-        )
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lmeteordevelopment/meteorclient/mixin/ClientPlayerInteractionManagerAccessor;getBreakingProgress()F"
+            )
     )
     public float ok(ClientPlayerInteractionManagerAccessor instance) {
         AutoMine autoMine = Modules.get().get(AutoMine.class);
 
-        if (!autoMine.isActive() || autoMine.pos == null) return instance.getBreakingProgress();
+        if (!autoMine.isActive() || autoMine.pos == null || autoMine.renderMode.get() != RenderMode.BreakIndicators) return instance.getBreakingProgress();
 
         return autoMine.progress;
     }
