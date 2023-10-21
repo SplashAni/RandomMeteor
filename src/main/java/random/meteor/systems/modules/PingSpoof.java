@@ -80,7 +80,7 @@ public class PingSpoof extends Module {
     public void onInteract(InteractBlockEvent event){
         if(!blocks.get()) return;
 
-        actions.add(new task(event.result.getBlockPos(), (Block) mc.player.getHandItems()));
+        actions.add(new task(event.result.getBlockPos(), (Block) Objects.requireNonNull(mc.player).getHandItems()));
         event.cancel();
     }
 
@@ -92,7 +92,7 @@ public class PingSpoof extends Module {
         while (iterator.hasNext()) {
             KeepAliveC2SPacket packet = iterator.next();
             if (System.currentTimeMillis() + ping.get() <= currentTime) {
-                mc.getNetworkHandler().sendPacket(packet);
+                Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(packet);
                 iterator.remove();
             }
         }
@@ -118,7 +118,7 @@ public class PingSpoof extends Module {
             while (iterator.hasNext()) {
                 KeepAliveC2SPacket packet = iterator.next();
                 if (System.currentTimeMillis() + ping.get() <= time) {
-                    mc.getNetworkHandler().sendPacket(packet);
+                    Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(packet);
                     iterator.remove();
                     break;
                 }

@@ -46,16 +46,15 @@ public class AutoXd extends Module {
             long timer = System.currentTimeMillis() - startTime;
             MatrixStack matrices = event.drawContext.getMatrices();
             double renderMultiplier = renderSpeed.get();
-            int widthGoal = 256;
-            int heightGoal = 256;
             int scale = 30 * 100;
             if (timer <= scale) {
-                int centerX = (event.screenWidth - widthGoal) / 2;
+                int centerX = (event.screenWidth - 257) / 2;
                 int centerY = (int) (event.screenHeight - (timer * renderMultiplier));
 
                 matrices.push();
                 matrices.translate(centerX, centerY, 0);
-                event.drawContext.drawTexture( new Identifier("random", "xd.png"), 0, 0, 0, 0, widthGoal, heightGoal);
+
+                event.drawContext.drawTexture( new Identifier("random", "xd.png"), 0, 0, 0, 0, 257, 256);
                 matrices.pop();
             } else {
                 render = false;

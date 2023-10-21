@@ -27,12 +27,13 @@ public class Twerk extends Module {
     }
     @EventHandler
     public void onTick(TickEvent.Pre event){
-        if(ticks > 0 ){ /*deincrementing hits different :wear:*/
+        if(ticks > 0 ){
             ticks--;
             return;
         }
 
         mc.options.sneakKey.setPressed(!Objects.requireNonNull(mc.player).isSneaking());
+
         ticks = delay.get();
 
     }

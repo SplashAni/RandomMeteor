@@ -27,10 +27,12 @@ public class  Manager {
         m.add(new BurrowEsp());
         m.add(new Blocker());
         m.add(new PistonBurrow());
-        m.add(new CrystalBomb());
+        m.add(new AutoCum());
+        m.add(new AutoRun());
+        m .add(new CrystalBomb());
         m.add(new AutoXd());
-       // m.add(new ToastNotifier());
         m.add(new InstantMend());
+        m.add(new AutoCum());
         m.add(new AutoMine());
         m.add(new PlayerTp());
         m.add(new CustomRpc());

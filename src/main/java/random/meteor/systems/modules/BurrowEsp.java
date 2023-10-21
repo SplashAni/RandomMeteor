@@ -17,9 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import org.joml.Vector3d;
 import random.meteor.Main;
 
-import java.util.Collections;
-import java.util.List;
-
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
@@ -45,9 +42,9 @@ public class BurrowEsp extends Module {
             .sliderRange(0.01, 3)
             .build());
 
-    private final Setting<List<String>> text = sgRender.add(new StringListSetting.Builder()
-            .name("Burrowed")
-            .defaultValue(Collections.emptyList())
+    private final Setting<String> text = sgRender.add(new StringSetting.Builder()
+            .name("Text")
+            .defaultValue("Burrowed")
             .visible(renderText::get)
             .build());
 
@@ -109,10 +106,9 @@ public class BurrowEsp extends Module {
     public void on2DRender(Render2DEvent event) {
         if (pos == null) return;
 
-        Vector3d vec = new Vector3d(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5);
-
-
-        vec.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
+        Vector3d vec = new Vector3d(this.pos.toCenterPos().toVector3f());
+        
+        vec.set(vec);
 
         if (NametagUtils.to2D(vec, scale.get())) {
             NametagUtils.begin(vec);
