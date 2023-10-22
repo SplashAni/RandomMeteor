@@ -23,9 +23,11 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Objects;
 import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -192,7 +194,9 @@ public class Utils {
     public static EndCrystalEntity getCrystal(BlockPos pos){
         assert mc.world != null;
         for (Entity entity : mc.world.getEntities()){
-            if (entity == null) continue;
+
+            if(!(entity instanceof EndCrystalEntity)) continue;
+
             if (entity.getBlockPos().equals(pos.up())) return (EndCrystalEntity) entity;
         }
         return null;
