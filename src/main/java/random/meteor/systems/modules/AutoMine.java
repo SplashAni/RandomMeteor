@@ -32,6 +32,8 @@ import random.meteor.utils.enums.RenderMode;
 
 import java.util.Objects;
 
+import static random.meteor.utils.Utils.isRange;
+
 
 public class AutoMine extends Module {
 
@@ -51,6 +53,7 @@ public class AutoMine extends Module {
             .defaultValue(true)
             .build()
     );
+
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
             .name("rotate")
             .defaultValue(false)
@@ -148,27 +151,33 @@ public class AutoMine extends Module {
         super(Main.RM, "auto-mine", "insane");
     }
 
-    public BlockPos pos, prev;
+    public BlockPos pos,prev;
     public float progress = 0.0f;
+    boolean didMine,canClear,didChange;
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
         if (!BlockUtils.canBreak(event.blockPos)) return;
+        if(pos != null) {
+            didChange = true;
+        }
         pos = event.blockPos;
+        canClear = false;
         progress = 0.0f;
     }
 
-    boolean didMine = false;
-    boolean canClear;
+
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
 
         if (canClear && breakCrystal.get()) {
-`            for (Entity e : Objects.requireNonNull(mc.world).getEntities()) {
+            for (Entity e : Objects.requireNonNull(mc.world).getEntities()) {
                 if (e instanceof EndCrystalEntity) {
-                    double selfDmg = DamageUtils.crystalDamage(mc.player, e.getPos(), false, e.getBlockPos(), true);
                     if(Utils.state(e.getBlockPos()) != Blocks.AIR) return;
+
+                    double selfDmg = DamageUtils.crystalDamage(mc.player, e.getPos(), false, e.getBlockPos().down(), true);
+
                     if (selfDmg > maxSelfDmg.get()) continue;
 
                     if (PlayerUtils.isWithin(e, 5)) {
@@ -177,8 +186,14 @@ public class AutoMine extends Module {
                 }
             }
         }
+        if(didChange){
+            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
+            prev = null;
+            didChange = false;
+        }
 
-        if (prev != null && remine.get() && !shouldPause())
+        if (prev != null && remine.get()) {
+
             if (Utils.state(prev) != Blocks.AIR) switch (remineMode.get()) {
                 case Normal -> {
                     pos = prev;
@@ -205,16 +220,15 @@ public class AutoMine extends Module {
                     canClear = false;
                 }
             }
+        }
 
         if (didMine) {
             Utils.updateHotbar();
             progress = 0f;
             prev = pos;
             pos = null;
-            canClear = false;
             didMine = false;
         }
-
 
         if (pos == null) return;
 
@@ -233,6 +247,8 @@ public class AutoMine extends Module {
 
         Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
+
+        canClear = false;
 
         if (progress >= 1) {
 
@@ -253,6 +269,9 @@ public class AutoMine extends Module {
                 assert mc.player != null;
                 Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
             }
+
+            if(Utils.state(pos) != Blocks.AIR) return;
+
             canClear = true;
 
 
@@ -262,7 +281,7 @@ public class AutoMine extends Module {
     }
 
     public void doCrystal(BlockPos pos) {
-
+        if(!isRange(mc.player != null ? mc.player : null,pos,5)) return;
         FindItemResult crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
 
         if ((Utils.state(pos) == Blocks.OBSIDIAN) && crystal.isHotbar()) {

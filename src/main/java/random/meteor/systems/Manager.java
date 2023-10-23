@@ -31,10 +31,12 @@ public class  Manager {
         m.add(new AutoRun());
         m .add(new CrystalBomb());
         m.add(new AutoXd());
+        m.add(new Multitask());
         m.add(new InstantMend());
         m.add(new AutoCum());
         m.add(new AutoMine());
         m.add(new PlayerTp());
+        m.add(new MeteorSpoof());
         m.add(new CustomRpc());
         m.add(new FakeKick());
         m.forEach(module -> Modules.get().add(module));

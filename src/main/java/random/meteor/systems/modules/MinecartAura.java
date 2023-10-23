@@ -254,6 +254,7 @@ public class MinecartAura extends Module {
                                     mc.options.useKey.setPressed(true);
                                     if (mc.player.getItemUseTime() > delay) {
                                         assert mc.interactionManager != null;
+
                                         Utils.rotate(EntityType.TNT_MINECART);
                                         mc.interactionManager.stopUsingItem(mc.player);
                                         mc.options.useKey.setPressed(false);

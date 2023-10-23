@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
@@ -20,27 +21,13 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.Objects;
-import java.util.Random;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
 
 public class Utils {
-    private static final Random random = new Random();
-
-    public static void placeCrystal(BlockPos pos, FindItemResult crystal){
-        InvUtils.swap(crystal.slot(),false);
-        assert mc.interactionManager != null;
-        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(pos.toCenterPos(), Direction.UP, pos, true));
-    }
     public static void updateHotbar() {
         assert mc.player != null;
         mc.player.getInventory();
@@ -71,7 +58,14 @@ public class Utils {
             }
         });
     }
+    public static boolean isRange(PlayerEntity player, BlockPos poz, int range) {
+        BlockPos playerPos = player.getBlockPos();
+        int distanceX = Math.abs(playerPos.getX() - poz.getX());
+        int distanceY = Math.abs(playerPos.getY() - poz.getY());
+        int distanceZ = Math.abs(playerPos.getZ() - poz.getZ());
 
+        return distanceX <= range && distanceY <= range && distanceZ <= range;
+    }
 
     /*thanks daddy @EurekaEffect :wink:
      * https://media.discordapp.net/attachments/955857188130283621/1144293552550068224/image.png?width=593&height=456*/
@@ -153,19 +147,6 @@ public class Utils {
         if (goldSlot != -1) {
             mc.player.getInventory().selectedSlot = goldSlot;
         }
-    }
-
-    public static float getYawFromDirection(Direction direction) {
-        if (direction == Direction.NORTH) {
-            return 180;
-        } else if (direction == Direction.SOUTH) {
-            return 360;
-        } else if (direction == Direction.WEST) {
-            return 90;
-        } else if (direction == Direction.EAST) {
-            return 270;
-        }
-        return 0;
     }
 
 
