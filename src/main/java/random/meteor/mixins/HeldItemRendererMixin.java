@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,7 +20,6 @@ public class HeldItemRendererMixin {
             ,at = @At("HEAD"))
     public void renderItem(float tickDelta, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, ClientPlayerEntity player, int light, CallbackInfo ci) {
         ItemRenderer ir = Modules.get().get(ItemRenderer.class);
-        OutlineVertexConsumerProvider outlineVertexConsumerProvider = new OutlineVertexConsumerProvider(vertexConsumers);
 
         if (ir.isActive()) {
             Color color = ir.handColor.get();
