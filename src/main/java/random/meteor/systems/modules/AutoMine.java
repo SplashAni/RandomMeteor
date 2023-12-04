@@ -151,21 +151,20 @@ public class AutoMine extends Module {
         super(Main.RM, "auto-mine", "insane");
     }
 
-    public BlockPos pos,prev;
+    public BlockPos pos, prev;
     public float progress = 0.0f;
-    boolean didMine,canClear,didChange;
+    boolean didMine, canClear;
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
         if (!BlockUtils.canBreak(event.blockPos)) return;
-        if(pos != null) {
-            didChange = true;
+        if (pos != null) {
+            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
         }
         pos = event.blockPos;
         canClear = false;
         progress = 0.0f;
     }
-
 
 
     @EventHandler
@@ -174,7 +173,7 @@ public class AutoMine extends Module {
         if (canClear && breakCrystal.get()) {
             for (Entity e : Objects.requireNonNull(mc.world).getEntities()) {
                 if (e instanceof EndCrystalEntity) {
-                    if(Utils.state(e.getBlockPos()) != Blocks.AIR) return;
+                    if (Utils.state(e.getBlockPos()) != Blocks.AIR) return;
 
                     double selfDmg = DamageUtils.crystalDamage(mc.player, e.getPos(), false, e.getBlockPos().down(), true);
 
@@ -186,11 +185,7 @@ public class AutoMine extends Module {
                 }
             }
         }
-        if(didChange){
-            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
-            prev = null;
-            didChange = false;
-        }
+
 
         if (prev != null && remine.get()) {
 
@@ -270,10 +265,9 @@ public class AutoMine extends Module {
                 Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
             }
 
-            if(Utils.state(pos) != Blocks.AIR) return;
+            if (Utils.state(pos) != Blocks.AIR) return;
 
             canClear = true;
-
 
             didMine = true;
 
@@ -281,7 +275,7 @@ public class AutoMine extends Module {
     }
 
     public void doCrystal(BlockPos pos) {
-        if(!isRange(mc.player != null ? mc.player : null,pos,5)) return;
+        if (!isRange(mc.player != null ? mc.player : null, pos, 5)) return;
         FindItemResult crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
 
         if ((Utils.state(pos) == Blocks.OBSIDIAN) && crystal.isHotbar()) {

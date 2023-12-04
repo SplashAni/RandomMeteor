@@ -24,7 +24,8 @@ public abstract class BreakIndicatorsMixin {
     private BlockPos kys(ClientPlayerInteractionManagerAccessor instance) {
         AutoMine autoMine = Modules.get().get(AutoMine.class);
 
-        if (!autoMine.isActive() || autoMine.pos == null || autoMine.renderMode.get() != RenderMode.BreakIndicators) return instance.getCurrentBreakingBlockPos();
+        if (!autoMine.isActive() || autoMine.pos == null || autoMine.progress > 1 || autoMine.renderMode.get() != RenderMode.BreakIndicators)
+            return instance.getCurrentBreakingBlockPos();
         return autoMine.pos;
     }
 
@@ -37,7 +38,8 @@ public abstract class BreakIndicatorsMixin {
     public float ok(ClientPlayerInteractionManagerAccessor instance) {
         AutoMine autoMine = Modules.get().get(AutoMine.class);
 
-        if (!autoMine.isActive() || autoMine.pos == null || autoMine.renderMode.get() != RenderMode.BreakIndicators) return instance.getBreakingProgress();
+        if (!autoMine.isActive() || autoMine.pos == null || autoMine.progress > 1 || autoMine.renderMode.get() != RenderMode.BreakIndicators)
+            return instance.getBreakingProgress();
 
         return autoMine.progress;
     }

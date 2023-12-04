@@ -9,8 +9,8 @@ import random.meteor.systems.modules.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class  Manager {
-    private static void addModules(){
+public class Manager {
+    private static void addModules() {
 
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
@@ -24,12 +24,13 @@ public class  Manager {
         m.add(new AutoGold());
         m.add(new Twerk());
         m.add(new MinecartAura());
+        m.add(new AutoSnowball());
         m.add(new BurrowEsp());
         m.add(new Blocker());
         m.add(new PistonBurrow());
         m.add(new AutoCum());
         m.add(new AutoRun());
-        m .add(new CrystalBomb());
+        m.add(new CrystalBomb());
         m.add(new AutoXd());
         m.add(new Multitask());
         m.add(new InstantMend());
@@ -42,7 +43,8 @@ public class  Manager {
         m.add(new FakeKick());
         m.forEach(module -> Modules.get().add(module));
     }
-    private static void addCommands(){
+
+    private static void addCommands() {
         Commands.add(new Betrayed());
         Commands.add(new Dupe());
         Commands.add(new Unbind());
@@ -53,10 +55,12 @@ public class  Manager {
         Commands.add(new Title());
         Commands.add(new Tts());
     }
-    private static void addHud(){
+
+    private static void addHud() {
         /* hud modules soon inshallah*/
     }
-    public static void init(){
+
+    public static void init() {
         addModules();
         addCommands();
         addHud();
