@@ -54,7 +54,13 @@ public class PistonAura extends Module {
             .sliderRange(1, 50)
             .build()
     );
-
+    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
+            .name("attack-delay")
+            .defaultValue(1)
+            .min(1)
+            .sliderRange(1, 50)
+            .build()
+    );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
             .name("rotate")
             .description("Automatically rotates you towards the city block.")
@@ -73,7 +79,7 @@ public class PistonAura extends Module {
     }
 
     CalculatedPos calculated;
-    
+    int crystalTick, redstoneTick, pistonTick, attackTick;
     public Stage stage;
 
     @EventHandler
@@ -93,19 +99,43 @@ public class PistonAura extends Module {
         switch (stage) {
 
             case Piston -> {
-                BlockUtils.place(calculated.pistonPos, piston, true, 50);
-                stage = Stage.Crystal;
+                if (pistonTick >= pistonDelay.get()) {
+                    BlockUtils.place(calculated.pistonPos, piston, true, 50);
+                    pistonTick = 0;
+                    stage = Stage.Crystal;
+                } else
+                    pistonTick++;
             }
             case Crystal -> {
-                InvUtils.swap(crystal.slot(), true);
-                mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(Vec3d.of(calculated.basePos), Direction.UP, calculated.basePos, true));
-                InvUtils.swapBack();
-                stage = Stage.Redstone;
+
+                if (crystalTick >= crystalDelay.get()) {
+
+                    InvUtils.swap(crystal.slot(), true);
+                    mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(Vec3d.of(calculated.basePos), Direction.UP, calculated.basePos, true));
+                    InvUtils.swapBack();
+
+                    crystalTick = 0;
+                    stage = Stage.Redstone;
+                } else crystalTick++;
             }
             case Redstone -> {
-                BlockUtils.place(calculated.redstonePos, redstoneBlock, true, 50);
-                if (getCrystal(calculated.basePos) != null) {
-                    mc.interactionManager.attackEntity(mc.player, getCrystal(calculated.basePos));
+
+                boolean canAttack = false;
+
+                if (redstoneTick >= redstoneDelay.get()) {
+                    BlockUtils.place(calculated.redstonePos, redstoneBlock, true, 50);
+                    canAttack = true;
+                    redstoneTick = 0;
+                } else redstoneTick++;
+
+                if (attackTick >= attackDelay.get()) {
+                    if (getCrystal(calculated.basePos) != null) {
+                        mc.interactionManager.attackEntity(mc.player, getCrystal(calculated.basePos));
+                    }
+                    attackTick = 0;
+                    stage = Stage.Piston;
+                } else {
+                    if (canAttack) attackTick++; // logic genius 😰
                 }
             }
         }
