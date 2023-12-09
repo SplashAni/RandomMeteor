@@ -1,15 +1,16 @@
 package random.meteor.systems.modules;
 
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.render.color.Color;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
-import random.meteor.utils.PistonInfo;
 import random.meteor.utils.Utils;
 
 public class PistonAura extends Module {
@@ -17,37 +18,53 @@ public class PistonAura extends Module {
         super(Main.RM, "piston-aura", "iced out");
     }
 
-    @Override
-    public void onActivate() {
-        super.onActivate();
-    }
-
-    BlockPos pistonPos;
-    PistonInfo pistonInfo;
-    BaseInfo baseInfo;
-    PlayerEntity target;
+    CalculatedPos calculated = null;
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
 
+        for (Direction direction : Direction.values()) {
+            if (direction == Direction.UP || direction == Direction.DOWN) continue;
 
-        for (Direction d : Direction.values()) {
+            BlockPos offset = mc.player.getBlockPos().offset(direction);
 
-            if (d == Direction.UP || d == Direction.DOWN) continue;
-            Block state = Utils.state(target.getBlockPos().offset(d));
+            if (!BlockUtils.canPlace(offset) && Utils.state(offset) != Blocks.OBSIDIAN) continue;
 
-            if (state == Blocks.AIR) baseInfo = new BaseInfo(true);
+            BlockPos pistonPos = offset.offset(direction).up();
 
-            if (state == Blocks.OBSIDIAN || state == Blocks.BEDROCK) baseInfo = new BaseInfo(false);
+            if (!BlockUtils.canPlace(pistonPos)) continue;
+
+            BlockPos redstonePos = null;
+
+            for (Direction d : Direction.values()) {
+                if (BlockUtils.canPlace(pistonPos.offset(d))) redstonePos = pistonPos.offset(d);
+                break;
+            }
+
+            if (redstonePos == null) continue;
+
+            calculated = new CalculatedPos(
+                    pistonPos, offset, redstonePos
+            );
+            break;
+
         }
-
-        if(baseInfo == null) return;
-
-        
 
     }
 
-    public record BaseInfo(boolean place) {
+    @EventHandler
+    private void onRender(Render3DEvent event) {
+        if (calculated == null) return;
+        if(!calculated.isValid()) return;
+        event.renderer.box(calculated.basePos, Color.BLUE.a(120), Color.BLUE.toSetting(), ShapeMode.Sides, 0);
+        event.renderer.box(calculated.pistonPos, Color.YELLOW.a(120), Color.BLUE.toSetting(), ShapeMode.Sides, 0);
+        event.renderer.box(calculated.redstonePos, Color.RED.a(120), Color.BLUE.toSetting(), ShapeMode.Sides, 0);
 
+    }
+
+    public record CalculatedPos(BlockPos pistonPos, BlockPos basePos, BlockPos redstonePos) {
+        public boolean isValid() {
+            return  pistonPos != null && basePos != null && redstonePos != null;
+        }
     }
 }

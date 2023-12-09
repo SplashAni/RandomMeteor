@@ -28,7 +28,6 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 import random.meteor.Main;
 import random.meteor.utils.Utils;
-import random.meteor.utils.enums.RenderMode;
 
 import java.util.Objects;
 
@@ -53,7 +52,11 @@ public class AutoMine extends Module {
             .defaultValue(true)
             .build()
     );
-
+    private final Setting<Boolean> removeClientside = sgGeneral.add(new BoolSetting.Builder()
+            .name("remove-clientside")
+            .defaultValue(false)
+            .build()
+    );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
             .name("rotate")
             .defaultValue(false)
@@ -117,9 +120,9 @@ public class AutoMine extends Module {
             .defaultValue(true)
             .build()
     );
-    public final Setting<RenderMode> renderMode = sgRender.add(new EnumSetting.Builder<RenderMode>()
-            .name("render-mode")
-            .defaultValue(RenderMode.BreakIndicators)
+    private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder()
+            .name("render")
+            .defaultValue(true)
             .build()
     );
 
@@ -127,7 +130,7 @@ public class AutoMine extends Module {
             .name("shape-mode")
             .description("How the shapes are rendered.")
             .defaultValue(ShapeMode.Both)
-            .visible(() -> renderMode.get() == RenderMode.Custom)
+            .visible(render::get)
             .build()
     );
 
@@ -135,7 +138,7 @@ public class AutoMine extends Module {
             .name("side-color")
             .description("The side color of the rendering.")
             .defaultValue(new SettingColor(225, 0, 0, 75))
-            .visible(() -> renderMode.get() == RenderMode.Custom)
+            .visible(render::get)
             .build()
     );
 
@@ -143,7 +146,7 @@ public class AutoMine extends Module {
             .name("line-color")
             .description("The line color of the rendering.")
             .defaultValue(new SettingColor(225, 0, 0, 255))
-            .visible(() -> renderMode.get() == RenderMode.Custom)
+            .visible(render::get)
             .build()
     );
 
@@ -159,7 +162,8 @@ public class AutoMine extends Module {
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
         if (!BlockUtils.canBreak(event.blockPos)) return;
         if (pos != null) {
-            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
+            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
+            info("ABORTED BLOCKJ BREAKING ");
         }
         pos = event.blockPos;
         canClear = false;
@@ -209,7 +213,6 @@ public class AutoMine extends Module {
 
                     Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
 
-
                     InvUtils.swapBack();
 
                     canClear = false;
@@ -241,11 +244,13 @@ public class AutoMine extends Module {
         if (shouldPause()) return;
 
         Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
+        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
 
         canClear = false;
 
         if (progress >= 1) {
+
+            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
 
             if (tool.slot() != -1) {
 
@@ -265,14 +270,20 @@ public class AutoMine extends Module {
                 Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
             }
 
-            if (Utils.state(pos) != Blocks.AIR) return;
-
+            if (Utils.state(pos) != Blocks.AIR) {
+                if (removeClientside.get()) { /*if the server is lagging this will remove it instantly , but it will update clientsdie later lol*/
+                    mc.world.setBlockState(pos, Blocks.DIRT.getDefaultState());
+                }
+                return;
+            }
             canClear = true;
 
             didMine = true;
 
         }
     }
+
+
 
     public void doCrystal(BlockPos pos) {
         if (!isRange(mc.player != null ? mc.player : null, pos, 5)) return;
@@ -320,9 +331,11 @@ public class AutoMine extends Module {
 
     @EventHandler
     public void onRender(Render3DEvent event) {
-        if (renderMode.get() != RenderMode.Custom || pos == null) return;
-        event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+        if (!render.get()) return;
 
+        if (prev != null) event.renderer.box(prev, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+
+        if (pos != null) event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 
     public enum mineMode {

@@ -341,7 +341,7 @@ public class PistonPush extends Module {
     }
 
 
-    public int pistonYaw(Direction d) {
+    public static int pistonYaw(Direction d) {
         return switch (d) {
             case NORTH -> 180;
             case EAST -> -90;

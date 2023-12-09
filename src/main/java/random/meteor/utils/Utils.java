@@ -24,6 +24,8 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Arrays;
+
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static meteordevelopment.meteorclient.utils.player.InvUtils.swap;
 
@@ -33,7 +35,8 @@ public class Utils {
         mc.player.getInventory();
         mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
     }
-    public static void updatePosition(){
+
+    public static void updatePosition() {
         mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(
                 mc.player.getX(),
                 mc.player.getY(),
@@ -58,6 +61,7 @@ public class Utils {
             }
         });
     }
+
     public static boolean isRange(PlayerEntity player, BlockPos poz, int range) {
         BlockPos playerPos = player.getBlockPos();
         int distanceX = Math.abs(playerPos.getX() - poz.getX());
@@ -79,28 +83,29 @@ public class Utils {
         mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(handler.syncId, handler.getRevision(), PlayerInventory.MAIN_SIZE + from, to, SlotActionType.SWAP, handler.getCursorStack().copy(), stack));
     }
 
-    public Block[] xd(){
+    public Block[] xd() {
         Block[] blocks = new Block[1];
         return blocks;
     }
+
     public static final Block[] SHULKER_BLOCKS = new Block[]{
-        Blocks.SHULKER_BOX,
-        Blocks.WHITE_SHULKER_BOX,
-        Blocks.ORANGE_SHULKER_BOX,
-        Blocks.MAGENTA_SHULKER_BOX,
-        Blocks.LIGHT_BLUE_SHULKER_BOX,
-        Blocks.YELLOW_SHULKER_BOX,
-        Blocks.LIME_SHULKER_BOX,
-        Blocks.PINK_SHULKER_BOX,
-        Blocks.GRAY_SHULKER_BOX,
-        Blocks.LIGHT_GRAY_SHULKER_BOX,
-        Blocks.CYAN_SHULKER_BOX,
-        Blocks.PURPLE_SHULKER_BOX,
-        Blocks.BLUE_SHULKER_BOX,
-        Blocks.BROWN_SHULKER_BOX,
-        Blocks.GREEN_SHULKER_BOX,
-        Blocks.RED_SHULKER_BOX,
-        Blocks.BLACK_SHULKER_BOX
+            Blocks.SHULKER_BOX,
+            Blocks.WHITE_SHULKER_BOX,
+            Blocks.ORANGE_SHULKER_BOX,
+            Blocks.MAGENTA_SHULKER_BOX,
+            Blocks.LIGHT_BLUE_SHULKER_BOX,
+            Blocks.YELLOW_SHULKER_BOX,
+            Blocks.LIME_SHULKER_BOX,
+            Blocks.PINK_SHULKER_BOX,
+            Blocks.GRAY_SHULKER_BOX,
+            Blocks.LIGHT_GRAY_SHULKER_BOX,
+            Blocks.CYAN_SHULKER_BOX,
+            Blocks.PURPLE_SHULKER_BOX,
+            Blocks.BLUE_SHULKER_BOX,
+            Blocks.BROWN_SHULKER_BOX,
+            Blocks.GREEN_SHULKER_BOX,
+            Blocks.RED_SHULKER_BOX,
+            Blocks.BLACK_SHULKER_BOX
     };
 
     public static boolean goldArmor() {
@@ -165,25 +170,28 @@ public class Utils {
     public static Block state(BlockPos pos) {
         return mc.world.getBlockState(pos).getBlock();
     }
-
+    public static boolean equalsBlock(Block block, BlockPos... poses) {
+        return Arrays.stream(poses).map(Utils::state).allMatch(currentBlock -> currentBlock.equals(block));
+    }
     public static Entity crystal() {
         for (Entity e : mc.world.getEntities()) {
             if (e.getType().equals(EntityType.END_CRYSTAL)) return e;
         }
         return null;
     }
-    public static EndCrystalEntity getCrystal(BlockPos pos){
-        assert mc.world != null;
-        for (Entity entity : mc.world.getEntities()){
 
-            if(!(entity instanceof EndCrystalEntity)) continue;
+    public static EndCrystalEntity getCrystal(BlockPos pos) {
+        assert mc.world != null;
+        for (Entity entity : mc.world.getEntities()) {
+
+            if (!(entity instanceof EndCrystalEntity)) continue;
 
             if (entity.getBlockPos().equals(pos.up())) return (EndCrystalEntity) entity;
         }
         return null;
     }
 
-    public static boolean isBlock(BlockPos p){
+    public static boolean isBlock(BlockPos p) {
         return state(p).equals(Blocks.AIR);
     }
 }

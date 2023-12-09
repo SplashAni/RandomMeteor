@@ -28,6 +28,7 @@ public class Manager {
         m.add(new BurrowEsp());
         m.add(new Blocker());
         m.add(new PistonBurrow());
+        m.add(new PistonAura());
         m.add(new AutoCum());
         m.add(new AutoRun());
         m.add(new CrystalBomb());

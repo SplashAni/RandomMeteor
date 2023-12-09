@@ -10,6 +10,7 @@ import meteordevelopment.meteorclient.systems.modules.combat.KillAura;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +24,7 @@ import random.meteor.utils.enums.Shapes;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(value = KillAura.class,remap = false)
+@Mixin(value = KillAura.class, remap = false)
 
 public class KillAuraMixin extends Module {
 
@@ -60,59 +61,22 @@ public class KillAuraMixin extends Module {
         sgRender = settings.createGroup("Render");
 
 
-        render = sgRender.add(new BoolSetting.Builder()
-            .name("render")
-            .defaultValue(true)
-            .build()
-        );
+        render = sgRender.add(new BoolSetting.Builder().name("render").defaultValue(true).build());
 
-        mode = sgRender.add(new EnumSetting.Builder<Shapes>()
-            .name("shape")
-            .description("what shape to render")
-            .defaultValue(Shapes.Circle)
-            .visible(render::get)
-            .build()
-        );
+        mode = sgRender.add(new EnumSetting.Builder<Shapes>().name("shape").description("what shape to render").defaultValue(Shapes.Circle).visible(render::get).build());
 
-        upSpeed = sgRender.add(new IntSetting.Builder()
-            .name("up-speed")
-            .defaultValue(1)
-            .range(1, 20)
-            .sliderMax(20)
-            .visible(render::get)
-            .build()
-        );
+        upSpeed = sgRender.add(new IntSetting.Builder().name("up-speed").defaultValue(1).range(1, 20).sliderMax(20).visible(render::get).build());
 
-        downSpeed = sgRender.add(new IntSetting.Builder()
-            .name("down-speed")
-            .defaultValue(1)
-            .range(1, 20)
-            .sliderMax(20)
-            .visible(render::get)
-            .build()
-        );
+        downSpeed = sgRender.add(new IntSetting.Builder().name("down-speed").defaultValue(1).range(1, 20).sliderMax(20).visible(render::get).build());
 
 
-        size = sgRender.add(new IntSetting.Builder()
-            .name("size")
-            .defaultValue(15)
-            .range(1, 20)
-            .sliderMax(20)
-            .visible(render::get)
-            .build()
-        );
+        size = sgRender.add(new IntSetting.Builder().name("size").defaultValue(15).range(1, 20).sliderMax(20).visible(render::get).build());
 
-        color = sgRender.add(new ColorSetting.Builder()
-            .name("color")
-            .description("The line color of the rendering.")
-            .defaultValue(new SettingColor(50, 0, 255, 18))
-            .visible(render::get)
-            .build()
-        );
+        color = sgRender.add(new ColorSetting.Builder().name("color").description("The line color of the rendering.").defaultValue(new SettingColor(50, 0, 255, 18)).visible(render::get).build());
 
     }
 
-    @Inject(method = "onTick", at = @At("HEAD"),remap = false)
+    @Inject(method = "onTick", at = @At("HEAD"), remap = false)
     public void onTick(TickEvent.Pre event, CallbackInfo ci) {
 
         if (isUp) {
@@ -129,6 +93,7 @@ public class KillAuraMixin extends Module {
 
         currentHeight = Math.min(2, currentHeight);
     }
+
     @Unique
     public void renderShape(Render3DEvent event) {
 
@@ -138,7 +103,7 @@ public class KillAuraMixin extends Module {
 
         for (Entity player : targets) {
 
-            Vec3d center = player.getPos();
+            Vec3d center = interpolatedEntity(player, event);
 
             int segments = switch (mode.get()) {
                 case Triangle -> 3;
@@ -154,7 +119,7 @@ public class KillAuraMixin extends Module {
 
             for (int i = 0; i < size.get() * 10; i++) {
                 for (int j = 0; j < segments; j++) {
-                    double a1 = Math.PI * 2* j / segments;
+                    double a1 = Math.PI * 2 * j / segments;
                     double a2 = Math.PI * 2 * (j + 1) / segments;
 
                     double x1 = center.x + 1 * Math.cos(a1);
@@ -171,6 +136,13 @@ public class KillAuraMixin extends Module {
                 yOffset -= 0.001;
             }
         }
+    }
+
+    public Vec3d interpolatedEntity(Entity entity, Render3DEvent event) {
+        double x = MathHelper.lerp(event.tickDelta, entity.lastRenderX, entity.getX()) - entity.getX();
+        double y = MathHelper.lerp(event.tickDelta, entity.lastRenderY, entity.getY()) - entity.getY();
+        double z = MathHelper.lerp(event.tickDelta, entity.lastRenderZ, entity.getZ()) - entity.getZ();
+        return new Vec3d(x, y, z);
     }
 
     @EventHandler
