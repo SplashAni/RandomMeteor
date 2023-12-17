@@ -163,7 +163,6 @@ public class AutoMine extends Module {
         if (!BlockUtils.canBreak(event.blockPos)) return;
         if (pos != null) {
             Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
-            info("ABORTED BLOCKJ BREAKING ");
         }
         pos = event.blockPos;
         canClear = false;
@@ -246,6 +245,7 @@ public class AutoMine extends Module {
         Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
         mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
 
+
         canClear = false;
 
         if (progress >= 1) {
@@ -282,7 +282,6 @@ public class AutoMine extends Module {
 
         }
     }
-
 
 
     public void doCrystal(BlockPos pos) {

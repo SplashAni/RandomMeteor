@@ -14,6 +14,7 @@ public class Manager {
 
         List<Module> m = new ArrayList<>();
         m.add(new PearlPhase());
+        m.add(new CrepperAura());
         m.add(new Prefix());
         m.add(new ItemRenderer());
         m.add(new PistonPush());

@@ -22,6 +22,7 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Arrays;
@@ -170,9 +171,12 @@ public class Utils {
     public static Block state(BlockPos pos) {
         return mc.world.getBlockState(pos).getBlock();
     }
+
     public static boolean equalsBlock(Block block, BlockPos... poses) {
         return Arrays.stream(poses).map(Utils::state).allMatch(currentBlock -> currentBlock.equals(block));
     }
+
+
     public static Entity crystal() {
         for (Entity e : mc.world.getEntities()) {
             if (e.getType().equals(EntityType.END_CRYSTAL)) return e;

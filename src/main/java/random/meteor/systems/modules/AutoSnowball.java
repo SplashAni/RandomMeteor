@@ -15,6 +15,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import random.meteor.Main;
 
+import java.util.Objects;
+
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
@@ -63,7 +65,7 @@ public class AutoSnowball extends Module {
 
         PlayerEntity target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
 
-        if (isBadTarget(target, range.get()) || !mc.player.canSee(target)) return;
+        if (isBadTarget(target, range.get()) || !Objects.requireNonNull(mc.player).canSee(target)) return;
 
 
         if (ticks > 0) {

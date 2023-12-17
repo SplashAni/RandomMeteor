@@ -20,59 +20,17 @@ import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
 import random.meteor.utils.Utils;
 
-import static random.meteor.utils.Utils.getCrystal;
-
 public class PistonAura extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<Double> targetRange = sgGeneral.add(new DoubleSetting.Builder()
-            .name("target-range")
-            .description("The radius in which players get targeted.")
-            .defaultValue(5.5)
-            .min(0)
-            .sliderMax(7)
-            .build()
-    );
-    private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("piston-delay")
-            .defaultValue(1)
-            .min(1)
-            .sliderRange(1, 50)
-            .build()
-    );
-    private final Setting<Integer> redstoneDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("redstone-delay")
-            .defaultValue(1)
-            .min(1)
-            .sliderRange(1, 50)
-            .build()
-    );
-    private final Setting<Integer> crystalDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("crystal-delay")
-            .defaultValue(1)
-            .min(1)
-            .sliderRange(1, 50)
-            .build()
-    );
-    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("attack-delay")
-            .defaultValue(1)
-            .min(1)
-            .sliderRange(1, 50)
-            .build()
-    );
-    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-            .name("rotate")
-            .description("Automatically rotates you towards the city block.")
-            .build()
-    );
+    private final Setting<Double> targetRange = sgGeneral.add(new DoubleSetting.Builder().name("target-range").description("The radius in which players get targeted.").defaultValue(5.5).min(0).sliderMax(7).build());
+    private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder().name("piston-delay").defaultValue(1).min(1).sliderRange(1, 50).build());
+    private final Setting<Integer> redstoneDelay = sgGeneral.add(new IntSetting.Builder().name("redstone-delay").defaultValue(1).min(1).sliderRange(1, 50).build());
+    private final Setting<Integer> crystalDelay = sgGeneral.add(new IntSetting.Builder().name("crystal-delay").defaultValue(1).min(1).sliderRange(1, 50).build());
+    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder().name("attack-delay").defaultValue(1).min(1).sliderRange(1, 50).build());
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder().name("rotate").description("Automatically rotates you towards the city block.").build());
 
-    private final Setting<Boolean> swing = sgGeneral.add(new BoolSetting.Builder()
-            .name("swing-hand")
-            .description("Whether to render your hand swinging.")
-            .defaultValue(false)
-            .build()
-    );
+    private final Setting<Boolean> swing = sgGeneral.add(new BoolSetting.Builder().name("swing-hand").description("Whether to render your hand swinging.").defaultValue(false).build());
 
     public PistonAura() {
         super(Main.RM, "piston-aura", "iced out");
@@ -81,6 +39,7 @@ public class PistonAura extends Module {
     CalculatedPos calculated;
     int crystalTick, redstoneTick, pistonTick, attackTick;
     public Stage stage;
+
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
@@ -100,11 +59,9 @@ public class PistonAura extends Module {
 
             case Piston -> {
                 if (pistonTick >= pistonDelay.get()) {
-                    BlockUtils.place(calculated.pistonPos, piston, true, 50);
+                    if (BlockUtils.place(calculated.pistonPos, piston, true, 50)) stage = Stage.Crystal;
                     pistonTick = 0;
-                    stage = Stage.Crystal;
-                } else
-                    pistonTick++;
+                } else pistonTick++;
             }
             case Crystal -> {
 
@@ -119,27 +76,27 @@ public class PistonAura extends Module {
                 } else crystalTick++;
             }
             case Redstone -> {
-
-                boolean canAttack = false;
-
                 if (redstoneTick >= redstoneDelay.get()) {
-                    BlockUtils.place(calculated.redstonePos, redstoneBlock, true, 50);
-                    canAttack = true;
+                    if (BlockUtils.place(calculated.redstonePos, redstoneBlock, true, 50)) stage = Stage.Attack;
                     redstoneTick = 0;
-                } else redstoneTick++;
-
-                if (attackTick >= attackDelay.get()) {
-                    if (getCrystal(calculated.basePos) != null) {
-                        mc.interactionManager.attackEntity(mc.player, getCrystal(calculated.basePos));
-                    }
-                    attackTick = 0;
-                    stage = Stage.Piston;
                 } else {
-                    if (canAttack) attackTick++; // logic genius 😰
+                    redstoneTick++;
                 }
             }
-        }
+            case Attack -> {
+                if (attackTick >= attackDelay.get()) {
 
+                    /*i forogt it must be in the head pos?*/
+
+                    if (Utils.getCrystal(mc.player.getBlockPos().up()) != null) {
+                        mc.interactionManager.attackEntity(mc.player, Utils.getCrystal(mc.player.getBlockPos().up()));
+                    }
+                    stage = null;
+                    attackTick = 0;
+                } else attackTick++;
+            }
+            default -> stage = null;
+        }
     }
 
 
@@ -160,17 +117,11 @@ public class PistonAura extends Module {
 
             BlockPos redstonePos = null;
 
-            for (Direction d : Direction.values()) {
+            if (BlockUtils.canPlace(pistonPos.offset(direction))) {
+                redstonePos = pistonPos.offset(direction);
 
-                if (!(d == Direction.DOWN || d == direction)) {
-                    continue;
-                }
-
-                if (BlockUtils.canPlace(pistonPos.offset(d))) {
-                    redstonePos = pistonPos.offset(d);
-                    break;
-                }
             }
+
 
             if (redstonePos == null) continue;
 
@@ -183,9 +134,7 @@ public class PistonAura extends Module {
 
 
     public enum Stage {
-        Piston,
-        Crystal,
-        Redstone
+        Piston, Crystal, Redstone, Attack
     }
 
     public record CalculatedPos(BlockPos pistonPos, BlockPos basePos, BlockPos redstonePos) {
