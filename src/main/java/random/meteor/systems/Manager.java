@@ -42,7 +42,6 @@ public class Manager {
         m.add(new PlayerTp());
         m.add(new MeteorSpoof());
         m.add(new CustomRpc());
-        m.add(new MessageBomb());
         m.add(new FakeKick());
         m.forEach(module -> Modules.get().add(module));
     }

@@ -19,9 +19,7 @@ public class CustomRpc extends Module {
     public CustomRpc() {
         super(Main.RM, "custom-rpc", "mixins into discord presences app id");
         runInMainMenu = true; // no funny shit bro
-
     }
-
 
     @Override
     public void onActivate() {
