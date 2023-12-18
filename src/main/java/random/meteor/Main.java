@@ -18,6 +18,7 @@ public class Main extends MeteorAddon {
     public void onInitialize() {
 
         LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
+        LOG.info("Make sure to star on github <33");
 
         Manager.init();
     }

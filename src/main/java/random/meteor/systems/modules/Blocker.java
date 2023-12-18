@@ -77,7 +77,7 @@ public class Blocker extends Module {
     );
 
     public Blocker() {
-        super(Main.RM, "anti-faceplace", "im the most pro alive so pro");
+        super(Main.RM, "blocker", "im the most pro alive so pro");
     }
 
     BlockPos pos;

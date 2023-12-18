@@ -272,7 +272,7 @@ public class AutoMine extends Module {
 
             if (Utils.state(pos) != Blocks.AIR) {
                 if (removeClientside.get()) { /*if the server is lagging this will remove it instantly , but it will update clientsdie later lol*/
-                    mc.world.setBlockState(pos, Blocks.DIRT.getDefaultState());
+                    mc.world.removeBlock(pos, false);
                 }
                 return;
             }

@@ -5,15 +5,19 @@ An addon that adds random but useful modules to meteor
 [Discord (suggest stuff)](https://discord.gg/dNyVgyvsYG)
 
 ### Modules
-- [Pearl phase](https://your-pearl-phase-link-here.com) (Throws pearls in a direction to clap you in a surround block
 
+- **[Creeper Aura](https://cdn.discordapp.com/attachments/1186251681093144627/1186258350384615455/2023-12-18_12-46-34.mp4?ex=6592982e&is=6580232e&hm=72625cde892b41290138f5f62ada7ae58469806bdfa9d5e21e1b11a432552e97&)**: Places and ignites creepers
+- **Anti 32k** Interacts with every places shulker in range
+- **Auto Snowball** Throws snoballs at targets
+- **Multitask** Break blocks while eating
+- - **Pearl phase** Throws pearls in a direction to clap you in a surround block
 - **Auto Chunk Ban**: Places a shulker box near a target player.
 - **Auto Cope**: Sends a message when a player dies.
 - **Auto Cum**: Renders a special effect on dead players.
 - **Auto Gold**: Automatically switches to gold when a zombie piglin is in range.
 - **Auto Mine**: Enables instant caving on 6b due to this feature.
 - **Auto Run**: Allows the player to run away from nearby players.
-- **Auto XD**: Automatically types 'xd' in chat. Try it out!
+- **[Auto XD](https://cdn.discordapp.com/attachments/1148316570926460990/1165003649857106031/2023-10-20_21-07-21.mp4?ex=65454532&is=6532d032&hm=a8a83fb95e5bbe18ba5a79d5b1ec8ee8d2c8c1853a845a9004e9ae08a1378809&)**: Type xd in chat xd.
 - **[Block Clap](https://cdn.discordapp.com/attachments/1076740815419887619/1078338291755143249/2023-02-23_17-27-54.mp4 )**: Burrows you with pearls, incredibly powerful.
 - **Blocker**: Breaks crystals and replaces them with obsidian.
 - **Burrow ESP**: Renders blocks in players, useful for navigation.

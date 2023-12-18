@@ -18,6 +18,7 @@ public class Manager {
         m.add(new Prefix());
         m.add(new ItemRenderer());
         m.add(new PistonPush());
+        m.add(new Anti32k());
         m.add(new BlockClap());
         m.add(new CustomFov());
         m.add(new AutoChunkBan());
