@@ -10,7 +10,7 @@ An addon that adds random but useful modules to meteor
 - **Anti 32k** Interacts with every places shulker in range
 - **Auto Snowball** Throws snoballs at targets
 - **Multitask** Break blocks while eating
-- - **Pearl phase** Throws pearls in a direction to clap you in a surround block
+- **Pearl phase** Throws pearls in a direction to clap you in a surround block
 - **Auto Chunk Ban**: Places a shulker box near a target player.
 - **Auto Cope**: Sends a message when a player dies.
 - **Auto Cum**: Renders a special effect on dead players.
