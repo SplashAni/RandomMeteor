@@ -54,7 +54,7 @@ public class FakeKick extends Module {
     @EventHandler
     public void onTick(TickEvent.Pre event) {
         FindItemResult totem = InvUtils.find(Items.TOTEM_OF_UNDYING);
-        if (totem.count() >= minTotem.get() && PlayerUtils.getTotalHealth() >= minHealth.get()) {
+        if (totem.count() < minTotem.get() || PlayerUtils.getTotalHealth() <= minHealth.get()) {
             assert mc.player != null;
 
             Random random = new Random();

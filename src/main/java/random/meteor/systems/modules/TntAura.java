@@ -160,27 +160,17 @@ public class TntAura extends Module {
     @EventHandler
     public void onTick(TickEvent.Pre event){
         target = getPlayerTarget(range.get(), SortPriority.LowestDistance);
+
         if (isBadTarget(target, range.get())) {
-            info("No targets found, toggling...");
-            toggle();
             return;
         }
 
-        if(!tntResult().found()){
-            error("No tnt found, toggling...");
-            toggle();
+        if(!tntResult().found() ){
             return;
         }
-        if(!igniteResult().found()){
-            error("No tools found, toggling....");
-            toggle();
-            return;
-        }
-        if (antiself.get() && Utils.isSelf(target)) {
-            info("Target is inself, toggling...");
-            toggle();
-            return;
-        }
+
+        if (antiself.get() && Utils.isSelf(target)) return;
+
         if (PlayerUtils.shouldPause(pauseMine.get(), pauseEat.get(), pauseDrink.get())) return;
 
         ticks++;

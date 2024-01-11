@@ -74,7 +74,7 @@ public class Anti32k extends Module {
     public void openScreen(OpenScreenEvent event) {
         if (!silentClose.get()) return;
         if (event.screen instanceof ShulkerBoxScreen && target != null) {
-            event.cancel();
+            mc.setScreen(null);
             target = null;
         }
     }

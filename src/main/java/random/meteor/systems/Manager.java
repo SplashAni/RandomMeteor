@@ -59,7 +59,6 @@ public class Manager {
     }
 
     private static void addHud() {
-        /* hud modules soon inshallah*/
     }
 
     public static void init() {
