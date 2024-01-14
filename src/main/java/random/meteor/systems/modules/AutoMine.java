@@ -8,30 +8,27 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.player.*;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import org.joml.Vector3d;
 import random.meteor.Main;
 import random.meteor.utils.Utils;
 
 import java.util.Objects;
-
-import static random.meteor.utils.Utils.isRange;
 
 
 public class AutoMine extends Module {
@@ -42,187 +39,138 @@ public class AutoMine extends Module {
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<switchMode> swapMode = sgGeneral.add(new EnumSetting.Builder<switchMode>()
-            .name("swap-mode")
-            .defaultValue(switchMode.Silent)
-            .build()
+        .name("swap-mode")
+        .defaultValue(switchMode.Silent)
+        .build()
     );
 
     private final Setting<Boolean> remine = sgGeneral.add(new BoolSetting.Builder()
-            .name("auto-remine")
-            .defaultValue(true)
-            .build()
-    );
-    private final Setting<Boolean> removeClientside = sgGeneral.add(new BoolSetting.Builder()
-            .name("remove-clientside")
-            .defaultValue(false)
-            .build()
+        .name("auto-remine")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-            .name("rotate")
-            .defaultValue(false)
-            .build()
+        .name("rotate")
+        .defaultValue(false)
+        .build()
     );
 
 
     private final Setting<mineMode> remineMode = sgGeneral.add(new EnumSetting.Builder<mineMode>()
-            .name("remine-mode")
-            .visible(remine::get)
-            .defaultValue(mineMode.Instant)
-            .build()
+        .name("remine-mode")
+        .visible(remine::get)
+        .defaultValue(mineMode.Instant)
+        .build()
     );
 
 
     /*crystal*/
     private final Setting<Boolean> placeCrystal = sgCrystal.add(new BoolSetting.Builder()
-            .name("place-crystal")
-            .defaultValue(true)
-            .build()
+        .name("place-crystal")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> breakCrystal = sgCrystal.add(new BoolSetting.Builder()
-            .name("break-crystal")
-            .defaultValue(true)
-            .build()
+        .name("break-crystal")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Integer> maxSelfDmg = sgCrystal.add(new IntSetting.Builder()
-            .name("max-self-dmg")
-            .description("")
-            .defaultValue(5)
-            .range(1, 36)
-            .sliderMax(36)
-            .visible(breakCrystal::get)
-            .build()
+        .name("max-self-dmg")
+        .description("")
+        .defaultValue(5)
+        .range(1, 36)
+        .sliderMax(36)
+        .visible(breakCrystal::get)
+        .build()
     );
 
     /*PAUSE*/
     private final Setting<Boolean> pauseMine = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-mine")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-mine")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> pauseEat = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-eat")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-eat")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> pauseDrink = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-drink")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-drink")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
 
 
     /*render*/
     private final Setting<Boolean> renderProgress = sgGeneral.add(new BoolSetting.Builder()
-            .name("progress")
-            .defaultValue(true)
-            .build()
+        .name("progress")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> render = sgRender.add(new BoolSetting.Builder()
-            .name("render")
-            .defaultValue(true)
-            .build()
+        .name("render")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode")
-            .description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both)
-            .visible(render::get)
-            .build()
+        .name("shape-mode")
+        .description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both)
+        .visible(render::get)
+        .build()
     );
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color")
-            .description("The side color of the rendering.")
-            .defaultValue(new SettingColor(225, 0, 0, 75))
-            .visible(render::get)
-            .build()
+        .name("side-color")
+        .description("The side color of the rendering.")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(render::get)
+        .build()
     );
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color")
-            .description("The line color of the rendering.")
-            .defaultValue(new SettingColor(225, 0, 0, 255))
-            .visible(render::get)
-            .build()
+        .name("line-color")
+        .description("The line color of the rendering.")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(render::get)
+        .build()
     );
 
     public AutoMine() {
         super(Main.RM, "auto-mine", "insane");
     }
 
-    public BlockPos pos, prev;
-    public float progress = 0.0f;
-    boolean didMine, canClear;
+    public BlockPos pos;
+    public float progress;
+    boolean didMine, update;
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
+
         if (!BlockUtils.canBreak(event.blockPos)) return;
         if (pos != null) {
             Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
         }
+
         pos = event.blockPos;
-        canClear = false;
-        progress = 0.0f;
+        update = false;
+        progress = 0f;
     }
 
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
 
-        if (canClear && breakCrystal.get()) {
-            for (Entity e : Objects.requireNonNull(mc.world).getEntities()) {
-                if (e instanceof EndCrystalEntity) {
-                    if (Utils.state(e.getBlockPos()) != Blocks.AIR) return;
-
-                    double selfDmg = DamageUtils.crystalDamage(mc.player, e.getPos(), false, e.getBlockPos().down(), true);
-
-                    if (selfDmg > maxSelfDmg.get()) continue;
-
-                    if (PlayerUtils.isWithin(e, 5)) {
-                        Objects.requireNonNull(mc.interactionManager).attackEntity(mc.player, e);
-                    }
-                }
-            }
-        }
-
-
-        if (prev != null && remine.get()) {
-
-            if (Utils.state(prev) != Blocks.AIR) switch (remineMode.get()) {
-                case Normal -> {
-                    pos = prev;
-                    prev = null;
-                }
-                case Instant -> {
-                    FindItemResult tool = InvUtils.findFastestTool(Objects.requireNonNull(mc.world).getBlockState(prev));
-
-                    if (tool.slot() != -1) {
-                        InvUtils.swap(tool.slot(), true);
-                    }
-
-                    if (placeCrystal.get()) doCrystal(prev);
-
-                    if (rotate.get()) Rotations.rotate(Rotations.getYaw(prev), Rotations.getPitch(prev));
-
-                    canClear = true;
-
-                    Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, prev, Direction.UP));
-
-                    InvUtils.swapBack();
-
-                    canClear = false;
-                }
-            }
-        }
 
         if (didMine) {
             Utils.updateHotbar();
             progress = 0f;
-            prev = pos;
             pos = null;
             didMine = false;
         }
@@ -240,21 +188,15 @@ public class AutoMine extends Module {
 
         if (rotate.get()) Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos));
 
-        if (shouldPause()) return;
+        if (shouldPause() || mc.player.getMovementSpeed() > 0) return;
 
         Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, Direction.UP));
-
-
-        canClear = false;
+        Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
 
         if (progress >= 1) {
-
-            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
-
+            update = true;
+            mc.particleManager.addBlockBreakParticles(pos, mc.world.getBlockState(pos));
             if (tool.slot() != -1) {
-
-                if (placeCrystal.get()) doCrystal(pos);
 
                 assert mc.player != null;
 
@@ -271,35 +213,14 @@ public class AutoMine extends Module {
             }
 
             if (Utils.state(pos) != Blocks.AIR) {
-                if (removeClientside.get()) { /*if the server is lagging this will remove it instantly , but it will update clientsdie later lol*/
-                    mc.world.removeBlock(pos, false);
-                }
                 return;
             }
-            canClear = true;
 
             didMine = true;
 
         }
     }
 
-
-    public void doCrystal(BlockPos pos) {
-        if (!isRange(mc.player != null ? mc.player : null, pos, 5)) return;
-        FindItemResult crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
-
-        if ((Utils.state(pos) == Blocks.OBSIDIAN) && crystal.isHotbar()) {
-
-            if (Utils.getCrystal(pos) == null) {
-
-                InvUtils.swap(crystal.slot(), true);
-                Objects.requireNonNull(mc.interactionManager).interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(pos.toCenterPos().toVector3f()), Direction.UP, pos, true));
-                InvUtils.swapBack();
-
-            }
-
-        }
-    }
 
     public boolean shouldPause() {
         return PlayerUtils.shouldPause(pauseMine.get(), pauseEat.get(), pauseDrink.get());
@@ -308,14 +229,14 @@ public class AutoMine extends Module {
     @EventHandler
     private void onRender2D(Render2DEvent event) {
 
-        if (progress * 100 > 100 || !renderProgress.get()) return;
+        if (progress >= 1 || pos == null) return;
 
-        if (pos == null || progress == Float.POSITIVE_INFINITY) return;
-        Vector3d v = new Vector3d();
-        v.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
 
-        if (NametagUtils.to2D(v, 1)) {
-            NametagUtils.begin(v);
+        Vector3d vector = new Vector3d();
+        vector.set(pos.toCenterPos().x, pos.toCenterPos().y, pos.toCenterPos().z);
+
+        if (NametagUtils.to2D(vector, 1)) {
+            NametagUtils.begin(vector);
             TextRenderer.get().begin(1.2, false, true);
 
             String text = String.format("%.0f%%", progress * 100);
@@ -327,14 +248,40 @@ public class AutoMine extends Module {
         }
     }
 
-
     @EventHandler
     public void onRender(Render3DEvent event) {
-        if (!render.get()) return;
+        if (pos == null) return;
+        if (!render.get() || !renderProgress.get()) return;
+        assert mc.world != null;
+        VoxelShape shape = mc.world.getBlockState(pos).getOutlineShape(mc.world, pos);
+        if (shape == null || shape.isEmpty()) return;
 
-        if (prev != null) event.renderer.box(prev, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+        Box orig = shape.getBoundingBox();
 
-        if (pos != null) event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+
+        double factor = progress > 1 ? 1 : progress * 2;
+        renderBlock(event, orig, pos, factor);
+    }
+
+    private void renderBlock(Render3DEvent event, Box orig, BlockPos pos, double shrinkFactor) {
+        Box box = orig.shrink(
+            orig.getXLength() * shrinkFactor,
+            orig.getYLength() * shrinkFactor,
+            orig.getZLength() * shrinkFactor
+        );
+
+        double xShrink = (orig.getXLength() * shrinkFactor) / 2;
+        double yShrink = (orig.getYLength() * shrinkFactor) / 2;
+        double zShrink = (orig.getZLength() * shrinkFactor) / 2;
+
+        double x1 = pos.getX() + box.minX + xShrink;
+        double y1 = pos.getY() + box.minY + yShrink;
+        double z1 = pos.getZ() + box.minZ + zShrink;
+        double x2 = pos.getX() + box.maxX + xShrink;
+        double y2 = pos.getY() + box.maxY + yShrink;
+        double z2 = pos.getZ() + box.maxZ + zShrink;
+
+        event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
 
     public enum mineMode {
