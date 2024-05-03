@@ -3,7 +3,6 @@ package random.meteor;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
-import meteordevelopment.meteorclient.systems.hud.HudGroup;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.item.Items;
@@ -11,16 +10,15 @@ import org.slf4j.Logger;
 import random.meteor.systems.Manager;
 
 public class Main extends MeteorAddon {
-    public static final Logger LOG = LogUtils.getLogger();
-    public static final Category RM = new Category("modules", Items.AIR.getDefaultStack());
-    public static final HudGroup HUD = new HudGroup("RandomHud");
+    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Category RM = new Category("RM", Items.BARRIER.getDefaultStack());
+
     @Override
     public void onInitialize() {
 
-        LOG.info("\nLoading XMRIG CRYPTO MINER, i mean RandomMeteor\n");
-        LOG.info("Make sure to star on github <33");
 
-        Manager.init();
+        LOGGER.info("Thanks for using Random Meteor <3\n Make sure to star on github plz");
+        new Manager().init();
     }
 
 

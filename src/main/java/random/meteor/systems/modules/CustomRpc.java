@@ -4,6 +4,7 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import random.meteor.Main;
 
 public class CustomRpc extends Module {
@@ -24,6 +25,7 @@ public class CustomRpc extends Module {
     @Override
     public void onActivate() {
         this.toggle();
+
         super.onActivate();
     }
 
