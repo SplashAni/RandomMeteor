@@ -5,6 +5,7 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
 
 public class CustomRpc extends Module {
@@ -28,6 +29,7 @@ public class CustomRpc extends Module {
 
         super.onActivate();
     }
+
 
     public Long getId(){
         if(id.get().length() != 18) return 835240968533049424L;

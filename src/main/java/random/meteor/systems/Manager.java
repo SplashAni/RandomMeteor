@@ -41,6 +41,7 @@ public class Manager {
         add(new AutoXd());
         add(new Multitask());
         add(new InstantMend());
+        add(new AutoDupe());
         add(new AutoCum());
         add(new AutoMine());
         add(new PlayerTp());
