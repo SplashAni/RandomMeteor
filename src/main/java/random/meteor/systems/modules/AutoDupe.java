@@ -77,7 +77,7 @@ public class AutoDupe extends Module {
     );
 
     public AutoDupe() {
-        super(Main.RM, "auto-dupe", "dupes using item frames");
+        super(Main.RM, "auto-dupe", "Item frame dupe");
     }
 
 
@@ -134,11 +134,10 @@ public class AutoDupe extends Module {
 
             } else {
                 ticks = delay.get();
-                mc.interactionManager.attackEntity(mc.player,itemFrame);
+                mc.interactionManager.attackEntity(mc.player, itemFrame);
             }
         }
     }
-
 
 
     @EventHandler

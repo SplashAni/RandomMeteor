@@ -36,4 +36,5 @@ public class Main extends MeteorAddon {
     public String getPackage() {
         return "random.meteor";
     }
+
 }

@@ -4,8 +4,6 @@ import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.utils.PostInit;
-import meteordevelopment.meteorclient.utils.PreInit;
 import random.meteor.systems.commands.*;
 import random.meteor.systems.modules.*;
 
@@ -22,7 +20,6 @@ public class Manager {
         add(new Prefix());
         add(new ItemRenderer());
         add(new PistonPush());
-        add(new Anti32k());
         add(new BlockClap());
         add(new CustomFov());
         add(new AutoChunkBan());
@@ -34,20 +31,14 @@ public class Manager {
         add(new BurrowEsp());
         add(new Blocker());
         add(new PistonBurrow());
-        add(new PistonAura());
-        add(new AutoCum());
+        add(new DeathEffect());
         add(new AutoRun());
-        add(new CrystalBomb());
-        add(new AutoXd());
         add(new Multitask());
         add(new InstantMend());
         add(new AutoDupe());
-        add(new AutoCum());
+        add(new DeathEffect());
         add(new AutoMine());
         add(new PlayerTp());
-        add(new MeteorSpoof());
-        add(new CustomRpc());
-        add(new MinecartSpeed());
         add(new FakeKick());
     }
 

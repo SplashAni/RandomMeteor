@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class AutoCum extends Module {
+public class DeathEffect extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -38,8 +38,8 @@ public class AutoCum extends Module {
             .build()
     );
 
-    public AutoCum() {
-        super(Main.RM, "auto-cum", "renders cum effect on dead players");
+    public DeathEffect() {
+        super(Main.RM, "death-effect", "Renders an effect on entities that recently died");
     }
 
     private final Map<Entity, Long> toRender = new HashMap<>();

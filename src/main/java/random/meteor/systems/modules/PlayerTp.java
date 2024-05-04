@@ -48,7 +48,6 @@ public class PlayerTp extends Module {
                 players.getZ()
             );
 
-            /* update position u silly*/
             Utils.updatePosition();
             toggle();
         }

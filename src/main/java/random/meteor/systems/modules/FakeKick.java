@@ -48,7 +48,7 @@ public class FakeKick extends Module {
     );
 
     public FakeKick() {
-        super(Main.RM, "fake-kick", "trollings2b2t");
+        super(Main.RM, "fake-kick", "Auto log but with an excuse");
     }
 
     @EventHandler

@@ -52,7 +52,7 @@ public class AutoChunkBan extends Module {
     int slot;
 
     public AutoChunkBan() {
-        super(Main.RM, "auto-chunk-ban", "");
+        super(Main.RM, "auto-chunk-ban", "Places and breaks a shulker near the player");
 
     }
 
@@ -131,7 +131,6 @@ public class AutoChunkBan extends Module {
                 if (state.getBlock() == Blocks.AIR) {
                     assert mc.player != null;
                     mc.player.getInventory().selectedSlot = slot;
-                    info("Broke shulker, toggling...");
                     stage = Stage.Toggling;
                 }
             }

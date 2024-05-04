@@ -48,7 +48,6 @@ public class BurrowEsp extends Module {
             .visible(renderText::get)
             .build());
 
-    //real render
     private final Setting<SettingColor> textColor = sgRender.add(new ColorSetting.Builder()
             .name("text-color")
             .defaultValue(new SettingColor(1, 1, 1, 255))
@@ -107,13 +106,14 @@ public class BurrowEsp extends Module {
         if (pos == null) return;
 
         Vector3d vec = new Vector3d(this.pos.toCenterPos().toVector3f());
-        
+
         vec.set(vec);
 
         if (NametagUtils.to2D(vec, scale.get())) {
             NametagUtils.begin(vec);
             TextRenderer.get().begin(1.0, false, true);
-            TextRenderer.get().render(text.toString(), TextRenderer.get().getWidth(text.toString()) / 2.0, 0.0, textColor.get(), true);
+
+            TextRenderer.get().render(text.toString(), -TextRenderer.get().getWidth(text.toString()) / 2, 0.0, textColor.get(), true);
 
             TextRenderer.get().end();
             NametagUtils.end();

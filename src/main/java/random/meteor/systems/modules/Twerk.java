@@ -35,6 +35,5 @@ public class Twerk extends Module {
         mc.options.sneakKey.setPressed(!Objects.requireNonNull(mc.player).isSneaking());
 
         ticks = delay.get();
-
     }
 }
