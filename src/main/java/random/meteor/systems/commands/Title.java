@@ -9,7 +9,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class Title extends Command {
     public Title() {
-        super("title", "changes window title lol");
+        super("title", "Changes window title");
     }
 
     @Override

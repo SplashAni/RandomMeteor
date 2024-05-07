@@ -9,7 +9,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class Center extends Command {
     public Center() {
-        super("center","Centers you, how does meteor not have this");
+        super("center","Centers you current position");
     }
 
     @Override

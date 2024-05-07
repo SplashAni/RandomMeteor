@@ -20,12 +20,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
-public class TntAura extends Module {
+public class TntAura extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgPause = settings.createGroup("Pause");
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -143,7 +144,7 @@ public class TntAura extends Module {
     int ticks = 0;
 
     public TntAura() {
-        super(Main.RM,"tnt-aura","Automatically places tnt ontop of targets head");
+        super("tnt-aura","Automatically places tnt ontop of targets head");
     }
 
     @Override

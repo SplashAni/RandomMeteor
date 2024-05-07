@@ -18,10 +18,11 @@ import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import java.util.Objects;
 
-public class Blocker extends Module {
+public class Blocker extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
@@ -77,7 +78,7 @@ public class Blocker extends Module {
     );
 
     public Blocker() {
-        super(Main.RM, "blocker", "im the most pro alive so pro");
+        super( "blocker", "Replaces nearby crystals with obsidian");
     }
 
     BlockPos pos;

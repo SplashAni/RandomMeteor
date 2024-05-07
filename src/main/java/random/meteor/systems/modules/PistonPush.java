@@ -21,6 +21,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.PistonInfo;
 import random.meteor.utils.Utils;
 
@@ -31,7 +32,7 @@ import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerT
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 
-public class PistonPush extends Module {
+public class PistonPush extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -154,7 +155,7 @@ public class PistonPush extends Module {
     );
 
     public PistonPush() {
-        super(Main.RM, "piston-push", "button mode");
+        super("piston-push", "button mode");
     }
 
     BlockPos pistonPos, holefillPos;

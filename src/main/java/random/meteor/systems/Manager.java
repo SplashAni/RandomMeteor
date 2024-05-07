@@ -2,18 +2,25 @@ package random.meteor.systems;
 
 import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.Commands;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.systems.commands.*;
 import random.meteor.systems.modules.*;
+import random.meteor.utils.ReadmeWriter;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Manager {
-    List<Module> modules = new ArrayList<>();
-    List<Command> commands = new ArrayList<>();
-
+    public List<Mod> modules = new ArrayList<>();
+    public List<Command> commands = new ArrayList<>();
+    public Manager(){
+        addModules();
+        modules.forEach(module -> Modules.get().add(module));
+        addCommands();
+        commands.forEach(Commands::add);
+    }
     private void addModules() {
         add(new PearlPhase());
         add(new CrepperAura());
@@ -34,7 +41,6 @@ public class Manager {
         add(new DeathEffect());
         add(new AutoRun());
         add(new Multitask());
-        add(new InstantMend());
         add(new AutoDupe());
         add(new DeathEffect());
         add(new AutoMine());
@@ -55,18 +61,20 @@ public class Manager {
 
     }
 
-    public void add(Module module) {
+    public void add(Mod module) {
         if (!modules.contains(module)) modules.add(module);
     }
 
     public void add(Command command) {
         if (!commands.contains(command)) commands.add(command);
     }
-    public void init() {
-        addModules();
-        modules.forEach(module -> Modules.get().add(module));
-        addCommands();
-        commands.forEach(Commands::add);
+
+    public void updateReadme(){
+        try {
+            new ReadmeWriter().write();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

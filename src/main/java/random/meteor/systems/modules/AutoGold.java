@@ -11,11 +11,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Items;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
 
-public class AutoGold extends Module {
+public class AutoGold extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
@@ -42,7 +43,7 @@ public class AutoGold extends Module {
 
     public int tick = 0;
     public AutoGold() {
-        super(Main.RM, "Auto Gold", "Switches to gold armor or items when near piglins.");
+        super( "Auto Gold", "Switches to gold armor or items when near piglins.");
     }
 
 

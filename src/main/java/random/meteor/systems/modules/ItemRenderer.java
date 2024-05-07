@@ -4,8 +4,9 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
-public class ItemRenderer extends Module {
+public class ItemRenderer extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<Boolean> itemColor = sgGeneral.add(new BoolSetting.Builder()
@@ -46,6 +47,6 @@ public class ItemRenderer extends Module {
     );
 
     public ItemRenderer() {
-        super(Main.RM,"item-renderer","yesss");
+        super("item-renderer","Custom hand renders");
     }
 }

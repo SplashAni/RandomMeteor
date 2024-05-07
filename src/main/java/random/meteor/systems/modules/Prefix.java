@@ -13,11 +13,9 @@ import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
-public class Prefix extends Module {/* what bullshit code is this 💀💀💀💀💀*/
-    public Prefix(){
-        super(Main.RM, "prefix", "");
-    }
+public class Prefix extends Mod {/* what bullshit code is this 💀💀💀💀💀*/
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public final Setting<mode> m = sgGeneral.add(new EnumSetting.Builder<mode>()
@@ -48,9 +46,6 @@ public class Prefix extends Module {/* what bullshit code is this 💀💀💀�
             .defaultValue("] ")
             .build()
     );
-    /*
-    * overries
-    * */
 
     private final SettingGroup sgOverride = settings.createGroup("Override",true);
 
@@ -71,7 +66,10 @@ public class Prefix extends Module {/* what bullshit code is this 💀💀💀�
             .defaultValue("example.addon")
             .visible(otherAddons::get)
             .build()
-    );
+    );    public Prefix(){
+        super("prefix", "");
+    }
+
 
     @Override
     public void onActivate() {

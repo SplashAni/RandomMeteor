@@ -9,7 +9,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class Betrayed extends Command {
     public Betrayed() {
-        super("betrayed","oh lord");
+        super("betrayed","Unfriends everyone");
     }
 
     @Override

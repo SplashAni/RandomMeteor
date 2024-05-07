@@ -7,8 +7,9 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
-public class CustomFov extends Module {
+public class CustomFov extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> fovVal = sgGeneral.add(new IntSetting.Builder()
@@ -21,7 +22,7 @@ public class CustomFov extends Module {
     );
 
     public CustomFov() {
-        super(Main.RM,"custom-fov","CLEANNN");
+        super("custom-fov","Allows you to exceed minecraft's fov limit");
     }
     @EventHandler
     private void onFov(GetFovEvent event) {

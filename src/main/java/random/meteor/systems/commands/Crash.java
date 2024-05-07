@@ -9,7 +9,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class Crash extends Command {
     public Crash() {
-        super("crash","brm");
+        super("crash","Closes you game");
     }
 
     @Override

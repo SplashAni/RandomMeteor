@@ -12,11 +12,12 @@ import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.text.Text;
 import random.meteor.Main;
 import random.meteor.events.KickEvent;
+import random.meteor.systems.Mod;
 
 import java.util.List;
 import java.util.Random;
 
-public class FakeKick extends Module {
+public class FakeKick extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> minTotem = sgGeneral.add(new IntSetting.Builder()
@@ -48,7 +49,7 @@ public class FakeKick extends Module {
     );
 
     public FakeKick() {
-        super(Main.RM, "fake-kick", "Auto log but with an excuse");
+        super("fake-kick", "Auto log but with an excuse");
     }
 
     @EventHandler

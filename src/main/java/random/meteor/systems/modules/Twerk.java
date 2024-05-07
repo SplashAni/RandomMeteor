@@ -7,10 +7,11 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import java.util.Objects;
 
-public class Twerk extends Module {
+public class Twerk extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
@@ -23,7 +24,7 @@ public class Twerk extends Module {
     );
     int ticks;
     public Twerk() {
-        super(Main.RM,"twerk","");
+        super("twerk","");
     }
     @EventHandler
     public void onTick(TickEvent.Pre event){

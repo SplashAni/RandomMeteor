@@ -17,9 +17,10 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
-public class PistonBurrow extends Module {
+public class PistonBurrow extends Mod{
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -125,7 +126,7 @@ public class PistonBurrow extends Module {
 
 
     public PistonBurrow() {
-        super(Main.RM,"piston-burrow","aah yes sex");
+        super("piston-burrow","aah yes sex");
     }
 
     BlockPos trapTopPos,trapBackPos,pistonPos,redstonePos,burrowPos;

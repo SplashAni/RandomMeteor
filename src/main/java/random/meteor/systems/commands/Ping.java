@@ -9,7 +9,7 @@ import static meteordevelopment.meteorclient.utils.player.PlayerUtils.getPing;
 
 public class Ping extends Command {
     public Ping() {
-        super("ping", "returns you ping");
+        super("ping", "Returns you ping");
     }
 
     @Override

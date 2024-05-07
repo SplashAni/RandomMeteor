@@ -27,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import java.util.Objects;
@@ -36,7 +37,7 @@ import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarge
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
 import static meteordevelopment.meteorclient.utils.world.BlockUtils.canPlace;
 
-public class MinecartAura extends Module {
+public class MinecartAura extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgExplode = settings.createGroup("Explode");
 
@@ -170,7 +171,7 @@ public class MinecartAura extends Module {
 
 
     public MinecartAura() {
-        super(Main.RM, "minecart-aura", "yess no skiddd");
+        super("minecart-aura", "Automatically places and explodes minecarts");
     }
 
     @Override

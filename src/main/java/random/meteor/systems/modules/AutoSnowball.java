@@ -14,13 +14,14 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import java.util.Objects;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
-public class AutoSnowball extends Module {
+public class AutoSnowball extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
@@ -51,7 +52,7 @@ public class AutoSnowball extends Module {
     );
 
     public AutoSnowball() {
-        super(Main.RM, "auto-snowball", "shoots snoballz at enemies");
+        super("auto-snowball", "Shoots snowballs at enemies");
     }
 
     int ticks;

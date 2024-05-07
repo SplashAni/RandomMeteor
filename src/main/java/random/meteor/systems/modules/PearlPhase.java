@@ -2,11 +2,12 @@ package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.settings.*;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 
-public class PearlPhase extends Module {
+public class PearlPhase extends Mod {
         private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> center = sgGeneral.add(new BoolSetting.Builder()
@@ -38,7 +39,7 @@ public class PearlPhase extends Module {
     );
 
     public PearlPhase() {
-        super(Main.RM, "pearl-phase", "Attempts to phase with pearls");
+        super( "pearl-phase", "Attempts to phase with pearls");
     }
 
     @Override

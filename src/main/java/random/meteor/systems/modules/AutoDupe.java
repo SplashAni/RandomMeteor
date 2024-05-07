@@ -19,12 +19,13 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import java.util.Arrays;
 
 
-public class AutoDupe extends Module {
+public class AutoDupe extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
@@ -77,7 +78,7 @@ public class AutoDupe extends Module {
     );
 
     public AutoDupe() {
-        super(Main.RM, "auto-dupe", "Item frame dupe");
+        super( "auto-dupe", "Item frame dupe");
     }
 
 

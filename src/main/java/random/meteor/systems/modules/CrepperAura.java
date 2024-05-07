@@ -23,11 +23,12 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import java.util.stream.IntStream;
 
-public class CrepperAura extends Module {
+public class CrepperAura extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -61,7 +62,7 @@ public class CrepperAura extends Module {
     }
 
     public CrepperAura() {
-        super(Main.RM, "creeper-aura", "8b8t fags");
+        super( "creeper-aura", "Places creeper eggs on target (for 8b8t)");
     }
     @EventHandler
     private void onOpenScreen(OpenScreenEvent event) {

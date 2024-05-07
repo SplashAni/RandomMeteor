@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.particle.ParticleTypes;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class DeathEffect extends Module {
+public class DeathEffect extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Set<EntityType<?>>> entities = sgGeneral.add(new EntityTypeListSetting.Builder()
@@ -39,7 +40,7 @@ public class DeathEffect extends Module {
     );
 
     public DeathEffect() {
-        super(Main.RM, "death-effect", "Renders an effect on entities that recently died");
+        super("death-effect", "Renders an effect on entities that recently died");
     }
 
     private final Map<Entity, Long> toRender = new HashMap<>();

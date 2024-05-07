@@ -22,7 +22,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class Tts extends Command {
     public Tts() {
-        super("tts","no");
+        super("tts","Plays the provided message as text");
     }
 
     @Override

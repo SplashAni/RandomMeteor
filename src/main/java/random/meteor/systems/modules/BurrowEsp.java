@@ -16,11 +16,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import org.joml.Vector3d;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.getPlayerTarget;
 import static meteordevelopment.meteorclient.utils.entity.TargetUtils.isBadTarget;
 
-public class BurrowEsp extends Module {
+public class BurrowEsp extends Mod {
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<Integer> range = sgRender.add(new IntSetting.Builder()
@@ -77,7 +78,7 @@ public class BurrowEsp extends Module {
     );
 
     public BurrowEsp() {
-        super(Main.RM, "burrow-esp", "good idea vh");
+        super( "burrow-esp", "Renders a block that the target is burrowed into");
     }
 
     private BlockPos pos;

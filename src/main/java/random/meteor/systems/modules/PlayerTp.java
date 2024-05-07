@@ -8,9 +8,10 @@ import meteordevelopment.meteorclient.systems.friends.Friends;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import net.minecraft.entity.player.PlayerEntity;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
-public class PlayerTp extends Module {
+public class PlayerTp extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
@@ -28,7 +29,7 @@ public class PlayerTp extends Module {
     );
 
     public PlayerTp() {
-        super(Main.RM,"player-tp","tps to nearest player");
+        super("player-tp","tps to nearest player");
     }
 
 

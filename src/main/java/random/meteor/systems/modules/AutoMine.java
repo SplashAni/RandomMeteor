@@ -26,12 +26,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import org.joml.Vector3d;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import java.util.Objects;
 
 
-public class AutoMine extends Module {
+public class AutoMine extends Mod {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgCrystal = settings.createGroup("Crystal");
@@ -143,7 +144,7 @@ public class AutoMine extends Module {
     );
 
     public AutoMine() {
-        super(Main.RM, "auto-mine", "insane");
+        super( "auto-mine", "insane");
     }
 
     public BlockPos pos;

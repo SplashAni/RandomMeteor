@@ -19,11 +19,12 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
 import java.util.Arrays;
 
-public class AutoChunkBan extends Module {
+public class AutoChunkBan extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
 
@@ -52,7 +53,7 @@ public class AutoChunkBan extends Module {
     int slot;
 
     public AutoChunkBan() {
-        super(Main.RM, "auto-chunk-ban", "Places and breaks a shulker near the player");
+        super("auto-chunk-ban", "Places and breaks a shulker near the player");
 
     }
 

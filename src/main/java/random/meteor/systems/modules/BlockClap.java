@@ -18,13 +18,14 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
 import java.util.List;
 import java.util.Objects;
 
 import static meteordevelopment.meteorclient.utils.player.InvUtils.findInHotbar;
 
-public class BlockClap extends Module {
+public class BlockClap extends Mod {
 
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -84,7 +85,7 @@ public class BlockClap extends Module {
     private BlockPos blockPos;
 
     public BlockClap() {
-        super(Main.RM, "block-clap", "Burrow that should work on almost any server");
+        super( "block-clap", "Pearls into a nearby block");
     }
 
     @Override

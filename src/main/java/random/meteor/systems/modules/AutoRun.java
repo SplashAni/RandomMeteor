@@ -12,8 +12,9 @@ import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import random.meteor.Main;
+import random.meteor.systems.Mod;
 
-public class AutoRun extends Module {
+public class AutoRun extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> ignoreFriends = sgGeneral.add(new BoolSetting.Builder()
@@ -50,7 +51,7 @@ public class AutoRun extends Module {
     private PlayerEntity entity;
 
     public AutoRun() {
-        super(Main.RM, "auto-run", "recoding");
+        super( "auto-run", "Automatically runs when a player enters you visual range (requires baritone)");
     }
 
     @EventHandler
