@@ -2,10 +2,8 @@ package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.mixin.ClientPlayerInteractionManagerAccessor;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
@@ -14,11 +12,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import random.meteor.Main;
 import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
@@ -36,20 +31,22 @@ public class AutoDupe extends Mod {
         .sliderMax(6)
         .build()
     );
-
-    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
-        .name("delay")
-        .description("amount of ticks to wait before duping")
-        .defaultValue(5)
-        .min(0)
+    private final Setting<Boolean> silentSwap = sgGeneral.add(new BoolSetting.Builder()
+        .name("silent-swap")
+        .defaultValue(true)
+        .build());
+    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
+        .name("attack-delay")
+        .defaultValue(1)
+        .min(1)
         .sliderMax(30)
         .build()
     );
-    private final Setting<Integer> spinAttempts = sgGeneral.add(new IntSetting.Builder()
-        .name("spin-attempts")
+    private final Setting<Integer> placeDelay = sgGeneral.add(new IntSetting.Builder()
+        .name("place-delay")
         .defaultValue(1)
         .min(1)
-        .sliderMax(15)
+        .sliderMax(30)
         .build()
     );
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -78,18 +75,21 @@ public class AutoDupe extends Mod {
     );
 
     public AutoDupe() {
-        super( "auto-dupe", "Item frame dupe");
+        super("auto-dupe", "Item frame dupe");
     }
 
 
     Entity itemFrame;
-    int ticks, spins;
+    int interactTicks, attackTicks, spins;
+    Stage stage;
 
     @Override
     public void onActivate() {
         itemFrame = null;
+        interactTicks = 0;
+        attackTicks = 0;
         spins = 0;
-        ticks = delay.get();
+
         super.onActivate();
     }
 
@@ -115,27 +115,35 @@ public class AutoDupe extends Mod {
 
         if (!shulker.isHotbar()) return;
 
-        if (ticks > 0) {
-            ticks--;
-        } else {
-            ItemFrameEntity entity = (ItemFrameEntity) itemFrame;
+        ItemFrameEntity entity = (ItemFrameEntity) itemFrame;
 
-            if (entity.getHeldItemStack().isEmpty()) {
-                if (spins < spinAttempts.get()) {
-                    InvUtils.swap(shulker.slot(), true);
+        stage = entity.getHeldItemStack().isEmpty() ? Stage.Interact : Stage.Attack;
 
-                    mc.interactionManager.interactEntity(mc.player, itemFrame, shulker.getHand());
+        switch (stage) {
+            case Interact -> {
 
-                    InvUtils.swapBack();
-                    spins++;
-                } else {
-                    spins = 0;
-                    ticks = delay.get();
+                if (interactTicks > 0) {
+                    interactTicks--;
+                    return;
                 }
 
-            } else {
-                ticks = delay.get();
+                InvUtils.swap(shulker.slot(), silentSwap.get());
+
+                mc.interactionManager.interactEntity(mc.player, itemFrame, shulker.getHand());
+
+                if (silentSwap.get()) InvUtils.swapBack();
+
+                interactTicks = placeDelay.get();
+            }
+            case Attack -> {
+                if (attackTicks > 0) {
+                    attackTicks--;
+                    return;
+                }
+
                 mc.interactionManager.attackEntity(mc.player, itemFrame);
+
+                attackTicks = attackDelay.get();
             }
         }
     }
@@ -149,5 +157,10 @@ public class AutoDupe extends Mod {
         Box box = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 0.2, pos.getZ() + 1);
 
         event.renderer.box(box, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+    }
+
+    enum Stage {
+        Interact,
+        Attack
     }
 }

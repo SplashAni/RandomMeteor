@@ -3,13 +3,12 @@ package random.meteor.systems;
 import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import random.meteor.Main;
 import random.meteor.systems.commands.*;
 import random.meteor.systems.modules.*;
-import random.meteor.utils.ReadmeWriter;
+import random.meteor.utils.ReadmeHelper;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Manager {
@@ -69,13 +68,10 @@ public class Manager {
         if (!commands.contains(command)) commands.add(command);
     }
 
-    public void updateReadme(){
-        try {
-            new ReadmeWriter().write();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void printReadme(){
+        Main.LOGGER.info(new ReadmeHelper().getReadme());
     }
+
 
 }
 

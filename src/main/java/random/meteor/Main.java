@@ -8,7 +8,6 @@ import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 import random.meteor.systems.Manager;
-import random.meteor.utils.ReadmeWriter;
 
 public class Main extends MeteorAddon {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -20,7 +19,7 @@ public class Main extends MeteorAddon {
         LOGGER.info("Thanks for using Random Meteor <3\n Make sure to star on github plz");
         MANAGER = new Manager();
 
-        MANAGER.updateReadme();
+        MANAGER.printReadme();
     }
 
 

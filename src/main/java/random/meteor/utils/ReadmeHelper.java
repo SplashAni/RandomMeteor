@@ -1,17 +1,10 @@
 package random.meteor.utils;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 
 import static random.meteor.Main.MANAGER;
 
-public class ReadmeWriter {
-    public void write() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("test.md"));
-        writer.write(getReadme());
-    }
+public class ReadmeHelper {
 
     public String getReadme() {
 
