@@ -28,23 +28,26 @@ import java.util.List;
 
 public class KillAuraMixin extends Module {
 
-    private SettingGroup sgRender;
-    /*settings*/
-    private Setting<Boolean> render;
-    private Setting<Integer> upSpeed;
-    private Setting<Integer> downSpeed;
-    private Setting<Integer> size;
-    @Unique
-    Setting<Shapes> mode;
-    @Unique
-    private Setting<SettingColor> color;
-
     @Shadow
     @Final
     private final List<Entity> targets = new ArrayList<>();
-
+    @Unique
+    Setting<Shapes> mode;
     @Unique
     double currentHeight = 0.0;
+    @Unique
+    private SettingGroup sgRender;
+    /*settings*/
+    @Unique
+    private Setting<Boolean> render;
+    @Unique
+    private Setting<Integer> upSpeed;
+    @Unique
+    private Setting<Integer> downSpeed;
+    @Unique
+    private Setting<Integer> size;
+    @Unique
+    private Setting<SettingColor> color;
     @Unique
     private boolean isUp = true;
 

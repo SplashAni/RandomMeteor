@@ -4,7 +4,6 @@ import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -20,9 +19,7 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import random.meteor.Main;
 import random.meteor.systems.Mod;
-import random.meteor.utils.PistonInfo;
 import random.meteor.utils.Utils;
 
 import java.util.ArrayList;
@@ -365,7 +362,7 @@ public class PistonPush extends Mod {
             if (d == Direction.DOWN || d == Direction.UP) continue;
             BlockPos p = pos.offset(d).down();
 
-                if (Utils.isBlock(p)) {
+                if (Utils.state(p).equals(Blocks.AIR)) {
                     return p.up();
                 } else if (torchBase.get() && canPlace(p)) {
                     FindItemResult i = InvUtils.findInHotbar(j -> j.getItem() instanceof BlockItem);
@@ -414,5 +411,8 @@ public class PistonPush extends Mod {
     public enum Mode {
         Torch,
         RedstoneBlock
+    }
+    private record PistonInfo(BlockPos pos, Direction direction){
+
     }
 }

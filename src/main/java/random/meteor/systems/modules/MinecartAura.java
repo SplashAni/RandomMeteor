@@ -4,7 +4,6 @@ import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -26,7 +25,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import random.meteor.Main;
 import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
 
@@ -256,7 +254,7 @@ public class MinecartAura extends Mod {
                                     if (mc.player.getItemUseTime() > delay) {
                                         assert mc.interactionManager != null;
 
-                                        Utils.rotate(EntityType.TNT_MINECART);
+                                        Utils.rotateToEntityType(EntityType.TNT_MINECART);
                                         mc.interactionManager.stopUsingItem(mc.player);
                                         mc.options.useKey.setPressed(false);
                                         InvUtils.swapBack();
@@ -283,8 +281,8 @@ public class MinecartAura extends Mod {
         }
     }
 
-    private BlockPos findPlacePos(BlockPos targetPos) { // all credits duel to blockpostestm odule :trl:
-        targetPos = new BlockPos(targetPos.down(1));
+    private BlockPos findPlacePos(BlockPos targetPos) {
+        targetPos = new BlockPos(targetPos.down(1)); // todo : fix this haram code??
 
         if (canPlace(targetPos.add(0, 1, 1))) return targetPos.add(0, 1, 1);
         else if (canPlace(targetPos.add(1, 1, 0))) return targetPos.add(1, 1, 0);

@@ -6,7 +6,7 @@ import meteordevelopment.meteorclient.systems.modules.Modules;
 import random.meteor.Main;
 import random.meteor.systems.commands.*;
 import random.meteor.systems.modules.*;
-import random.meteor.utils.ReadmeHelper;
+import random.meteor.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,6 @@ public class Manager {
         add(new AutoDupe());
         add(new DeathEffect());
         add(new AutoMine());
-        add(new PlayerTp());
         add(new FakeKick());
     }
 
@@ -68,9 +67,6 @@ public class Manager {
         if (!commands.contains(command)) commands.add(command);
     }
 
-    public void printReadme(){
-        Main.LOGGER.info(new ReadmeHelper().getReadme());
-    }
 
 
 }

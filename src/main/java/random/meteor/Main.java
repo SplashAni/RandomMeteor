@@ -19,7 +19,6 @@ public class Main extends MeteorAddon {
         LOGGER.info("Thanks for using Random Meteor <3\n Make sure to star on github plz");
         MANAGER = new Manager();
 
-        MANAGER.printReadme();
     }
 
 
