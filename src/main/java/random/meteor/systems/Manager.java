@@ -38,7 +38,6 @@ public class Manager {
         add(new Blocker());
         add(new PistonBurrow());
         add(new DeathEffect());
-        add(new AutoRun());
         add(new Multitask());
         add(new AutoDupe());
         add(new DeathEffect());
