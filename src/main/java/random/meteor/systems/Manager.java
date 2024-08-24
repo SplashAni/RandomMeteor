@@ -3,10 +3,8 @@ package random.meteor.systems;
 import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.commands.Commands;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import random.meteor.Main;
 import random.meteor.systems.commands.*;
 import random.meteor.systems.modules.*;
-import random.meteor.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

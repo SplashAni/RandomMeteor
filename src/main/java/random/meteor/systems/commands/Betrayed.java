@@ -5,8 +5,6 @@ import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.systems.friends.Friends;
 import net.minecraft.command.CommandSource;
 
-import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
-
 public class Betrayed extends Command {
     public Betrayed() {
         super("betrayed","Unfriends everyone");
