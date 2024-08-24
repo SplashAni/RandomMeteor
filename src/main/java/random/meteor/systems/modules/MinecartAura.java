@@ -13,7 +13,6 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -249,7 +248,7 @@ public class MinecartAura extends Mod {
                                 InvUtils.swap(bow.slot(), true);
                                 assert mc.player != null;
                                 ItemStack mainHandStack = mc.player.getMainHandStack();
-                                if (mainHandStack.getItem() == Items.BOW && EnchantmentHelper.getLevel(Enchantments.FLAME, mainHandStack) > 0) { // aah yes my brai
+                                if (mainHandStack.getItem() == Items.BOW && meteordevelopment.meteorclient.utils.Utils.hasEnchantment(mainHandStack, Enchantments.FLAME)) {
                                     mc.options.useKey.setPressed(true);
                                     if (mc.player.getItemUseTime() > delay) {
                                         assert mc.interactionManager != null;

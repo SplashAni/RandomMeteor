@@ -1,10 +1,8 @@
 package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.settings.*;
-import random.meteor.Main;
 import random.meteor.systems.Mod;
 import random.meteor.utils.Utils;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 
 public class PearlPhase extends Mod {

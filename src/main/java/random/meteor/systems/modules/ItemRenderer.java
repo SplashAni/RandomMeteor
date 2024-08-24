@@ -1,9 +1,7 @@
 package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
-import random.meteor.Main;
 import random.meteor.systems.Mod;
 
 public class ItemRenderer extends Mod {
