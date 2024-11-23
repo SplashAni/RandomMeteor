@@ -1,6 +1,7 @@
 package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.events.entity.player.StartBreakingBlockEvent;
+import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render2DEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
@@ -10,22 +11,20 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
-import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import org.joml.Vector3d;
 import random.meteor.systems.Mod;
-import random.meteor.utils.Utils;
 
 import java.util.Objects;
 
@@ -48,21 +47,17 @@ public class AutoMine extends Mod {
         .defaultValue(true)
         .build()
     );
-    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-        .name("rotate")
-        .defaultValue(false)
-        .build()
-    );
-
-
     private final Setting<mineMode> remineMode = sgGeneral.add(new EnumSetting.Builder<mineMode>()
         .name("remine-mode")
         .visible(remine::get)
         .defaultValue(mineMode.Instant)
         .build()
     );
-
-
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
+        .name("rotate")
+        .defaultValue(false)
+        .build()
+    );
     /*crystal*/
     private final Setting<Boolean> placeCrystal = sgCrystal.add(new BoolSetting.Builder()
         .name("place-crystal")
@@ -140,84 +135,76 @@ public class AutoMine extends Mod {
         .visible(render::get)
         .build()
     );
-
-    public AutoMine() {
-        super( "auto-mine", "insane");
-    }
-
     public BlockPos pos;
+    public Direction direction;
     public float progress;
-    boolean didMine, update;
+    public boolean update;
+    public AutoMine() {
+        super("auto-mine", "insane");
+    }
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
 
         if (!BlockUtils.canBreak(event.blockPos)) return;
-        if (pos != null) {
-            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
-        }
 
+        if (pos != null)
+            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, direction));
+
+        direction = event.direction;
         pos = event.blockPos;
-        update = false;
         progress = 0f;
+        sendMinePacket();
     }
 
 
     @EventHandler
-    public void onTick(TickEvent.Pre event) {
+    public void sendPacket(PacketEvent.Sent sent) {
 
-
-        if (didMine) {
-            Utils.updateHotbar();
-            progress = 0f;
-            pos = null;
-            didMine = false;
-        }
-
-        if (pos == null) return;
-
-        assert mc.world != null;
-        FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
-
-        progress += BlockUtils.getBreakDelta(tool.slot() != -1 ? tool.slot() : Objects.requireNonNull(mc.player).getInventory().selectedSlot, mc.world.getBlockState(pos));
-
-        if (swapMode.get().equals(switchMode.Normal)) {
-            InvUtils.swap(tool.slot(), true);
-        }
-
-        if (rotate.get()) Rotations.rotate(Rotations.getYaw(pos), Rotations.getPitch(pos));
-
-        if (shouldPause() || mc.player.getMovementSpeed() > 0) return;
-
-        Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, Direction.UP));
-        Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, Direction.UP));
-
-        if (progress >= 1) {
+        if (sent.packet instanceof UpdateSelectedSlotC2SPacket packet
+            && packet.getSelectedSlot() != mc.player.getInventory().selectedSlot
+            && progress >= 1.0f) {
             update = true;
-            mc.particleManager.addBlockBreakParticles(pos, mc.world.getBlockState(pos));
-            if (tool.slot() != -1) {
+        }
 
-                assert mc.player != null;
+    }
 
-                switch (swapMode.get()) {
-                    case Silent -> mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(tool.slot()));
-                    case SwapSilent -> Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
-                }
 
-            }
 
-            if (swapMode.get().equals(switchMode.SwapSilent) && tool.slot() != -1) {
-                assert mc.player != null;
-                Utils.move(mc.player.getInventory().selectedSlot, tool.slot());
-            }
-
-            if (Utils.state(pos) != Blocks.AIR) {
-                return;
-            }
-
-            didMine = true;
+    @EventHandler
+    public void onTick(TickEvent.Pre event) {
+        if(update){
+            mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(
+                mc.player.getInventory().selectedSlot));
 
         }
+        if (pos == null || direction == null) return;
+        if (progress >= 1.0f) {
+
+            if (mc.world.isAir(pos)) {
+                pos = null;
+                direction = null;
+            } else {
+                FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
+
+                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(tool.slot()));
+            }
+
+
+        } else {
+            sendMinePacket();
+            mc.player.swingHand(Hand.MAIN_HAND);
+            FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
+
+            progress += (float) BlockUtils.getBreakDelta(tool.slot() != -1 ? tool.slot() : Objects.requireNonNull(mc.player).getInventory().selectedSlot, mc.world.getBlockState(pos));
+
+        }
+    }
+
+    public void sendMinePacket() {
+        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, direction));
+        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, direction));
+
     }
 
 
@@ -282,7 +269,7 @@ public class AutoMine extends Mod {
 
         event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
-
+ 
     public enum mineMode {
         Instant,
         Normal

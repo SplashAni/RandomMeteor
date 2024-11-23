@@ -12,6 +12,7 @@ public class Multitask extends Mod {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+        if (mc.crosshairTarget == null) return;
         if (mc.crosshairTarget.getType() == HitResult.Type.ENTITY && mc.options.attackKey.wasPressed()) {
             mc.interactionManager.attackEntity(mc.player, mc.targetedEntity);
         }
