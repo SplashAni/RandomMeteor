@@ -28,6 +28,7 @@ public class Twerk extends Mod {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+
         if (ticks > 0) {
             ticks--;
             return;
