@@ -25,6 +25,7 @@ public class Manager {
         add(new ItemRenderer());
         add(new PistonPush());
         add(new BlockClap());
+        add(new BowCart());
         add(new CustomFov());
         add(new AutoChunkBan());
         add(new TntAura());
@@ -33,6 +34,7 @@ public class Manager {
         add(new MinecartAura());
         add(new AutoSnowball());
         add(new BurrowEsp());
+        add(new PistonAura());
         add(new Blocker());
         add(new PistonBurrow());
         add(new DeathEffect());

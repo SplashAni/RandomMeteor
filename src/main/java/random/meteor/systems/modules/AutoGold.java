@@ -43,7 +43,7 @@ public class AutoGold extends Mod {
     public int tick = 0;
 
     public AutoGold() {
-        super("Auto Gold", "Switches to gold armor or items when near piglins.");
+        super("auto-gold", "Switches to gold armor or items when near piglins.");
     }
 
 

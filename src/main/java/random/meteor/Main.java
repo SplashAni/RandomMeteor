@@ -5,6 +5,7 @@ import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.modules.Category;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.render.Trajectories;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 import random.meteor.systems.Manager;
@@ -18,7 +19,6 @@ public class Main extends MeteorAddon {
 
         LOGGER.info("Thanks for using Random Meteor <3\n Make sure to star on github plz");
         MANAGER = new Manager();
-
     }
 
 

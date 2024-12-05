@@ -43,128 +43,127 @@ public class MinecartAura extends Mod {
     private final SettingGroup sgRender = settings.createGroup("Render");
 
     private final Setting<Integer> range = sgGeneral.add(new IntSetting.Builder()
-            .name("target-range")
-            .description("Range to find target.")
-            .defaultValue(12)
-            .range(1, 12)
-            .sliderMax(12)
-            .build()
+        .name("target-range")
+        .description("Range to find target.")
+        .defaultValue(12)
+        .range(1, 12)
+        .sliderMax(12)
+        .build()
     );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
-            .name("rotate")
-            .defaultValue(true)
-            .build()
+        .name("rotate")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<Boolean> oldPlacements = sgGeneral.add(new BoolSetting.Builder()
-            .name("1.12-placement")
-            .defaultValue(true)
-            .build()
+        .name("1.12-placement")
+        .defaultValue(true)
+        .build()
     );
 
     private final Setting<Integer> railDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("rail-delay")
-            .description("Delay to place rail")
-            .defaultValue(15)
-            .range(1, 35)
-            .sliderMax(35)
-            .build()
+        .name("rail-delay")
+        .description("Delay to place rail")
+        .defaultValue(15)
+        .range(1, 35)
+        .sliderMax(35)
+        .build()
     );
 
     private final Setting<Integer> tntDelay = sgGeneral.add(new IntSetting.Builder()
-            .name("tnt-delay")
-            .description("Delay to place tnt")
-            .defaultValue(15)
-            .range(1, 35)
-            .sliderMax(35)
-            .build()
+        .name("tnt-delay")
+        .description("Delay to place tnt")
+        .defaultValue(15)
+        .range(1, 35)
+        .sliderMax(35)
+        .build()
     );
 
 
     /// ignite
 
     private final Setting<explode> explodeMethod = sgExplode.add(new EnumSetting.Builder<explode>()
-            .name("explode-method")
-            .defaultValue(explode.BowFlame)
-            .build()
-    );
-    private final Setting<Integer> explodeDelay = sgExplode.add(new IntSetting.Builder()
-            .name("explode-delay")
-            .description("Delay to place tnt")
-            .defaultValue(15)
-            .range(1, 35)
-            .sliderMax(35)
-            .build()
+        .name("explode-method")
+        .defaultValue(explode.BowFlame)
+        .build()
     );
     private final Setting<Integer> pullDelay = sgExplode.add(new IntSetting.Builder()
-            .name("pull-delay")
-            .defaultValue(20)
-            .range(5, 20)
-            .sliderMax(20)
-            .visible(() -> explodeMethod.get() == explode.BowFlame)
-            .build()
+        .name("pull-delay")
+        .defaultValue(20)
+        .range(5, 20)
+        .sliderMax(20)
+        .visible(() -> explodeMethod.get() == explode.BowFlame)
+        .build()
+    );
+    private final Setting<Integer> explodeDelay = sgExplode.add(new IntSetting.Builder()
+        .name("explode-delay")
+        .description("Delay to place tnt")
+        .defaultValue(15)
+        .range(1, 35)
+        .sliderMax(35)
+        .build()
     );
     private final Setting<Boolean> instant = sgPause.add(new BoolSetting.Builder()
-            .name("instant")
-            .description("")
-            .defaultValue(false)
-            .build()
+        .name("instant")
+        .description("")
+        .defaultValue(false)
+        .build()
     );
 
 
     //PAUSE
 
     private final Setting<Boolean> pauseMine = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-mine")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-mine")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> pauseEat = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-eat")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-eat")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<Boolean> pauseDrink = sgPause.add(new BoolSetting.Builder()
-            .name("pause-on-drink")
-            .description("")
-            .defaultValue(true)
-            .build()
+        .name("pause-on-drink")
+        .description("")
+        .defaultValue(true)
+        .build()
     );
 
     ///RENDER
     private final Setting<Boolean> swing = sgRender.add(new BoolSetting.Builder()
-            .name("swing")
-            .defaultValue(true)
-            .build()
+        .name("swing")
+        .defaultValue(true)
+        .build()
     );
     private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-            .name("shape-mode")
-            .description("How the shapes are rendered.")
-            .defaultValue(ShapeMode.Both)
-            .build()
+        .name("shape-mode")
+        .description("How the shapes are rendered.")
+        .defaultValue(ShapeMode.Both)
+        .build()
     );
 
     private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-            .name("side-color")
-            .description("The side color of the rendering.")
-            .defaultValue(new SettingColor(225, 0, 0, 75))
-            .build()
+        .name("side-color")
+        .description("The side color of the rendering.")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .build()
     );
 
     private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-            .name("line-color")
-            .description("The line color of the rendering.")
-            .defaultValue(new SettingColor(225, 0, 0, 255))
-            .build()
+        .name("line-color")
+        .description("The line color of the rendering.")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .build()
     );
-
-    private Stage stage;
     int railTick, tntTick, explodeTicks;
     PlayerEntity target;
     BlockPos targetPos;
     float yaw, pitch;
+    private Stage stage;
 
 
     public MinecartAura() {
@@ -186,7 +185,7 @@ public class MinecartAura extends Mod {
         if (explodeMethod.get().equals(explode.BowFlame)) {
             mc.options.useKey.setPressed(false);
         }
-        Rotations.rotate(yaw,pitch,50);
+        Rotations.rotate(yaw, pitch, 50);
         super.onDeactivate();
     }
 
@@ -298,11 +297,13 @@ public class MinecartAura extends Mod {
 
         event.renderer.box(targetPos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
-    public enum explode{
+
+    public enum explode {
         BowFlame,
         FlintSteel
     }
-    private enum Stage{
+
+    private enum Stage {
         Preparing,
         Rail,
         Tnt,

@@ -11,6 +11,7 @@
     "repo": "github.com/SplashAni/RandomMeteor",
     "discord": "discord.gg/dNyVgyvsYG"
   },
+  "accessWidener": "random.accesswidener",
   "icon": "assets/random/icon.png",
   "environment": "client",
   "entrypoints": {

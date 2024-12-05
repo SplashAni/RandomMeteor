@@ -8,6 +8,10 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+loom {
+    accessWidenerPath = file("src/main/resources/random.accesswidener")
+}
+
 repositories {
     maven {
         name = "Meteor Dev Releases"
