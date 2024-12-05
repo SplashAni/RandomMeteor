@@ -7,10 +7,15 @@ import meteordevelopment.meteorclient.settings.ColorSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.utils.entity.SortPriority;
+import meteordevelopment.meteorclient.utils.entity.TargetUtils;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.systems.Mod;
@@ -44,9 +49,11 @@ public class PistonAura extends Mod {
         .defaultValue(new SettingColor(225, 0, 0, 255))
         .build()
     );
+
     AuraPosition auraPosition;
     PistonUtils pistonUtils;
-
+    PlayerEntity target;
+    FindItemResult piston, redstone, crystal;
 
     public PistonAura() {
         super("piston-aura", "pisaton moment");
@@ -60,12 +67,20 @@ public class PistonAura extends Mod {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
+
+        crystal = InvUtils.findInHotbar(Items.END_CRYSTAL);
+        piston = InvUtils.findInHotbar(Items.PISTON, Items.STICKY_PISTON);
+        redstone = InvUtils.findInHotbar(Items.REDSTONE_BLOCK);
+
+        target = TargetUtils.getPlayerTarget(5, SortPriority.ClosestAngle);
+
+        if (target == null || !crystal.isHotbar() || !piston.isHotbar() || !redstone.isHotbar()) return;
+
         calc();
 
     }
 
     public void calc() {
-        PlayerEntity target = mc.player;
 
         BlockPos crystalPos, redstonePos, pistonPos;
 

@@ -23,7 +23,7 @@ public class PistonUtils {
 
         offsets(entity.getBlockPos(), Direction.Type.HORIZONTAL.facingArray).stream().filter(offset
             -> (Utils.state(offset) == Blocks.OBSIDIAN || Utils.state(offset) == Blocks.BEDROCK) &&
-            Objects.requireNonNull(mc.world).isAir(offset.up())).forEach(offset -> {
+            BlockUtils.canPlace(offset.up())).forEach(offset -> {
             Direction direction = Direction.fromVector(
                 offset.getX() - entity.getBlockPos().getX(),
                 offset.getY() - entity.getBlockPos().getY(),
