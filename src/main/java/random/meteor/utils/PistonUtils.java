@@ -2,25 +2,27 @@ package random.meteor.utils;
 
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
+import meteordevelopment.meteorclient.utils.player.FindItemResult;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.PistonBlock;
-import net.minecraft.client.option.StickyKeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
+import random.meteor.systems.modules.PistonAura;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
+import static meteordevelopment.meteorclient.utils.world.BlockUtils.interact;
 
 public class PistonUtils {
     private List<Pair<BlockPos, Direction>> offsets(BlockPos pos, Direction[] directions) {
@@ -29,7 +31,7 @@ public class PistonUtils {
             .collect(Collectors.toList());
     }
 
-    public Map<Direction, BlockPos> getValidPosition(PlayerEntity entity, boolean top) {
+    public Map<Direction, BlockPos> getValidPosition(PlayerEntity entity, boolean top, PistonAura.Mode mode) {
         Map<Direction, BlockPos> placeablePositions = new EnumMap<>(Direction.class);
 
         offsets(entity.getBlockPos().up(top ? 1 : 0), Direction.Type.HORIZONTAL.facingArray).stream()
@@ -44,12 +46,46 @@ public class PistonUtils {
                 Direction direction = pair.getRight();
 
                 BlockPos placeablePos = offset.offset(direction).up();
-                if (BlockUtils.canPlace(placeablePos) && BlockUtils.canPlace(placeablePos.offset(direction))) {
+                if (BlockUtils.canPlace(placeablePos) &&
+                    canActivate(placeablePos, direction, mode)) {
                     placeablePositions.put(direction, offset);
                 }
             });
         return placeablePositions;
     }
+
+    public boolean canActivate(BlockPos pos, Direction direction, PistonAura.Mode mode) {
+        return switch (mode) {
+            case Button -> getTorchPos(pos, direction) != null;
+            case RedstoneBlock -> BlockUtils.canPlace(pos.offset(direction));
+        };
+    }
+
+    public BlockPos getTorchPos(BlockPos pos, Direction direction) {
+        List<Pair<BlockPos, Direction>> offsetList = offsets(pos.down(), Direction.Type.HORIZONTAL.facingArray);
+
+        AtomicBoolean canTorch = new AtomicBoolean(false);
+        AtomicReference<BlockPos> torchPos = new AtomicReference<>(null);
+
+        offsetList.forEach(blockPosDirectionPair -> {
+            if (!Objects.requireNonNull(mc.world).getBlockState(blockPosDirectionPair.getLeft()).isAir() &&
+                BlockUtils.canPlace(blockPosDirectionPair.getLeft().up(1))
+                && !(blockPosDirectionPair.getLeft().equals(pos.down().offset(direction.getOpposite())))) {
+                canTorch.set(true);
+                torchPos.set(blockPosDirectionPair.getLeft());
+            }
+        });
+        return canTorch.get() ? torchPos.get() : null;
+    }
+
+    public void placeTorch(BlockPos pos, FindItemResult torch, boolean silent) {
+        InvUtils.swap(torch.slot(), silent);
+
+        interact(new BlockHitResult(pos.down().toCenterPos(),Direction.UP,pos,true), Hand.MAIN_HAND,true);
+
+        if (silent) InvUtils.swapBack();
+    }
+
 
     public void renderPistonHead(Render3DEvent event, BlockPos pistonPos,
                                  Color side, Color lines, ShapeMode shapeMode) {
