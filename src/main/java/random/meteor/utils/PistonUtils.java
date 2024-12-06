@@ -7,6 +7,7 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.PistonBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -21,29 +22,31 @@ import java.util.stream.Collectors;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PistonUtils {
-    private List<BlockPos> offsets(BlockPos pos, Direction[] directions) {
+    private List<Pair<BlockPos, Direction>> offsets(BlockPos pos, Direction[] directions) {
         return Arrays.stream(directions)
-            .map(pos::offset)
+            .map(direction -> new Pair<>(pos.offset(direction), direction))
             .collect(Collectors.toList());
     }
 
-    public Map<Direction, BlockPos> getValidPosition(PlayerEntity entity) {
+    public Map<Direction, BlockPos> getValidPosition(PlayerEntity entity, boolean top) {
         Map<Direction, BlockPos> placeablePositions = new EnumMap<>(Direction.class);
 
-        offsets(entity.getBlockPos(), Direction.Type.HORIZONTAL.facingArray).stream().filter(offset
-            -> (Utils.state(offset) == Blocks.OBSIDIAN || Utils.state(offset) == Blocks.BEDROCK) &&
-            BlockUtils.canPlace(offset.up())).forEach(offset -> {
-            Direction direction = Direction.fromVector(
-                offset.getX() - entity.getBlockPos().getX(),
-                offset.getY() - entity.getBlockPos().getY(),
-                offset.getZ() - entity.getBlockPos().getZ()
-            );
+        offsets(entity.getBlockPos().up(top ? 1 : 0), Direction.Type.HORIZONTAL.facingArray).stream()
+            .filter(pair -> {
+                BlockPos offset = pair.getLeft();
 
-            BlockPos placeablePos = offset.offset(direction).up();
-            if (BlockUtils.canPlace(placeablePos) && BlockUtils.canPlace(placeablePos.offset(direction))) {
-                placeablePositions.put(direction, offset);
-            }
-        });
+                return (Utils.state(offset) == Blocks.OBSIDIAN || Utils.state(offset) == Blocks.BEDROCK) &&
+                    BlockUtils.canPlace(offset.up());
+            })
+            .forEach(pair -> {
+                BlockPos offset = pair.getLeft();
+                Direction direction = pair.getRight();
+
+                BlockPos placeablePos = offset.offset(direction).up();
+                if (BlockUtils.canPlace(placeablePos) && BlockUtils.canPlace(placeablePos.offset(direction))) {
+                    placeablePositions.put(direction, offset);
+                }
+            });
         return placeablePositions;
     }
 

@@ -27,7 +27,6 @@ import random.meteor.systems.Mod;
 import random.meteor.utils.PistonUtils;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static random.meteor.systems.modules.PistonPush.pistonYaw;
 
@@ -268,6 +267,11 @@ public class PistonAura extends Mod {
         // info("Stage changed to: " + newStage);
     }
 
+    @Override
+    public String getInfoString() {
+        return stage == null ? "No target" : stage.toString();
+    }
+
     @EventHandler
     public void onSpawn(EntityAddedEvent event) {
         if (event.entity instanceof EndCrystalEntity crystal) {
@@ -304,8 +308,12 @@ public class PistonAura extends Mod {
 
         BlockPos crystalPos, redstonePos, pistonPos;
 
-        Map<Direction, BlockPos> placeableMap = pistonUtils.getValidPosition(Objects.requireNonNull(target));
+        Map<Direction, BlockPos> placeableMap = pistonUtils.getValidPosition(target, false);
 
+        if (placeableMap == null || placeableMap.isEmpty()) {
+            placeableMap = pistonUtils.getValidPosition(target, true);
+        }
+        
         if (placeableMap != null && !placeableMap.isEmpty()) {
             Map.Entry<Direction, BlockPos> entry = placeableMap.entrySet().stream().findFirst().orElse(null);
 
