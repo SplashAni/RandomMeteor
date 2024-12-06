@@ -1,6 +1,7 @@
 package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
+import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
@@ -10,7 +11,6 @@ import meteordevelopment.meteorclient.utils.entity.TargetUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
-import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -18,6 +18,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -31,9 +32,13 @@ import java.util.Objects;
 import static random.meteor.systems.modules.PistonPush.pistonYaw;
 
 public class PistonAura extends Mod {
-    private final SettingGroup sgRender = settings.createGroup("Render");
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
+    public final Setting<PistonRotate> rotateMode = sgGeneral.add(new EnumSetting.Builder<PistonRotate>()
+        .name("rotation-mode")
+        .defaultValue(PistonRotate.None)
+        .build()
+    );
+    private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder()
         .name("piston-delay")
         .defaultValue(5)
@@ -45,37 +50,97 @@ public class PistonAura extends Mod {
         .defaultValue(5)
         .min(0)
         .build()
-    );   private final Setting<Integer> redstoneDelay = sgGeneral.add(new IntSetting.Builder()
+    );
+    private final Setting<Integer> redstoneDelay = sgGeneral.add(new IntSetting.Builder()
         .name("redstone-delay")
         .defaultValue(5)
         .min(0)
         .build()
-    );   private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
+    );
+    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
         .name("attack-delay")
         .defaultValue(5)
         .min(0)
         .build()
     );
-    private final Setting<ShapeMode> shapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-        .name("shape-mode")
-        .description("How the shapes are rendered.")
+    // render
+    private final Setting<Boolean> renderPiston = sgGeneral.add(new BoolSetting.Builder()
+        .name("render-piston")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<ShapeMode> pistonShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("piston-shape-mode")
         .defaultValue(ShapeMode.Both)
+        .visible(renderPiston::get)
         .build()
     );
-
-    private final Setting<SettingColor> sideColor = sgRender.add(new ColorSetting.Builder()
-        .name("side-color")
-        .description("The side color of the rendering.")
+    private final Setting<SettingColor> pistonSideColor = sgRender.add(new ColorSetting.Builder()
+        .name("piston-side-color")
         .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(renderPiston::get)
+        .build()
+    );
+    private final Setting<SettingColor> pistonLineColor = sgRender.add(new ColorSetting.Builder()
+        .name("piston-line-color")
+        .description("The line color of the piston rendering.")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(renderPiston::get)
+        .build()
+    );
+    private final Setting<Boolean> renderPistonHead = sgGeneral.add(new BoolSetting.Builder()
+        .name("render-piston-head")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> renderCrystalBase = sgGeneral.add(new BoolSetting.Builder()
+        .name("render-crystal-base")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<ShapeMode> crystalBaseShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("crystal-base-shape-mode")
+        .defaultValue(ShapeMode.Both)
+        .visible(renderCrystalBase::get)
+        .build()
+    );
+    private final Setting<SettingColor> crystalBaseSideColor = sgRender.add(new ColorSetting.Builder()
+        .name("crystal-base-side-color")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(renderCrystalBase::get)
+        .build()
+    );
+    private final Setting<SettingColor> crystalBaseLineColor = sgRender.add(new ColorSetting.Builder()
+        .name("crystal-base-line-color")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(renderCrystalBase::get)
         .build()
     );
 
-    private final Setting<SettingColor> lineColor = sgRender.add(new ColorSetting.Builder()
-        .name("line-color")
-        .description("The line color of the rendering.")
-        .defaultValue(new SettingColor(225, 0, 0, 255))
+    private final Setting<Boolean> renderRedstone = sgGeneral.add(new BoolSetting.Builder()
+        .name("render-redstone")
+        .defaultValue(true)
         .build()
     );
+    private final Setting<ShapeMode> redstoneShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("redstone-shape-mode")
+        .defaultValue(ShapeMode.Both)
+        .visible(renderRedstone::get)
+        .build()
+    );
+    private final Setting<SettingColor> redstoneSideColor = sgRender.add(new ColorSetting.Builder()
+        .name("redstone-side-color")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(renderRedstone::get)
+        .build()
+    );
+    private final Setting<SettingColor> redstoneLineColor = sgRender.add(new ColorSetting.Builder()
+        .name("redstone-line-color")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(renderRedstone::get)
+        .build()
+    );
+
 
     AuraPosition auraPosition;
     PistonUtils pistonUtils;
@@ -84,6 +149,7 @@ public class PistonAura extends Mod {
     Stage stage;
     EndCrystalEntity crystalEntity;
     int pistonTick, crystalTick, redstoneTick, attackTick;
+    private boolean stopRecursion = false;
 
     public PistonAura() {
         super("piston-aura", "pisaton moment");
@@ -122,16 +188,27 @@ public class PistonAura extends Mod {
                 }
             }
             case Piston -> {
-                if(mc.world.getBlockState(auraPosition.redstonePos).getBlock() == Blocks.REDSTONE_BLOCK){
-                    BlockUtils.breakBlock(auraPosition.redstonePos,true);
+                if (mc.world.getBlockState(auraPosition.redstonePos).getBlock() == Blocks.REDSTONE_BLOCK) {
+                    BlockUtils.breakBlock(auraPosition.redstonePos, true);
                     return;
                 }
-                Rotations.rotate(pistonYaw(auraPosition.pistonBlock.direction()), 0);
+
+                switch (rotateMode.get()) {
+
+                    case None -> {
+                        mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(auraPosition.pistonBlock.direction()), 0, true));
+                    }
+                    case Full -> {
+                        Rotations.rotate(pistonYaw(auraPosition.pistonBlock.direction()), 0);
+                    }
+                }
+
 
                 if (pistonTick > 0) {
                     pistonTick--;
                     return;
                 }
+
 
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
                     false, 50, true, false, false)) {
@@ -147,6 +224,7 @@ public class PistonAura extends Mod {
                 }
 
                 InvUtils.swap(crystal.slot(), false);
+
                 mc.interactionManager.interactBlock(
                     mc.player, Hand.MAIN_HAND, new BlockHitResult(auraPosition.crystalPos.toCenterPos(),
                         Direction.UP, auraPosition.crystalPos, true));
@@ -162,7 +240,6 @@ public class PistonAura extends Mod {
 
                 if (BlockUtils.place(auraPosition.redstonePos, redstone,
                     false, 50, true, false, false)) {
-
                     setStage(Stage.Attack);
                 }
 
@@ -174,7 +251,6 @@ public class PistonAura extends Mod {
                 }
                 if (crystalEntity != null) {
                     mc.interactionManager.attackEntity(mc.player, crystalEntity);
-                    info("not null");
                 }
                 setStage(Stage.Prepare);
             }
@@ -189,7 +265,7 @@ public class PistonAura extends Mod {
 
         this.stage = newStage;
 
-        info("Stage changed to: " + newStage);
+        // info("Stage changed to: " + newStage);
     }
 
     @EventHandler
@@ -201,6 +277,28 @@ public class PistonAura extends Mod {
             }
         }
     }
+
+    @EventHandler
+    public void onPacket(PacketEvent.Send event) {
+        if (event.packet instanceof PlayerMoveC2SPacket.Full packet) {
+            if (stage == Stage.Piston && !stopRecursion) {
+
+                float modifiedYaw = pistonYaw(auraPosition.pistonBlock.direction);
+
+                stopRecursion = true;
+
+                event.cancel();
+
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Full(
+                    packet.getX(-1), packet.getY(-1), packet.getZ(-1),
+                    modifiedYaw, 0, packet.isOnGround()
+                ));
+
+                stopRecursion = false;
+            }
+        }
+    }
+
 
     public void calc() {
 
@@ -240,17 +338,27 @@ public class PistonAura extends Mod {
         setStage(Stage.Prepare);
     }
 
-
     @EventHandler
     private void onRender(Render3DEvent event) {
         if (auraPosition == null) return;
 
-        event.renderer.box(auraPosition.crystalPos, new Color(77, 9, 255, 131), lineColor.get(), shapeMode.get(), 0);
-        event.renderer.box(auraPosition.pistonBlock.pos, new Color(210, 255, 9, 131), lineColor.get(), shapeMode.get(), 0);
+        if (renderCrystalBase.get())
+            event.renderer.box(auraPosition.crystalPos, crystalBaseSideColor.get(), crystalBaseLineColor.get(), crystalBaseShapeMode.get(), 0);
 
-        event.renderer.box(auraPosition.redstonePos, new Color(255, 9, 9, 131), lineColor.get(), shapeMode.get(), 0);
+        if (renderPiston.get()) {
+            event.renderer.box(auraPosition.pistonBlock.pos,
+                pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get(), 0);
 
+            if (renderPiston.get()) pistonUtils.renderPistonHead(event, auraPosition.pistonBlock.pos,
+                pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get());
+
+        }
+
+
+        if (renderRedstone.get())
+            event.renderer.box(auraPosition.redstonePos, redstoneSideColor.get(), redstoneLineColor.get(), redstoneShapeMode.get(), 0);
     }
+
 
     public enum Stage {
         Prepare,
@@ -260,6 +368,10 @@ public class PistonAura extends Mod {
         Attack
     }
 
+    public enum PistonRotate {
+        None,
+        Full
+    }
 
     public record AuraPosition(BlockPos crystalPos, PistonInfo pistonBlock, BlockPos redstonePos) {
         @Override
