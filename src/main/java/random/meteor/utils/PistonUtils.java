@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.PistonBlock;
+import net.minecraft.client.option.StickyKeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -94,4 +95,7 @@ public class PistonUtils {
         }
     }
 
+    public boolean isPiston(BlockPos pos) {
+        return Utils.state(pos) == Blocks.PISTON || Utils.state(pos) == Blocks.STICKY_PISTON;
+    }
 }

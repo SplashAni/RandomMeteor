@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.systems.modules.misc.swarm.SwarmWorker;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.entity.TargetUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
@@ -37,6 +38,12 @@ public class PistonAura extends Mod {
         .defaultValue(PistonRotate.None)
         .build()
     );
+    public final Setting<SwapMode> swapMode = sgGeneral.add(new EnumSetting.Builder<SwapMode>()
+        .name("swap-mode")
+        .defaultValue(SwapMode.Silent)
+        .build()
+    );
+
     private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder()
         .name("piston-delay")
@@ -187,6 +194,7 @@ public class PistonAura extends Mod {
                 }
             }
             case Piston -> {
+
                 if (mc.world.getBlockState(auraPosition.redstonePos).getBlock() == Blocks.REDSTONE_BLOCK) {
                     BlockUtils.breakBlock(auraPosition.redstonePos, true);
                     return;
@@ -210,7 +218,8 @@ public class PistonAura extends Mod {
 
 
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
-                    false, 50, true, false, false)) {
+                    false, 50, true, false, swapMode.get() == SwapMode.Silent)
+                || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
                     setStage(Stage.Crystal);
 
                 }
@@ -222,11 +231,13 @@ public class PistonAura extends Mod {
                     return;
                 }
 
-                InvUtils.swap(crystal.slot(), false);
+                InvUtils.swap(crystal.slot(), swapMode.get() == SwapMode.Silent);
 
                 mc.interactionManager.interactBlock(
                     mc.player, Hand.MAIN_HAND, new BlockHitResult(auraPosition.crystalPos.toCenterPos(),
                         Direction.UP, auraPosition.crystalPos, true));
+
+                if(swapMode.get() == SwapMode.Silent) InvUtils.swapBack();
 
                 setStage(Stage.Redstone);
 
@@ -238,7 +249,7 @@ public class PistonAura extends Mod {
                 }
 
                 if (BlockUtils.place(auraPosition.redstonePos, redstone,
-                    false, 50, true, false, false)) {
+                    false, 50, true, false, swapMode.get() == SwapMode.Silent)) {
                     setStage(Stage.Attack);
                 }
 
@@ -313,7 +324,7 @@ public class PistonAura extends Mod {
         if (placeableMap == null || placeableMap.isEmpty()) {
             placeableMap = pistonUtils.getValidPosition(target, true);
         }
-        
+
         if (placeableMap != null && !placeableMap.isEmpty()) {
             Map.Entry<Direction, BlockPos> entry = placeableMap.entrySet().stream().findFirst().orElse(null);
 
@@ -379,6 +390,10 @@ public class PistonAura extends Mod {
     public enum PistonRotate {
         None,
         Full
+    }
+    public enum SwapMode {
+        Normal,
+        Silent
     }
 
     public record AuraPosition(BlockPos crystalPos, PistonInfo pistonBlock, BlockPos redstonePos) {
