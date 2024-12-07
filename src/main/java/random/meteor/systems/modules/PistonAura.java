@@ -26,7 +26,10 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -55,6 +58,11 @@ public class PistonAura extends Mod {
     public final Setting<SwapMode> swapMode = sgGeneral.add(new EnumSetting.Builder<SwapMode>()
         .name("swap-mode")
         .defaultValue(SwapMode.Silent)
+        .build()
+    );
+    public final Setting<CalcMode> calculationMode = sgGeneral.add(new EnumSetting.Builder<CalcMode>()
+        .name("calc-mode")
+        .defaultValue(CalcMode.Smart)
         .build()
     );
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
@@ -149,7 +157,7 @@ public class PistonAura extends Mod {
     private final Setting<Integer> tickTimeout = sgDelay.add(new IntSetting.Builder()
         .name("tick-timeout")
         .description("how long a stage can last")
-        .range(25,250)
+        .range(25, 250)
         .defaultValue(50)
         .build()
     );
@@ -400,12 +408,12 @@ public class PistonAura extends Mod {
 
                     if (BlockUtils.place(target.getBlockPos(), web, rotate.get(), 50, swing.get(), false))
                         debug("Target has been webbed");
-                        if (renderWeb.get()) RenderUtils.renderTickingBlock(
-                            target.getBlockPos(), webSideColor.get(),
-                            webLineColor.get(), webShapeMode.get(),
-                            0, 25, true,
-                            true
-                        );
+                    if (renderWeb.get()) RenderUtils.renderTickingBlock(
+                        target.getBlockPos(), webSideColor.get(),
+                        webLineColor.get(), webShapeMode.get(),
+                        0, 25, true,
+                        true
+                    );
                 }
 
                 if (crystalEntity != null) {
@@ -422,8 +430,7 @@ public class PistonAura extends Mod {
         if (stage == null || stage == Stage.Waiting) return;
         stageTicks++;
         if (stageTicks >= tickTimeout.get()) {
-            auraPosition = null;
-           setStage(Stage.Waiting);
+           reCalc();
         }
     }
 
@@ -434,7 +441,12 @@ public class PistonAura extends Mod {
         attackTick = attackDelay.get();
 
         if (newStage != Stage.Waiting) {
-            debug("Task".concat(stage.name()).concat("lasted " + stageTicks) + " new task ".concat(newStage.name()));
+            MutableText prev = Text.literal(stage.name()).formatted(Formatting.AQUA);
+            MutableText current = Text.literal(newStage.name()).formatted(Formatting.BLUE);
+
+
+            debug(Text.literal("Task ").append(prev).append(" lasted ").formatted(Formatting.WHITE)
+                .append(String.valueOf(stageTicks)).append(" ticks new task ").append(current));
             stageTicks = 0;
         }
 
@@ -522,7 +534,10 @@ public class PistonAura extends Mod {
         }
 
     }
-
+    public void reCalc(){
+        auraPosition = null;
+        setStage(Stage.Waiting);
+    }
     public void setAuraPosition(AuraPosition auraPosition) {
         this.auraPosition = auraPosition;
         debug("Found valid piston, tasks will now begin");
@@ -552,6 +567,10 @@ public class PistonAura extends Mod {
     }
 
     public void debug(String info) {
+        if (debug.get()) info(info);
+    }
+
+    public void debug(Text info) {
         if (debug.get()) info(info);
     }
 
@@ -587,7 +606,10 @@ public class PistonAura extends Mod {
         Activate,
         Attack
     }
-
+    public enum CalcMode {
+        Smart,
+        Logic
+    }
     public enum PistonRotate {
         None,
         Full
