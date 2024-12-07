@@ -60,11 +60,27 @@ public class PistonAura extends Mod {
         .defaultValue(SwapMode.Silent)
         .build()
     );
-    public final Setting<CalcMode> calculationMode = sgGeneral.add(new EnumSetting.Builder<CalcMode>()
-        .name("calc-mode")
-        .defaultValue(CalcMode.Smart)
+    public final Setting<AgroMode> agroMode = sgGeneral.add(new EnumSetting.Builder<AgroMode>()
+        .name("agro-mode")
+        .description("aggresive doesnt allow blocks to fail, does more dmg but burns more items")
+        .defaultValue(AgroMode.Passive)
         .build()
     );
+
+    private final SettingGroup sgTimeout = settings.createGroup("Timeout");
+    public final Setting<Timeout> timeoutMode = sgTimeout.add(new EnumSetting.Builder<Timeout>()
+        .name("timeout-mode")
+        .defaultValue(Timeout.Auto)
+        .build()
+    );
+    private final Setting<Integer> tickTimeout = sgTimeout.add(new IntSetting.Builder()
+        .name("tick-timeout")
+        .description("how long a stage can last")
+        .defaultValue(25)
+        .visible(() -> timeoutMode.get() == Timeout.Manual)
+        .build()
+    );
+
     private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
         .name("rotate")
         .description("rotate for blocks except piston")
@@ -78,7 +94,7 @@ public class PistonAura extends Mod {
     );
     private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
         .name("debug")
-        .description("crazy  calcing info")
+        .description("crazy calcing info")
         .defaultValue(false)
         .build()
     );
@@ -97,14 +113,6 @@ public class PistonAura extends Mod {
         .visible(cobweb::get)
         .build()
     );
-    private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
-        .name("extra-trap-timer")
-        .defaultValue(0)
-        .min(0)
-        .build()
-    );
-    private final SettingGroup sgDelay = settings.createGroup("Delays");
-    private final SettingGroup sgRender = settings.createGroup("Render");
     //bru
     private final Setting<Boolean> renderWeb = sgRender.add(new BoolSetting.Builder()
         .name("render-web")
@@ -130,6 +138,14 @@ public class PistonAura extends Mod {
         .visible(() -> renderWeb.get() && cobweb.get())
         .build()
     );
+    private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
+        .name("extra-trap-timer")
+        .defaultValue(0)
+        .min(0)
+        .build()
+    );
+    private final SettingGroup sgDelay = settings.createGroup("Delays");
+    private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Integer> pistonDelay = sgDelay.add(new IntSetting.Builder()
         .name("piston-delay")
         .defaultValue(5)
@@ -142,7 +158,7 @@ public class PistonAura extends Mod {
         .min(0)
         .build()
     );
-    private final Setting<Integer> redstoneDelay = sgDelay.add(new IntSetting.Builder()
+    private final Setting<Integer> activateDelay = sgDelay.add(new IntSetting.Builder()
         .name("redstone-delay")
         .defaultValue(5)
         .min(0)
@@ -154,13 +170,7 @@ public class PistonAura extends Mod {
         .min(0)
         .build()
     );
-    private final Setting<Integer> tickTimeout = sgDelay.add(new IntSetting.Builder()
-        .name("tick-timeout")
-        .description("how long a stage can last")
-        .range(25, 250)
-        .defaultValue(50)
-        .build()
-    );
+
     // render
     private final Setting<Boolean> renderDamage = sgRender.add(new BoolSetting.Builder()
         .name("render-damage")
@@ -330,7 +340,10 @@ public class PistonAura extends Mod {
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
                     rotate.get(), 50, swing.get(), false, swapMode.get() == SwapMode.Silent) || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
                     setStage(Stage.Crystal);
-
+                } else {
+                    if (agroMode.get().equals(AgroMode.Aggresive)) {
+                        reCalc();
+                    }
                 }
             }
             case Crystal -> {
@@ -351,7 +364,9 @@ public class PistonAura extends Mod {
                     if (swapMode.get() == SwapMode.Silent) InvUtils.swapBack();
                 }
 
-                if (crystalEntity != null) setStage(Stage.Activate);
+                if (crystalEntity != null) {
+                    setStage(Stage.Activate);
+                }
 
             }
             case Activate -> {
@@ -420,7 +435,11 @@ public class PistonAura extends Mod {
                     mc.interactionManager.attackEntity(mc.player, crystalEntity);
                     if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
                 }
-                setStage(Stage.Waiting);
+
+                if (agroMode.get().equals(AgroMode.Aggresive)) {
+                    reCalc();
+                } else
+                    setStage(Stage.Waiting);
             }
         }
     }
@@ -429,15 +448,32 @@ public class PistonAura extends Mod {
     public void onTick(TickEvent.Post event) {
         if (stage == null || stage == Stage.Waiting) return;
         stageTicks++;
-        if (stageTicks >= tickTimeout.get()) {
-           reCalc();
+        switch (timeoutMode.get()) {
+            case Auto -> {
+                int expectedTime = switch (stage) {
+                    case Piston -> pistonDelay.get() + 3;
+                    case Crystal -> crystalDelay.get() + 4;
+                    case Activate -> activateDelay.get() + 7;
+                    case Attack -> attackDelay.get() + 4;
+                    default -> throw new IllegalStateException("Unexpected value: " + stage);
+                };
+                if (stageTicks >= expectedTime) {
+                    reCalc();
+                }
+            }
+            case Manual -> {
+                if (stageTicks >= tickTimeout.get()) {
+                    reCalc();
+                }
+            }
         }
+
     }
 
     public void setStage(Stage newStage) {
         pistonTick = pistonDelay.get();
         crystalTick = crystalDelay.get() + (cobweb.get() ? extraTimer.get() : 0);
-        redstoneTick = redstoneDelay.get();
+        redstoneTick = activateDelay.get();
         attackTick = attackDelay.get();
 
         if (newStage != Stage.Waiting) {
@@ -534,10 +570,12 @@ public class PistonAura extends Mod {
         }
 
     }
-    public void reCalc(){
+
+    public void reCalc() {
         auraPosition = null;
         setStage(Stage.Waiting);
     }
+
     public void setAuraPosition(AuraPosition auraPosition) {
         this.auraPosition = auraPosition;
         debug("Found valid piston, tasks will now begin");
@@ -606,10 +644,17 @@ public class PistonAura extends Mod {
         Activate,
         Attack
     }
-    public enum CalcMode {
-        Smart,
-        Logic
+
+    public enum Timeout {
+        Auto,
+        Manual
     }
+
+    public enum AgroMode {
+        Passive,
+        Aggresive
+    }
+
     public enum PistonRotate {
         None,
         Full
