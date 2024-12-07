@@ -11,7 +11,6 @@ import meteordevelopment.meteorclient.utils.entity.TargetUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
-import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -21,7 +20,6 @@ import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -29,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import random.meteor.systems.Mod;
 import random.meteor.utils.PistonUtils;
+import random.meteor.utils.Utils;
 
 import java.util.Map;
 
@@ -51,6 +50,8 @@ public class PistonAura extends Mod {
         .defaultValue(SwapMode.Silent)
         .build()
     );
+
+    private final SettingGroup sgTrap = settings.createGroup("Trap");
 
     private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder()
@@ -78,7 +79,7 @@ public class PistonAura extends Mod {
         .build()
     );
     // render
-    private final Setting<Boolean> renderPiston = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> renderPiston = sgRender.add(new BoolSetting.Builder()
         .name("render-piston")
         .defaultValue(true)
         .build()
@@ -91,23 +92,24 @@ public class PistonAura extends Mod {
     );
     private final Setting<SettingColor> pistonSideColor = sgRender.add(new ColorSetting.Builder()
         .name("piston-side-color")
-        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .defaultValue(new SettingColor(225,211,0,75))
         .visible(renderPiston::get)
         .build()
     );
     private final Setting<SettingColor> pistonLineColor = sgRender.add(new ColorSetting.Builder()
         .name("piston-line-color")
         .description("The line color of the piston rendering.")
-        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .defaultValue(new SettingColor(210,225,0,255))
         .visible(renderPiston::get)
         .build()
     );
     private final Setting<Boolean> renderPistonHead = sgGeneral.add(new BoolSetting.Builder()
         .name("render-piston-head")
         .defaultValue(true)
+            .visible(renderPiston::get)
         .build()
     );
-    private final Setting<Boolean> renderCrystalBase = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> renderCrystalBase = sgRender.add(new BoolSetting.Builder()
         .name("render-crystal-base")
         .defaultValue(true)
         .build()
@@ -120,38 +122,38 @@ public class PistonAura extends Mod {
     );
     private final Setting<SettingColor> crystalBaseSideColor = sgRender.add(new ColorSetting.Builder()
         .name("crystal-base-side-color")
-        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .defaultValue(new SettingColor(225,0,179,75))
         .visible(renderCrystalBase::get)
         .build()
     );
     private final Setting<SettingColor> crystalBaseLineColor = sgRender.add(new ColorSetting.Builder()
         .name("crystal-base-line-color")
-        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .defaultValue(new SettingColor(225,0,161,255))
         .visible(renderCrystalBase::get)
         .build()
     );
 
-    private final Setting<Boolean> renderRedstone = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> renderActivator = sgRender.add(new BoolSetting.Builder()
         .name("render-redstone")
         .defaultValue(true)
         .build()
     );
-    private final Setting<ShapeMode> redstoneShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+    private final Setting<ShapeMode> activatorShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
         .name("redstone-shape-mode")
         .defaultValue(ShapeMode.Both)
-        .visible(renderRedstone::get)
+        .visible(renderActivator::get)
         .build()
     );
-    private final Setting<SettingColor> redstoneSideColor = sgRender.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> activatorSideColor = sgRender.add(new ColorSetting.Builder()
         .name("redstone-side-color")
-        .defaultValue(new SettingColor(225, 0, 0, 75))
-        .visible(renderRedstone::get)
+        .defaultValue(new SettingColor(225,0,0,75))
+        .visible(renderActivator::get)
         .build()
     );
-    private final Setting<SettingColor> redstoneLineColor = sgRender.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> activatorLineColor = sgRender.add(new ColorSetting.Builder()
         .name("redstone-line-color")
-        .defaultValue(new SettingColor(225, 0, 0, 255))
-        .visible(renderRedstone::get)
+        .defaultValue(new SettingColor(225,0,0,255))
+        .visible(renderActivator::get)
         .build()
     );
 
@@ -212,7 +214,8 @@ public class PistonAura extends Mod {
 
                 switch (rotateMode.get()) {
 
-                    case None -> mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(auraPosition.pistonBlock.direction()), 0, true));
+                    case None ->
+                        mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(auraPosition.pistonBlock.direction()), 0, true));
                     case Full -> Rotations.rotate(pistonYaw(auraPosition.pistonBlock.direction()), 0);
                 }
 
@@ -224,7 +227,7 @@ public class PistonAura extends Mod {
 
 
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
-                    false, 50, true, false, false)) {
+                    false, 50, true, false, swapMode.get() == SwapMode.Silent) || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
                     setStage(Stage.Crystal);
 
                 }
@@ -236,15 +239,18 @@ public class PistonAura extends Mod {
                     return;
                 }
 
-                InvUtils.swap(crystal.slot(), swapMode.get() == SwapMode.Silent);
+                if (mc.world.getBlockState(auraPosition.crystalPos.up()).isAir()) {
 
-                mc.interactionManager.interactBlock(
-                    mc.player, Hand.MAIN_HAND, new BlockHitResult(auraPosition.crystalPos.toCenterPos(),
-                        Direction.UP, auraPosition.crystalPos, true));
+                    InvUtils.swap(crystal.slot(), swapMode.get() == SwapMode.Silent);
 
-                if (swapMode.get() == SwapMode.Silent) InvUtils.swapBack();
+                    mc.interactionManager.interactBlock(
+                        mc.player, Hand.MAIN_HAND, new BlockHitResult(auraPosition.crystalPos.toCenterPos(),
+                            Direction.UP, auraPosition.crystalPos, true));
 
-                setStage(Stage.Activate);
+                    if (swapMode.get() == SwapMode.Silent) InvUtils.swapBack();
+                }
+
+                if (crystalEntity != null) setStage(Stage.Activate);
 
             }
             case Activate -> {
@@ -256,16 +262,25 @@ public class PistonAura extends Mod {
 
                 switch (mode.get()) {
                     case Button -> {
-                        if (BlockUtils.place(auraPosition.redstonePos.up(1), activatorItem,
+
+                        boolean interact = Utils.state(auraPosition.redstonePos.up(1)) instanceof ButtonBlock
+                            || BlockUtils.place(auraPosition.redstonePos.up(1), activatorItem,
                             false, 50, true,
-                            false, swapMode.get() == SwapMode.Silent)) {
+                            false, swapMode.get() == SwapMode.Silent);
 
-
-                            setStage(Stage.Attack);
+                        if (interact) {
                             mc.interactionManager.interactBlock(
-                                mc.player,Hand.MAIN_HAND,
-                                new BlockHitResult(auraPosition.redstonePos.up().toCenterPos(),Direction.UP,auraPosition.redstonePos.up(),true));
+                                mc.player, Hand.MAIN_HAND,
+                                new BlockHitResult(
+                                    auraPosition.redstonePos.up().toCenterPos(),
+                                    Direction.UP,
+                                    auraPosition.redstonePos.up(),
+                                    true
+                                )
+                            );
+                            setStage(Stage.Attack);
                         }
+
                     }
                     case RedstoneBlock -> {
                         if (BlockUtils.place(auraPosition.redstonePos, activatorItem,
@@ -296,9 +311,11 @@ public class PistonAura extends Mod {
         redstoneTick = redstoneDelay.get();
         attackTick = attackDelay.get();
 
-        this.stage = newStage;
 
-        // info("Stage changed to: " + newStage);
+        this.stage = newStage;
+        if (newStage == Stage.Prepare && crystalEntity != null) {
+            crystalEntity = null;
+        }
     }
 
     @Override
@@ -357,7 +374,7 @@ public class PistonAura extends Mod {
             pistonPos = crystalPos.offset(direction).up();
 
             redstonePos = switch (mode) {
-                case Button -> pistonUtils.getTorchPos(pistonPos, direction);
+                case Button -> pistonUtils.getButtonPos(pistonPos, direction);
                 case RedstoneBlock -> pistonPos.offset(direction);
             };
 
@@ -396,14 +413,14 @@ public class PistonAura extends Mod {
             event.renderer.box(auraPosition.pistonBlock.pos,
                 pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get(), 0);
 
-            if (renderPiston.get()) pistonUtils.renderPistonHead(event, auraPosition.pistonBlock.pos,
+            if (renderPiston.get() && renderPistonHead.get()) pistonUtils.renderPistonHead(event, auraPosition.pistonBlock.pos,
                 pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get());
 
         }
 
 
-        if (renderRedstone.get())
-            event.renderer.box(auraPosition.redstonePos, redstoneSideColor.get(), redstoneLineColor.get(), redstoneShapeMode.get(), 0);
+        if (renderActivator.get())
+            event.renderer.box(auraPosition.redstonePos, activatorSideColor.get(), activatorLineColor.get(), activatorShapeMode.get(), 0);
     }
 
 

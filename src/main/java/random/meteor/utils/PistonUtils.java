@@ -56,26 +56,26 @@ public class PistonUtils {
 
     public boolean canActivate(BlockPos pos, Direction direction, PistonAura.Mode mode) {
         return switch (mode) {
-            case Button -> getTorchPos(pos, direction) != null;
+            case Button -> getButtonPos(pos, direction) != null;
             case RedstoneBlock -> BlockUtils.canPlace(pos.offset(direction));
         };
     }
 
-    public BlockPos getTorchPos(BlockPos pos, Direction direction) {
+    public BlockPos getButtonPos(BlockPos pos, Direction direction) {
         List<Pair<BlockPos, Direction>> offsetList = offsets(pos.down(), Direction.Type.HORIZONTAL.facingArray);
 
-        AtomicBoolean canTorch = new AtomicBoolean(false);
+        AtomicBoolean canButton = new AtomicBoolean(false);
         AtomicReference<BlockPos> torchPos = new AtomicReference<>(null);
 
         offsetList.forEach(blockPosDirectionPair -> {
             if (!Objects.requireNonNull(mc.world).getBlockState(blockPosDirectionPair.getLeft()).isAir() &&
                 BlockUtils.canPlace(blockPosDirectionPair.getLeft().up(1))
                 && !(blockPosDirectionPair.getLeft().equals(pos.down().offset(direction.getOpposite())))) {
-                canTorch.set(true);
+                canButton.set(true);
                 torchPos.set(blockPosDirectionPair.getLeft());
             }
         });
-        return canTorch.get() ? torchPos.get() : null;
+        return canButton.get() ? torchPos.get() : null;
     }
 
     public void placeTorch(BlockPos pos, FindItemResult torch, boolean silent) {

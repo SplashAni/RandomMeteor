@@ -12,6 +12,7 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
+import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
@@ -139,6 +140,8 @@ public class AutoMine extends Mod {
     public Direction direction;
     public float progress;
     public boolean update;
+    boolean mining;
+
     public AutoMine() {
         super("auto-mine", "insane");
     }
@@ -148,13 +151,21 @@ public class AutoMine extends Mod {
 
         if (!BlockUtils.canBreak(event.blockPos)) return;
 
-        if (pos != null)
-            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, direction));
+        boolean canMine = false;
+        
+        if (pos != null) {
+            if (event.blockPos != pos) {
+                Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, direction));
+            }
+            canMine = true;
+        }
 
+        if(!canMine) return;;
         direction = event.direction;
         pos = event.blockPos;
         progress = 0f;
-        sendMinePacket();
+        sendAction(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK);
+        mining = true;
     }
 
 
@@ -170,20 +181,44 @@ public class AutoMine extends Mod {
     }
 
 
-
     @EventHandler
     public void onTick(TickEvent.Pre event) {
-        if(update){
+
+        if (update) {
             mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(
                 mc.player.getInventory().selectedSlot));
-
+            update = false;
         }
+        if (shouldPause()) return;
+
+        if (pos != null && !mining) {
+            if (mc.world.getBlockState(pos).isReplaceable()) return;
+            switch (remineMode.get()) {
+                case Instant -> {
+                    RenderUtils.renderTickingBlock(
+                        pos, sideColor.get(),
+                        lineColor.get(), shapeMode.get(),
+                        0, 10, true,
+                        true
+                    );
+                    sendAction(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK);
+                    update = true;
+                }
+                case Normal -> {
+                    progress = 0.0f;
+                    mining = true;
+                }
+            }
+        }
+
+
         if (pos == null || direction == null) return;
+
         if (progress >= 1.0f) {
+            sendAction(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK);
 
             if (mc.world.isAir(pos)) {
-                pos = null;
-                direction = null;
+                mining = false;
             } else {
                 FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
 
@@ -192,7 +227,6 @@ public class AutoMine extends Mod {
 
 
         } else {
-            sendMinePacket();
             mc.player.swingHand(Hand.MAIN_HAND);
             FindItemResult tool = InvUtils.findFastestTool(mc.world.getBlockState(pos));
 
@@ -201,15 +235,13 @@ public class AutoMine extends Mod {
         }
     }
 
-    public void sendMinePacket() {
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, direction));
-        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, direction));
-
-    }
-
 
     public boolean shouldPause() {
         return PlayerUtils.shouldPause(pauseMine.get(), pauseEat.get(), pauseDrink.get());
+    }
+
+    public void sendAction(PlayerActionC2SPacket.Action action) {
+        mc.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(action, pos, direction));
     }
 
     @EventHandler
@@ -269,7 +301,7 @@ public class AutoMine extends Mod {
 
         event.renderer.box(x1, y1, z1, x2, y2, z2, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
     }
- 
+
     public enum mineMode {
         Instant,
         Normal
