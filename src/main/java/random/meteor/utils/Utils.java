@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
@@ -19,6 +20,7 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -125,5 +127,11 @@ public class Utils {
         return mc.world.getBlockState(pos).getBlock();
     }
 
-
+    public static boolean isInHole(PlayerEntity entity) {
+        for (Direction direction : Direction.Type.HORIZONTAL) {
+            if (mc.world.getBlockState(entity.getBlockPos().offset(direction)).getBlock().getBlastResistance()
+                < 1200) return false;
+        }
+        return true;
+    }
 }

@@ -2,15 +2,20 @@ package random.meteor.systems.modules;
 
 import meteordevelopment.meteorclient.events.entity.EntityAddedEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
+import meteordevelopment.meteorclient.events.render.Render2DEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
+import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.utils.entity.DamageUtils;
 import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.entity.TargetUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
+import meteordevelopment.meteorclient.utils.render.NametagUtils;
+import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -21,10 +26,12 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.joml.Vector3d;
 import random.meteor.systems.Mod;
 import random.meteor.utils.PistonUtils;
 import random.meteor.utils.Utils;
@@ -41,7 +48,7 @@ public class PistonAura extends Mod {
         .build()
     );
     public final Setting<PistonRotate> rotateMode = sgGeneral.add(new EnumSetting.Builder<PistonRotate>()
-        .name("rotation-mode")
+        .name("piston-rotate")
         .defaultValue(PistonRotate.None)
         .build()
     );
@@ -50,35 +57,101 @@ public class PistonAura extends Mod {
         .defaultValue(SwapMode.Silent)
         .build()
     );
-
+    private final Setting<Boolean> rotate = sgGeneral.add(new BoolSetting.Builder()
+        .name("rotate")
+        .description("rotate for blocks except piston")
+        .defaultValue(false)
+        .build()
+    );
+    private final Setting<Boolean> swing = sgGeneral.add(new BoolSetting.Builder()
+        .name("swing")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> debug = sgGeneral.add(new BoolSetting.Builder()
+        .name("debug")
+        .description("crazy  calcing info")
+        .defaultValue(false)
+        .build()
+    );
+    //delay
     private final SettingGroup sgTrap = settings.createGroup("Trap");
 
+    private final Setting<Boolean> cobweb = sgTrap.add(new BoolSetting.Builder()
+        .name("cobweb")
+        .description("For no velocity entities")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> onlyHole = sgTrap.add(new BoolSetting.Builder()
+        .name("only-hole")
+        .defaultValue(true)
+        .visible(cobweb::get)
+        .build()
+    );
+    //bru
+
+    private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
+        .name("extra-trap-timer")
+        .defaultValue(0)
+        .min(0)
+        .build()
+    );
+    private final SettingGroup sgDelay = settings.createGroup("Delays");
     private final SettingGroup sgRender = settings.createGroup("Render");
-    private final Setting<Integer> pistonDelay = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> pistonDelay = sgDelay.add(new IntSetting.Builder()
         .name("piston-delay")
         .defaultValue(5)
         .min(0)
         .build()
     );
-    private final Setting<Integer> crystalDelay = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> crystalDelay = sgDelay.add(new IntSetting.Builder()
         .name("crystal-delay")
         .defaultValue(5)
         .min(0)
         .build()
     );
-    private final Setting<Integer> redstoneDelay = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> redstoneDelay = sgDelay.add(new IntSetting.Builder()
         .name("redstone-delay")
         .defaultValue(5)
         .min(0)
         .build()
     );
-    private final Setting<Integer> attackDelay = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> attackDelay = sgDelay.add(new IntSetting.Builder()
         .name("attack-delay")
         .defaultValue(5)
         .min(0)
         .build()
     );
+    private final Setting<Integer> tickTimeout = sgDelay.add(new IntSetting.Builder()
+        .name("tick-timeout")
+        .description("how long a stage can last")
+        .defaultValue(50)
+        .min(25)
+        .build()
+    );
     // render
+    private final Setting<Boolean> renderDamage = sgRender.add(new BoolSetting.Builder()
+        .name("render-damage")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<SettingColor> damageColor = sgRender.add(new ColorSetting.Builder()
+        .name("damage-color")
+        .description("The color of the damage text.")
+        .defaultValue(new SettingColor(255, 255, 255))
+        .visible(renderDamage::get)
+        .build()
+    );
+    private final Setting<Double> damageTextScale = sgRender.add(new DoubleSetting.Builder()
+        .name("damage-scale")
+        .description("How big the damage text should be.")
+        .defaultValue(1.25)
+        .min(1)
+        .sliderMax(4)
+        .visible(renderDamage::get)
+        .build()
+    );
     private final Setting<Boolean> renderPiston = sgRender.add(new BoolSetting.Builder()
         .name("render-piston")
         .defaultValue(true)
@@ -92,21 +165,21 @@ public class PistonAura extends Mod {
     );
     private final Setting<SettingColor> pistonSideColor = sgRender.add(new ColorSetting.Builder()
         .name("piston-side-color")
-        .defaultValue(new SettingColor(225,211,0,75))
+        .defaultValue(new SettingColor(225, 211, 0, 75))
         .visible(renderPiston::get)
         .build()
     );
     private final Setting<SettingColor> pistonLineColor = sgRender.add(new ColorSetting.Builder()
         .name("piston-line-color")
         .description("The line color of the piston rendering.")
-        .defaultValue(new SettingColor(210,225,0,255))
+        .defaultValue(new SettingColor(210, 225, 0, 255))
         .visible(renderPiston::get)
         .build()
     );
     private final Setting<Boolean> renderPistonHead = sgGeneral.add(new BoolSetting.Builder()
         .name("render-piston-head")
         .defaultValue(true)
-            .visible(renderPiston::get)
+        .visible(renderPiston::get)
         .build()
     );
     private final Setting<Boolean> renderCrystalBase = sgRender.add(new BoolSetting.Builder()
@@ -122,17 +195,16 @@ public class PistonAura extends Mod {
     );
     private final Setting<SettingColor> crystalBaseSideColor = sgRender.add(new ColorSetting.Builder()
         .name("crystal-base-side-color")
-        .defaultValue(new SettingColor(225,0,179,75))
+        .defaultValue(new SettingColor(225, 0, 179, 75))
         .visible(renderCrystalBase::get)
         .build()
     );
     private final Setting<SettingColor> crystalBaseLineColor = sgRender.add(new ColorSetting.Builder()
         .name("crystal-base-line-color")
-        .defaultValue(new SettingColor(225,0,161,255))
+        .defaultValue(new SettingColor(225, 0, 161, 255))
         .visible(renderCrystalBase::get)
         .build()
     );
-
     private final Setting<Boolean> renderActivator = sgRender.add(new BoolSetting.Builder()
         .name("render-redstone")
         .defaultValue(true)
@@ -146,25 +218,47 @@ public class PistonAura extends Mod {
     );
     private final Setting<SettingColor> activatorSideColor = sgRender.add(new ColorSetting.Builder()
         .name("redstone-side-color")
-        .defaultValue(new SettingColor(225,0,0,75))
+        .defaultValue(new SettingColor(225, 0, 0, 75))
         .visible(renderActivator::get)
         .build()
     );
     private final Setting<SettingColor> activatorLineColor = sgRender.add(new ColorSetting.Builder()
         .name("redstone-line-color")
-        .defaultValue(new SettingColor(225,0,0,255))
+        .defaultValue(new SettingColor(225, 0, 0, 255))
         .visible(renderActivator::get)
         .build()
     );
-
-
+    private final Setting<Boolean> renderWeb = sgRender.add(new BoolSetting.Builder()
+        .name("render-web")
+        .defaultValue(true)
+        .visible(cobweb::get)
+        .build()
+    );
+    private final Setting<ShapeMode> webShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("web-shape-mode")
+        .defaultValue(ShapeMode.Both)
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
+    private final Setting<SettingColor> webSideColor = sgRender.add(new ColorSetting.Builder()
+        .name("web-side-color")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
+    private final Setting<SettingColor> webLineColor = sgRender.add(new ColorSetting.Builder()
+        .name("web-line-color")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
     AuraPosition auraPosition;
     PistonUtils pistonUtils;
     PlayerEntity target;
     FindItemResult piston, activatorItem, crystal;
     Stage stage;
     EndCrystalEntity crystalEntity;
-    int pistonTick, crystalTick, redstoneTick, attackTick;
+    int pistonTick, crystalTick, redstoneTick, attackTick, stageTicks;
     private boolean stopRecursion = false;
 
     public PistonAura() {
@@ -177,7 +271,7 @@ public class PistonAura extends Mod {
         auraPosition = null;
 
 
-        setStage(Stage.Prepare);
+        setStage(Stage.Waiting);
         super.onActivate();
     }
 
@@ -201,7 +295,7 @@ public class PistonAura extends Mod {
         }
 
         switch (this.stage) {
-            case Prepare -> {
+            case Waiting -> {
                 if (auraPosition != null) {
                     setStage(Stage.Piston);
                 }
@@ -227,7 +321,7 @@ public class PistonAura extends Mod {
 
 
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
-                    false, 50, true, false, swapMode.get() == SwapMode.Silent) || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
+                    rotate.get(), 50, swing.get(), false, swapMode.get() == SwapMode.Silent) || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
                     setStage(Stage.Crystal);
 
                 }
@@ -265,11 +359,11 @@ public class PistonAura extends Mod {
 
                         boolean interact = Utils.state(auraPosition.redstonePos.up(1)) instanceof ButtonBlock
                             || BlockUtils.place(auraPosition.redstonePos.up(1), activatorItem,
-                            false, 50, true,
+                            rotate.get(), 50, swing.get(),
                             false, swapMode.get() == SwapMode.Silent);
 
                         if (interact) {
-                            mc.interactionManager.interactBlock(
+                            ActionResult result = mc.interactionManager.interactBlock(
                                 mc.player, Hand.MAIN_HAND,
                                 new BlockHitResult(
                                     auraPosition.redstonePos.up().toCenterPos(),
@@ -278,13 +372,14 @@ public class PistonAura extends Mod {
                                     true
                                 )
                             );
+                            if (swing.get() && result.shouldSwingHand()) mc.player.swingHand(Hand.MAIN_HAND);
                             setStage(Stage.Attack);
                         }
 
                     }
                     case RedstoneBlock -> {
                         if (BlockUtils.place(auraPosition.redstonePos, activatorItem,
-                            false, 50, true,
+                            false, 50, swing.get(),
                             false, swapMode.get() == SwapMode.Silent)) {
                             setStage(Stage.Attack);
                         }
@@ -297,23 +392,48 @@ public class PistonAura extends Mod {
                     attackTick--;
                     return;
                 }
+                FindItemResult web = InvUtils.findInHotbar(Items.COBWEB);
+
+
+                if (cobweb.get() && web.isHotbar() && BlockUtils.canPlace(target.getBlockPos(), false)) {
+
+                    if (onlyHole.get() && !Utils.isInHole(target)) return;
+
+                    if (BlockUtils.place(target.getBlockPos(), web, rotate.get(), 50, swing.get(), false))
+                        if (renderWeb.get()) RenderUtils.renderTickingBlock(
+                            target.getBlockPos(), webSideColor.get(),
+                            webLineColor.get(), webShapeMode.get(),
+                            0, 25, true,
+                            true
+                        );
+                }
+
                 if (crystalEntity != null) {
                     mc.interactionManager.attackEntity(mc.player, crystalEntity);
+                    if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
                 }
-                setStage(Stage.Prepare);
+                setStage(Stage.Waiting);
             }
         }
     }
 
+    @EventHandler
+    public void onTick(TickEvent.Post event) {
+        if (stage == null || stage == Stage.Waiting) return;
+        stageTicks++;
+        if (stageTicks <= tickTimeout.get()) auraPosition = null;
+    }
+
     public void setStage(Stage newStage) {
         pistonTick = pistonDelay.get();
-        crystalTick = crystalDelay.get();
+        crystalTick = crystalDelay.get() + (cobweb.get() ? extraTimer.get() : 0);
         redstoneTick = redstoneDelay.get();
         attackTick = attackDelay.get();
 
+        if (newStage != Stage.Waiting) stageTicks = 0;
 
         this.stage = newStage;
-        if (newStage == Stage.Prepare && crystalEntity != null) {
+        if (newStage == Stage.Waiting && crystalEntity != null) {
             crystalEntity = null;
         }
     }
@@ -399,7 +519,7 @@ public class PistonAura extends Mod {
     public void setAuraPosition(AuraPosition auraPosition) {
         this.auraPosition = auraPosition;
 
-        setStage(Stage.Prepare);
+        setStage(Stage.Waiting);
     }
 
     @EventHandler
@@ -413,8 +533,9 @@ public class PistonAura extends Mod {
             event.renderer.box(auraPosition.pistonBlock.pos,
                 pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get(), 0);
 
-            if (renderPiston.get() && renderPistonHead.get()) pistonUtils.renderPistonHead(event, auraPosition.pistonBlock.pos,
-                pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get());
+            if (renderPiston.get() && renderPistonHead.get())
+                pistonUtils.renderPistonHead(event, auraPosition.pistonBlock.pos,
+                    pistonSideColor.get(), pistonLineColor.get(), pistonShapeMode.get());
 
         }
 
@@ -423,9 +544,37 @@ public class PistonAura extends Mod {
             event.renderer.box(auraPosition.redstonePos, activatorSideColor.get(), activatorLineColor.get(), activatorShapeMode.get(), 0);
     }
 
+    public void debug(String info) {
+        if (debug.get()) info(info);
+    }
+
+    @EventHandler
+    private void onRender2D(Render2DEvent event) {
+        if (!renderDamage.get() || auraPosition == null || target == null) return;
+
+
+        Vector3d vec3 = new Vector3d();
+
+        vec3.set(auraPosition.crystalPos.getX() + 0.5, auraPosition.crystalPos.getY() + 0.5, auraPosition.crystalPos.getZ() + 0.5);
+
+        float damage = DamageUtils.crystalDamage(target, target.getBlockPos().up().toCenterPos());
+
+        if (NametagUtils.to2D(vec3, damageTextScale.get())) {
+            NametagUtils.begin(vec3);
+            TextRenderer.get().begin(1, false, true);
+
+            String text = String.format("%.1f", damage);
+            double w = TextRenderer.get().getWidth(text) / 2;
+            TextRenderer.get().render(text, -w, 0, damageColor.get(), true);
+
+            TextRenderer.get().end();
+            NametagUtils.end();
+        }
+    }
+
 
     public enum Stage {
-        Prepare,
+        Waiting,
         Piston,
         Crystal,
         Activate,
