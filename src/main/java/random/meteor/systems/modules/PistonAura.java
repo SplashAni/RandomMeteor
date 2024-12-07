@@ -89,8 +89,6 @@ public class PistonAura extends Mod {
         .visible(cobweb::get)
         .build()
     );
-    //bru
-
     private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
         .name("extra-trap-timer")
         .defaultValue(0)
@@ -99,6 +97,31 @@ public class PistonAura extends Mod {
     );
     private final SettingGroup sgDelay = settings.createGroup("Delays");
     private final SettingGroup sgRender = settings.createGroup("Render");
+    //bru
+    private final Setting<Boolean> renderWeb = sgRender.add(new BoolSetting.Builder()
+        .name("render-web")
+        .defaultValue(true)
+        .visible(cobweb::get)
+        .build()
+    );
+    private final Setting<ShapeMode> webShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
+        .name("web-shape-mode")
+        .defaultValue(ShapeMode.Both)
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
+    private final Setting<SettingColor> webSideColor = sgRender.add(new ColorSetting.Builder()
+        .name("web-side-color")
+        .defaultValue(new SettingColor(225, 0, 0, 75))
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
+    private final Setting<SettingColor> webLineColor = sgRender.add(new ColorSetting.Builder()
+        .name("web-line-color")
+        .defaultValue(new SettingColor(225, 0, 0, 255))
+        .visible(() -> renderWeb.get() && cobweb.get())
+        .build()
+    );
     private final Setting<Integer> pistonDelay = sgDelay.add(new IntSetting.Builder()
         .name("piston-delay")
         .defaultValue(5)
@@ -126,8 +149,8 @@ public class PistonAura extends Mod {
     private final Setting<Integer> tickTimeout = sgDelay.add(new IntSetting.Builder()
         .name("tick-timeout")
         .description("how long a stage can last")
+        .range(25,250)
         .defaultValue(50)
-        .min(25)
         .build()
     );
     // render
@@ -226,30 +249,6 @@ public class PistonAura extends Mod {
         .name("redstone-line-color")
         .defaultValue(new SettingColor(225, 0, 0, 255))
         .visible(renderActivator::get)
-        .build()
-    );
-    private final Setting<Boolean> renderWeb = sgRender.add(new BoolSetting.Builder()
-        .name("render-web")
-        .defaultValue(true)
-        .visible(cobweb::get)
-        .build()
-    );
-    private final Setting<ShapeMode> webShapeMode = sgRender.add(new EnumSetting.Builder<ShapeMode>()
-        .name("web-shape-mode")
-        .defaultValue(ShapeMode.Both)
-        .visible(() -> renderWeb.get() && cobweb.get())
-        .build()
-    );
-    private final Setting<SettingColor> webSideColor = sgRender.add(new ColorSetting.Builder()
-        .name("web-side-color")
-        .defaultValue(new SettingColor(225, 0, 0, 75))
-        .visible(() -> renderWeb.get() && cobweb.get())
-        .build()
-    );
-    private final Setting<SettingColor> webLineColor = sgRender.add(new ColorSetting.Builder()
-        .name("web-line-color")
-        .defaultValue(new SettingColor(225, 0, 0, 255))
-        .visible(() -> renderWeb.get() && cobweb.get())
         .build()
     );
     AuraPosition auraPosition;
@@ -400,6 +399,7 @@ public class PistonAura extends Mod {
                     if (onlyHole.get() && !Utils.isInHole(target)) return;
 
                     if (BlockUtils.place(target.getBlockPos(), web, rotate.get(), 50, swing.get(), false))
+                        debug("Target has been webbed");
                         if (renderWeb.get()) RenderUtils.renderTickingBlock(
                             target.getBlockPos(), webSideColor.get(),
                             webLineColor.get(), webShapeMode.get(),
@@ -421,7 +421,10 @@ public class PistonAura extends Mod {
     public void onTick(TickEvent.Post event) {
         if (stage == null || stage == Stage.Waiting) return;
         stageTicks++;
-        if (stageTicks <= tickTimeout.get()) auraPosition = null;
+        if (stageTicks >= tickTimeout.get()) {
+            auraPosition = null;
+           setStage(Stage.Waiting);
+        }
     }
 
     public void setStage(Stage newStage) {
@@ -430,9 +433,13 @@ public class PistonAura extends Mod {
         redstoneTick = redstoneDelay.get();
         attackTick = attackDelay.get();
 
-        if (newStage != Stage.Waiting) stageTicks = 0;
+        if (newStage != Stage.Waiting) {
+            debug("Task".concat(stage.name()).concat("lasted " + stageTicks) + " new task ".concat(newStage.name()));
+            stageTicks = 0;
+        }
 
         this.stage = newStage;
+
         if (newStage == Stage.Waiting && crystalEntity != null) {
             crystalEntity = null;
         }
@@ -518,7 +525,7 @@ public class PistonAura extends Mod {
 
     public void setAuraPosition(AuraPosition auraPosition) {
         this.auraPosition = auraPosition;
-
+        debug("Found valid piston, tasks will now begin");
         setStage(Stage.Waiting);
     }
 
