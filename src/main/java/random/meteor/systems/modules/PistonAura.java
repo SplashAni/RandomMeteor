@@ -113,6 +113,14 @@ public class PistonAura extends Mod {
         .visible(cobweb::get)
         .build()
     );
+    private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
+        .name("extra-trap-timer")
+        .defaultValue(0)
+        .min(0)
+        .build()
+    );
+    private final SettingGroup sgDelay = settings.createGroup("Delays");
+    private final SettingGroup sgRender = settings.createGroup("Render");
     //bru
     private final Setting<Boolean> renderWeb = sgRender.add(new BoolSetting.Builder()
         .name("render-web")
@@ -138,14 +146,6 @@ public class PistonAura extends Mod {
         .visible(() -> renderWeb.get() && cobweb.get())
         .build()
     );
-    private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
-        .name("extra-trap-timer")
-        .defaultValue(0)
-        .min(0)
-        .build()
-    );
-    private final SettingGroup sgDelay = settings.createGroup("Delays");
-    private final SettingGroup sgRender = settings.createGroup("Render");
     private final Setting<Integer> pistonDelay = sgDelay.add(new IntSetting.Builder()
         .name("piston-delay")
         .defaultValue(5)
@@ -414,32 +414,40 @@ public class PistonAura extends Mod {
                     attackTick--;
                     return;
                 }
+
                 FindItemResult web = InvUtils.findInHotbar(Items.COBWEB);
 
-
                 if (cobweb.get() && web.isHotbar() && BlockUtils.canPlace(target.getBlockPos(), false)) {
+                    if (onlyHole.get() && !Utils.isInHole(target)) {
+                        debug("Skipping cobweb placement as the target is not in a hole.");
+                    } else {
+                        if (BlockUtils.place(target.getBlockPos(), web, rotate.get(), 50, swing.get(), false)) {
+                            debug("Target has been webbed.");
+                        }
 
-                    if (onlyHole.get() && !Utils.isInHole(target)) return;
-
-                    if (BlockUtils.place(target.getBlockPos(), web, rotate.get(), 50, swing.get(), false))
-                        debug("Target has been webbed");
-                    if (renderWeb.get()) RenderUtils.renderTickingBlock(
-                        target.getBlockPos(), webSideColor.get(),
-                        webLineColor.get(), webShapeMode.get(),
-                        0, 25, true,
-                        true
-                    );
+                        if (renderWeb.get()) {
+                            RenderUtils.renderTickingBlock(
+                                target.getBlockPos(), webSideColor.get(),
+                                webLineColor.get(), webShapeMode.get(),
+                                0, 25, true,
+                                true
+                            );
+                        }
+                    }
                 }
 
                 if (crystalEntity != null) {
                     mc.interactionManager.attackEntity(mc.player, crystalEntity);
                     if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
+                } else {
+                    info("Crystal entity is null.");
                 }
 
                 if (agroMode.get().equals(AgroMode.Aggresive)) {
                     reCalc();
-                } else
+                } else {
                     setStage(Stage.Waiting);
+                }
             }
         }
     }
