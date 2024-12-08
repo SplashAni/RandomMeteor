@@ -13,11 +13,13 @@ import meteordevelopment.meteorclient.utils.entity.SortPriority;
 import meteordevelopment.meteorclient.utils.entity.TargetUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.render.NametagUtils;
 import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import meteordevelopment.meteorclient.utils.world.TickRate;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -70,13 +72,13 @@ public class PistonAura extends Mod {
     private final SettingGroup sgTimeout = settings.createGroup("Timeout");
     public final Setting<Timeout> timeoutMode = sgTimeout.add(new EnumSetting.Builder<Timeout>()
         .name("timeout-mode")
-        .defaultValue(Timeout.Auto)
+        .defaultValue(Timeout.Manual)
         .build()
     );
     private final Setting<Integer> tickTimeout = sgTimeout.add(new IntSetting.Builder()
         .name("tick-timeout")
         .description("how long a stage can last")
-        .defaultValue(25)
+        .defaultValue(5)
         .visible(() -> timeoutMode.get() == Timeout.Manual)
         .build()
     );
@@ -113,12 +115,38 @@ public class PistonAura extends Mod {
         .visible(cobweb::get)
         .build()
     );
+    private final SettingGroup sgPause = settings.createGroup("Pause");
+    private final Setting<Boolean> pauseOnLag = sgPause.add(new BoolSetting.Builder()
+        .name("pause-on-lag")
+        .description("Whether to pause if the server is not responding.")
+        .defaultValue(true)
+        .build()
+    );
     private final Setting<Integer> extraTimer = sgTrap.add(new IntSetting.Builder()
         .name("extra-trap-timer")
         .defaultValue(0)
         .min(0)
         .build()
     );
+    private final Setting<Boolean> pauseMine = sgPause.add(new BoolSetting.Builder()
+        .name("pause-on-mine")
+        .description("")
+        .defaultValue(false)
+        .build()
+    );
+    private final Setting<Boolean> pauseEat = sgPause.add(new BoolSetting.Builder()
+        .name("pause-on-eat")
+        .description("")
+        .defaultValue(true)
+        .build()
+    );
+    private final Setting<Boolean> pauseDrink = sgPause.add(new BoolSetting.Builder()
+        .name("pause-on-drink")
+        .description("")
+        .defaultValue(false)
+        .build()
+    );
+
     private final SettingGroup sgDelay = settings.createGroup("Delays");
     private final SettingGroup sgRender = settings.createGroup("Render");
     //bru
@@ -148,25 +176,25 @@ public class PistonAura extends Mod {
     );
     private final Setting<Integer> pistonDelay = sgDelay.add(new IntSetting.Builder()
         .name("piston-delay")
-        .defaultValue(5)
+        .defaultValue(2)
         .min(0)
         .build()
     );
     private final Setting<Integer> crystalDelay = sgDelay.add(new IntSetting.Builder()
         .name("crystal-delay")
-        .defaultValue(5)
+        .defaultValue(0)
         .min(0)
         .build()
     );
     private final Setting<Integer> activateDelay = sgDelay.add(new IntSetting.Builder()
         .name("redstone-delay")
-        .defaultValue(5)
+        .defaultValue(0)
         .min(0)
         .build()
     );
     private final Setting<Integer> attackDelay = sgDelay.add(new IntSetting.Builder()
         .name("attack-delay")
-        .defaultValue(5)
+        .defaultValue(1)
         .min(0)
         .build()
     );
@@ -217,7 +245,7 @@ public class PistonAura extends Mod {
         .visible(renderPiston::get)
         .build()
     );
-    private final Setting<Boolean> renderPistonHead = sgGeneral.add(new BoolSetting.Builder()
+    private final Setting<Boolean> renderPistonHead = sgRender.add(new BoolSetting.Builder()
         .name("render-piston-head")
         .defaultValue(true)
         .visible(renderPiston::get)
@@ -304,12 +332,15 @@ public class PistonAura extends Mod {
 
         target = TargetUtils.getPlayerTarget(5, SortPriority.ClosestAngle);
 
-        if (target == null || !crystal.isHotbar() || !piston.isHotbar() || !activatorItem.isHotbar()) return;
+        if (!crystal.isHotbar() && !mc.player.getOffHandStack().getItem().equals(Items.END_CRYSTAL)) return;
+        if (target == null || !piston.isHotbar() || !activatorItem.isHotbar()) return;
 
 
         if (auraPosition == null) {
             calc();
         }
+
+        if(shouldPause()) return;
 
         switch (this.stage) {
             case Waiting -> {
@@ -340,10 +371,6 @@ public class PistonAura extends Mod {
                 if (BlockUtils.place(auraPosition.pistonBlock.pos, piston,
                     rotate.get(), 50, swing.get(), false, swapMode.get() == SwapMode.Silent) || pistonUtils.isPiston(auraPosition.pistonBlock.pos)) {
                     setStage(Stage.Crystal);
-                } else {
-                    if (agroMode.get().equals(AgroMode.Aggresive)) {
-                        reCalc();
-                    }
                 }
             }
             case Crystal -> {
@@ -355,13 +382,18 @@ public class PistonAura extends Mod {
 
                 if (mc.world.getBlockState(auraPosition.crystalPos.up()).isAir()) {
 
-                    InvUtils.swap(crystal.slot(), swapMode.get() == SwapMode.Silent);
+                    boolean offhand = mc.player.getOffHandStack().getItem().equals(Items.END_CRYSTAL);
+                    Hand hand = offhand ? Hand.OFF_HAND : Hand.MAIN_HAND;
+                    if (!offhand) InvUtils.swap(crystal.slot(), swapMode.get() == SwapMode.Silent);
+
 
                     mc.interactionManager.interactBlock(
-                        mc.player, Hand.MAIN_HAND, new BlockHitResult(auraPosition.crystalPos.toCenterPos(),
+                        mc.player, hand, new
+                            BlockHitResult(auraPosition.crystalPos.toCenterPos(),
                             Direction.UP, auraPosition.crystalPos, true));
 
-                    if (swapMode.get() == SwapMode.Silent) InvUtils.swapBack();
+                    if(swing.get()) mc.player.swingHand(hand);
+                    if (swapMode.get() == SwapMode.Silent && !offhand) InvUtils.swapBack();
                 }
 
                 if (crystalEntity != null) {
@@ -439,8 +471,6 @@ public class PistonAura extends Mod {
                 if (crystalEntity != null) {
                     mc.interactionManager.attackEntity(mc.player, crystalEntity);
                     if (swing.get()) mc.player.swingHand(Hand.MAIN_HAND);
-                } else {
-                    info("Crystal entity is null.");
                 }
 
                 if (agroMode.get().equals(AgroMode.Aggresive)) {
@@ -454,13 +484,13 @@ public class PistonAura extends Mod {
 
     @EventHandler
     public void onTick(TickEvent.Post event) {
-        if (stage == null || stage == Stage.Waiting) return;
+        if (stage == null || stage == Stage.Waiting || shouldPause()) return;
         stageTicks++;
         switch (timeoutMode.get()) {
             case Auto -> {
                 int expectedTime = switch (stage) {
                     case Piston -> pistonDelay.get() + 3;
-                    case Crystal -> crystalDelay.get() + 4;
+                    case Crystal -> crystalDelay.get() + 15;
                     case Activate -> activateDelay.get() + 7;
                     case Attack -> attackDelay.get() + 4;
                     default -> throw new IllegalStateException("Unexpected value: " + stage);
@@ -500,7 +530,10 @@ public class PistonAura extends Mod {
             crystalEntity = null;
         }
     }
-
+    public boolean shouldPause() {
+        if (pauseOnLag.get() && TickRate.INSTANCE.getTimeSinceLastTick() >= 1.0f) return true;
+        return PlayerUtils.shouldPause(pauseMine.get(), pauseEat.get(), pauseDrink.get());
+    }
     @Override
     public String getInfoString() {
         return stage == null ? "No target" : stage.toString();
