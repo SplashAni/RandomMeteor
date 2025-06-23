@@ -26,6 +26,7 @@ public class Manager {
         add(new PistonPush());
         add(new BlockClap());
         add(new BowCart());
+        add(new ChatEmojis());
         add(new CustomFov());
         add(new AutoChunkBan());
         add(new TntAura());
@@ -54,7 +55,7 @@ public class Manager {
         add(new Crash());
         add(new Ping());
         add(new Title());
-        add(new Tts());
+        add(new TTS());
 
     }
 

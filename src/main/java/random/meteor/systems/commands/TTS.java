@@ -6,8 +6,8 @@ import com.mojang.text2speech.Narrator;
 import meteordevelopment.meteorclient.commands.Command;
 import net.minecraft.command.CommandSource;
 
-public class Tts extends Command {
-    public Tts() {
+public class TTS extends Command {
+    public TTS() {
         super("tts","Plays the provided message as text");
     }
 
