@@ -3,7 +3,8 @@
   "package": "random.meteor.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ChatHudMixin",
+    "ChatInputSuggestorMixin",
+    "ChatScreenMixin",
     "DisconnectScreenMixin",
     "MainMixin",
     "MinecraftClientMixin"
