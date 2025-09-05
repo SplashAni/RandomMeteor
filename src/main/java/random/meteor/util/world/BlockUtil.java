@@ -1,8 +1,14 @@
 package random.meteor.util.world;
 
+import com.nimbusds.openid.connect.sdk.id.SectorID;
+import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.renderer.Renderer3D;
+import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
+import meteordevelopment.meteorclient.utils.render.RenderUtils;
+import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
@@ -30,6 +36,13 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class BlockUtil { // make a class handler to sqeudle runnabled to run in the world
 
+    private static final PathFinder pathFinder;
+    private static List<BlockPos> paths = new ArrayList<>();
+    private static BlockPos lastTarget = null;
+
+    static {
+        pathFinder = new PathFinder();
+    }
 
 
     boolean outSideBorder = false;
@@ -53,18 +66,14 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         return result.getType() == HitResult.Type.MISS;
     }
 
-    public List<BlockPos> getPath(BlockPos to, int size) {
-        List<BlockPos> path = new ArrayList<>();
 
+    public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings, SwapSettingGroup swapSettings,
+                                         SwingSettingGroup swingSettings) {
 
-        return path;
-    }
-
-    public static void place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings, SwapSettingGroup swapSettings, SwingSettingGroup swingSettings) {
-
-        if (!BlockUtils.canPlace(blockPos, placeSettings.checkEntities.get())) return;
-        if (!PlayerUtils.isWithin(blockPos, rangeSettings.range.get())) return;
-        if (rangeSettings.eyeOnly.get() && !isWithinWalls(blockPos, rangeSettings.wallsRange.get())) return;
+        if (!BlockUtils.canPlace(blockPos, placeSettings.checkEntities.get())) return BlockPlaceResult.Fail;
+        if (!PlayerUtils.isWithin(blockPos, rangeSettings.range.get())) return BlockPlaceResult.Fail;
+        if (rangeSettings.eyeOnly.get() && !isWithinWalls(blockPos, rangeSettings.wallsRange.get()))
+            return BlockPlaceResult.Fail;
 
         FindItemResult block = InvUtils.findInHotbar(itemStack -> placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
 
@@ -86,24 +95,56 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         BlockHitResult bhr = null;
 
         if (!placeSettings.airPlace.get()) {
-
             Direction side = BlockUtils.getPlaceSide(blockPos);
 
-            if(side == null){
-                System.out.println("no offset to place on");
-            } else {
+            if (side != null) {
                 bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false);
-            }
 
+            } else if (placeSettings.support.get()) {
+                if (paths.isEmpty() || !blockPos.equals(lastTarget)) {
+                    paths = pathFinder.getPath(blockPos,placeSettings.supportRange.get());
+                    lastTarget = blockPos;
+                }
+
+                if (!paths.isEmpty()) {
+                    boolean placedSupport = false;
+
+                    for (BlockPos pos : paths) {
+                        if (BlockUtils.place(pos, block, true, 0, false, true, true)) {
+                            RenderUtils.renderTickingBlock(
+                                pos, Color.RED,
+                                Color.BLUE, ShapeMode.Both,
+                                0, 5, true,
+                                true
+                            );
+                            placedSupport = true;
+                            break;
+                        }
+                    }
+
+                    if (!placedSupport) {
+                        paths.clear();
+                        lastTarget = null;
+                        return BlockPlaceResult.WaitForSupport;
+                    }
+                } else {
+                    return BlockPlaceResult.Fail;
+                }
+
+            } else {
+                return BlockPlaceResult.Fail;
+            }
 
         } else {
             bhr = new BlockHitResult(hitPos, Direction.UP, blockPos, true);
         }
 
+
         if (mc.interactionManager != null && bhr != null) {
             mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
         }
 
+        return BlockPlaceResult.Success;
     }
 
     private static void swing(HandMode handMode, Hand hand) {

@@ -1,106 +1,91 @@
 package random.meteor.util.world;
-
 /*
-* Uses A* ALGORUHTNMM
-* https://www.baeldung.com/java-a-star-pathfinding kind of helped
-* */
-
+ * Uses A* ALGORUHTNMM
+ * https://www.baeldung.com/java-a-star-pathfinding kind of helped
+ * */
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PathFinder {
 
-    public List<BlockPos> getPath(BlockPos target, int searchRadius) {
 
-        BlockPos start = getStartBlock(target, searchRadius);
+    public List<BlockPos> getPath(BlockPos target,int radius) {
+        BlockPos start = getStartBlock(target, radius);
+        if (start == null) return List.of();
 
-        if (start == null) return Collections.emptyList();
+        Queue<BlockPos> queue = new ArrayDeque<>();
+        Map<BlockPos, BlockPos> cameFrom = new HashMap<>();
+        Set<BlockPos> visited = new HashSet<>();
 
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(score -> score.score));
-
-        HashSet<BlockPos> notDiscovered = new HashSet<>();
-        HashSet<BlockPos> discovered = new HashSet<>();
-
-        Map<BlockPos, BlockPos> calculated = new HashMap<>();
-        Map<BlockPos, Double> scores = new HashMap<>();
-
-        scores.put(start, 0.0);
-        queue.add(new Node(start, start.getSquaredDistance(target)));
-        notDiscovered.add(start);
+        queue.add(start);
+        visited.add(start);
 
         while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
 
-            Node currentNode = queue.poll();
+            if (current.equals(target)) return rebuildPatj(cameFrom, start, target);
 
-            BlockPos current = currentNode.pos;
-            notDiscovered.remove(current);
+            for (Direction dir : Direction.values()) {
+                BlockPos neighbor = current.offset(dir);
 
-            if (current.equals(target)) return redoPath(calculated, current);
+                if (!visited.contains(neighbor) &&
+                    isWithinCube(neighbor, target, radius) &&
+                    (isAir(neighbor) || neighbor.equals(target))) {
 
-            discovered.add(current);
-
-            for (BlockPos neighbor : getOffsets(current)) {
-
-                if (!Objects.requireNonNull(mc.world).isAir(neighbor) && !neighbor.equals(target)) continue;
-
-                if (discovered.contains(neighbor)) continue;
-
-                double pathCost = scores.getOrDefault(current, Double.MAX_VALUE) + 1; // okay we can work on this??? maybe more stricter to prevent that snap;py bug
-
-                if (pathCost < scores.getOrDefault(neighbor, Double.MAX_VALUE)) {
-
-                    calculated.put(neighbor, current);
-                    scores.put(neighbor, pathCost);
-                    double newScore = pathCost + neighbor.getSquaredDistance(target);
-
-                    if (!notDiscovered.contains(neighbor)) {
-                        queue.add(new Node(neighbor, newScore));
-                        notDiscovered.add(neighbor);
-                    }
-
+                    visited.add(neighbor);
+                    cameFrom.put(neighbor, current);
+                    queue.add(neighbor);
                 }
             }
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
-    private List<BlockPos> redoPath(Map<BlockPos, BlockPos> cameFrom, BlockPos current) {
-        List<BlockPos> newPath = new ArrayList<>();
-        newPath.add(current);
 
-        while (cameFrom.containsKey(current)) {
+    private List<BlockPos> rebuildPatj(Map<BlockPos, BlockPos> cameFrom, BlockPos start, BlockPos target) {
+        List<BlockPos> path = new ArrayList<>();
+        BlockPos current = target;
+
+        while (!current.equals(start)) {
+            path.add(current);
             current = cameFrom.get(current);
-            newPath.add(current);
+            if (current == null) break;
         }
 
-        Collections.reverse(newPath);
-        return newPath;
+        Collections.reverse(path);
+        return path;
     }
 
-    private BlockPos getStartBlock(BlockPos to, int radius) {
+    private boolean isAir(BlockPos pos) {
+        return mc.world != null && mc.world.isAir(pos);
+    }
+
+    private boolean isWithinCube(BlockPos pos, BlockPos center, int radius) {
+        return Math.abs(pos.getX() - center.getX()) <= radius &&
+            Math.abs(pos.getY() - center.getY()) <= radius &&
+            Math.abs(pos.getZ() - center.getZ()) <= radius;
+    }
+
+
+    private BlockPos getStartBlock(BlockPos center, int radius) {
         BlockPos.Mutable pos = new BlockPos.Mutable();
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    pos.set(to.getX() + x, to.getY() + y, to.getZ() + z);
-                    if (mc.world != null && !mc.world.isAir(pos)) return pos.toImmutable();
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    pos.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+                    if (mc.world != null && !mc.world.isAir(pos)) {
+                        return pos.toImmutable();
+                    }
                 }
             }
         }
+
         return null;
-    }
-
-    private List<BlockPos> getOffsets(BlockPos pos) {
-        return Arrays.stream(Direction.values()).map(pos::offset).collect(Collectors.toList());
-    }
-
-    private record Node(BlockPos pos, double score) {
-
     }
 }

@@ -8,17 +8,15 @@ import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
+import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import random.meteor.util.setting.groups.PlaceSettingGroup;
-import random.meteor.util.setting.groups.RangeSettingGroup;
-import random.meteor.util.setting.groups.SwapSettingGroup;
-import random.meteor.util.setting.groups.SwingSettingGroup;
+import random.meteor.util.setting.groups.*;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
-import random.meteor.util.world.PathFinder;
 import random.meteor.util.world.BlockUtil;
+import random.meteor.util.world.PathFinder;
 
 import java.util.List;
 
@@ -51,10 +49,13 @@ public class FeetTrap extends Mod {
 
     PlaceSettingGroup placeSettingGroup = new PlaceSettingGroup(this);
     RangeSettingGroup rangeSettingGroup = new RangeSettingGroup(this);
+    DelaySettingGroup delaySettingGroup = new DelaySettingGroup(this);
+
     SwapSettingGroup swapSettingGroup = new SwapSettingGroup(this);
     SwingSettingGroup swingSettingGroup = new SwingSettingGroup(this);
 
     PathFinder pathFinder;
+    int ticks;
 
     @Override
     public void onActivate() {
@@ -65,22 +66,26 @@ public class FeetTrap extends Mod {
     public FeetTrap() {
         super("feet-trap", Category.PVP);
     }
+    BlockPos offset;
+
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
 
-        BlockPos offset = mc.player.getBlockPos().offset(Direction.DOWN, 1);
-        BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup);
-    }
-    @EventHandler
-    public void render3d(Render3DEvent event){
-        BlockPos target = mc.player.getBlockPos().offset(Direction.DOWN, 1);
+        offset = mc.player.getBlockPos().offset(Direction.DOWN, 1);
 
-        List<BlockPos> path = pathFinder.getPath(target, 5);
-        for (BlockPos pos : path) {
-            event.renderer.box(pos, sideColor.get(), lineColor.get(), shapeMode.get(), 0);
+        if (ticks > 0) {
+            ticks--;
+            return;
         }
+        if(!BlockUtils.canPlace(offset)) return;
 
+        switch (BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup)) {
+            case WaitForSupport -> ticks = delaySettingGroup.delay.get().intValue();
+            case Fail -> ticks = delaySettingGroup.delay.get().intValue(); // fail delay too
+            case Success -> {
+            }
+        }
     }
 
 }

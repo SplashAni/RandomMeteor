@@ -10,16 +10,16 @@ import random.meteor.util.system.Mod;
 public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds mode too
 
     Setting<Integer> randomDelay;
-    Setting<Double> delay;
+    public Setting<Double> delay;
 
     public DelaySettingGroup(Mod mod) {
         super(mod);
         setName("Delay Settings");
 
         delay = getSettingGroup().add(new DoubleSetting.Builder()
-            .name("delay")
+            .name("interaction-delay")
             .description("Delay, in ticks, between interactions.")
-            .defaultValue(1.0)
+            .defaultValue(5.0)
             .min(0)
             .build()
         );
@@ -29,8 +29,9 @@ public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds m
             .defaultValue(false)
             .build()
         );
+
         randomDelay = getSettingGroup().add(new IntSetting.Builder()
-            .name("walls-range")
+            .name("random-delay")
             .description("0 to specific number")
             .defaultValue(2)
             .min(0)
