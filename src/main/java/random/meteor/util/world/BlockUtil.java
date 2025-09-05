@@ -14,7 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
-import random.meteor.util.setting.EventType;
 import random.meteor.util.setting.groups.PlaceSettingGroup;
 import random.meteor.util.setting.groups.RangeSettingGroup;
 import random.meteor.util.setting.groups.SwapSettingGroup;
@@ -77,12 +76,26 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
         HandMode handMode = swingSettings.handMode.get();
 
-        BlockHitResult bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false); // todo: improve this badly
+        if(!placeSettings.airPlace.get()) {
+            BlockHitResult bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false); // todo: improve this badly
+
+            ActionResult result = null;
+            if (mc.interactionManager != null)
+                result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
+        } else {
+
+            BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, blockPos, true);
+
+            ActionResult result = null;
+            if (mc.interactionManager != null)
+                result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
+
+        }
+
+
 
         /*if (swingSettings.eventType.get().equals(EventType.PRE)) swing(handMode, hand);
 */
-        ActionResult result = null;
-        if (mc.interactionManager != null) result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
 
         /*if (result != null && result.isAccepted())
             if (swingSettings.eventType.get().equals(EventType.POST)) swing(handMode, hand);*/
