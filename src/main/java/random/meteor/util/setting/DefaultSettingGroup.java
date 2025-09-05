@@ -22,6 +22,7 @@ public abstract class DefaultSettingGroup {
     }
 
     public SettingGroup getSettingGroup() {
+        if (name == null) name = "Unknown";
         return settingGroup != null ? settingGroup : (settingGroup = mod.settings.createGroup(name));
     }
 
