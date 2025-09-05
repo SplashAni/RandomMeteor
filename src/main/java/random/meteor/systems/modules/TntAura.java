@@ -176,7 +176,6 @@ public class TntAura extends Mod {
         switch (stage){
             case Preparing -> {
                 assert mc.player != null;
-                slot = mc.player.getInventory().selectedSlot;
                 place = target.getBlockPos().up(2);
                 placeDouble = target.getBlockPos().up(3);
                 stage = Stage.Placing;
@@ -185,7 +184,6 @@ public class TntAura extends Mod {
                 if(ticks >= placeDelay.get()) {
                     ticks = 0;
                     if (swop.get()) {
-                        mc.player.getInventory().selectedSlot = tntResult().slot();
                     }
 
                     BlockUtils.place(place, tntResult(), rotate.get(), 50, swing.get(), true);
@@ -203,7 +201,6 @@ public class TntAura extends Mod {
                 stage = Stage.Placing;
             }
             case Toggling -> {
-                mc.player.getInventory().selectedSlot = slot;
                 toggle();
             }
         }

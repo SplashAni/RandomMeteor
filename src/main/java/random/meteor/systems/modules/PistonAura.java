@@ -356,8 +356,8 @@ public class PistonAura extends Mod {
 
                 switch (rotateMode.get()) {
 
-                    case None ->
-                        mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(auraPosition.pistonBlock.direction()), 0, true));
+                    case None ->{}
+                        //mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(auraPosition.pistonBlock.direction()), 0, true));
                     case Full -> Rotations.rotate(pistonYaw(auraPosition.pistonBlock.direction()), 0);
                 }
 
@@ -426,7 +426,7 @@ public class PistonAura extends Mod {
                                     true
                                 )
                             );
-                            if (swing.get() && result.shouldSwingHand()) mc.player.swingHand(Hand.MAIN_HAND);
+                         //   if (swing.get() && result.shouldSwingHand()) mc.player.swingHand(Hand.MAIN_HAND);
                             setStage(Stage.Attack);
                         }
 
@@ -560,11 +560,11 @@ public class PistonAura extends Mod {
 
                 event.cancel();
 
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Full(
+               /* mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.Full(
                     packet.getX(-1), packet.getY(-1), packet.getZ(-1),
                     modifiedYaw, 0, packet.isOnGround()
                 ));
-
+*/
                 stopRecursion = false;
             }
         }

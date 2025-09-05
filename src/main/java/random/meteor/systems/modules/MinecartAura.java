@@ -227,7 +227,7 @@ public class MinecartAura extends Mod {
                 if (tntTick >= tntDelay.get()) {
                     FindItemResult tnt = findInHotbar(Items.TNT_MINECART);
                     if (!tnt.isHotbar() && tnt.count() != 0) {
-                        InvUtils.move().from(tnt.slot()).toHotbar(mc.player.getInventory().selectedSlot);
+                      //  InvUtils.move().from(tnt.slot()).toHotbar(mc.player.getInventory().selectedSlot);
                     }
                     InvUtils.swap(tnt.slot(), true);
                     Objects.requireNonNull(mc.interactionManager).interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(new Vec3d(targetPos.getX() + 0.5, targetPos.getY() + 0.5, target.getZ() + 0.5), Direction.UP, targetPos, true));

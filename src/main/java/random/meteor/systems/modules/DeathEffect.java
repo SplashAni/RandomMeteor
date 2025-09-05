@@ -66,7 +66,7 @@ public class DeathEffect extends Mod {
             if (timer - entry.getValue() > renderTime.get() * 1000) {
                 iterator.remove();
             } else {
-                Objects.requireNonNull(mc.world).addParticle(ParticleTypes.EXPLOSION, entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), 0, 0, 0);
+                //Objects.requireNonNull(mc.world).addParticle(ParticleTypes.EXPLOSION, entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), 0, 0, 0);
             }
         }
     }

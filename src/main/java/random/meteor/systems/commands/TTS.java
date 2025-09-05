@@ -18,7 +18,7 @@ public class TTS extends Command {
 
             Narrator n = Narrator.getNarrator();
 
-            n.say(msg,true);
+            n.say(msg,true,1);
 
             return 0;
         }));

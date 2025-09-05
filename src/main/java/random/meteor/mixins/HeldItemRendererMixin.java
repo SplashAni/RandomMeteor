@@ -25,11 +25,9 @@ public class HeldItemRendererMixin {
             Color color = ir.handColor.get();
 
             if(ir.customGlint.get()){
-                RenderSystem.setShaderGlintAlpha(ir.glintAlpha.get());
             }
 
             if(ir.itemColor.get()) {
-                RenderSystem.setShaderColor(color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f);
             }
 
         }
@@ -39,6 +37,5 @@ public class HeldItemRendererMixin {
             ,at = @At("TAIL")
     )
     public void kys(float tickDelta, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, ClientPlayerEntity player, int light, CallbackInfo ci) {
-        RenderSystem.setShaderColor(1,1,1,1);
     }
 }

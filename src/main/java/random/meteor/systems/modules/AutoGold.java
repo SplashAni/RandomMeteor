@@ -52,7 +52,7 @@ public class AutoGold extends Mod {
         tick++;
         for (Entity entity : mc.world.getEntities()) {
             if (entity.getType() == EntityType.PIGLIN && entity.getPos().isInRange(mc.player.getPos(), range.get())) {
-                if (!Utils.isWearingGoldArmor() && tick >= switchDelay.get()) {
+                if (!true&& tick >= switchDelay.get()) {
                     tick = 0;
                     if (!findInHotbar(Items.GOLD_INGOT, Items.GOLD_BLOCK).isHotbar() && netherCheck()) {
                         switchToGold();
@@ -74,7 +74,7 @@ public class AutoGold extends Mod {
             }
         }
         if (goldSlot != -1) {
-            mc.player.getInventory().selectedSlot = goldSlot;
+          //  mc.player.getInventory().getSelectedSlot() = goldSlot;
         }
     }
 

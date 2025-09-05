@@ -109,7 +109,7 @@ public class AutoChunkBan extends Mod {
 
                 BlockUtils.place(placePos, shulker, rotate.get(), 100, swing.get(), true);
                 if (autoMine.get()) {
-                    slot = mc.player.getInventory().selectedSlot;
+                    slot = mc.player.getInventory().getSelectedSlot();
                     stage = Stage.Mining;
                 } else {
                     stage = Stage.Toggling;
@@ -129,7 +129,7 @@ public class AutoChunkBan extends Mod {
 
                 if (state.getBlock() == Blocks.AIR) {
                     assert mc.player != null;
-                    mc.player.getInventory().selectedSlot = slot;
+                    //mc.player.getInventory().getSelectedSlot() = slot;
                     stage = Stage.Toggling;
                 }
             }

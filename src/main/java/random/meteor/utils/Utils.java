@@ -11,8 +11,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
@@ -51,7 +49,7 @@ public class Utils {
     public static void updateHotbar() {
         assert mc.player != null;
         mc.player.getInventory();
-        mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
+        mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().getSelectedSlot()));
     }
 
     public static void throwPearl(int value) {
@@ -74,23 +72,8 @@ public class Utils {
     /*thanks daddy @EurekaEffect :wink:
      * https://media.discordapp.net/attachments/955857188130283621/1144293552550068224/image.png?width=593&height=456*/
 
-    public static void move(int from, int to) {
-        ScreenHandler handler = mc.player.currentScreenHandler;
 
-        Int2ObjectArrayMap<ItemStack> stack = new Int2ObjectArrayMap<>();
-        stack.put(to, handler.getSlot(to).getStack());
 
-        mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(handler.syncId, handler.getRevision(), PlayerInventory.MAIN_SIZE + from, to, SlotActionType.SWAP, handler.getCursorStack().copy(), stack));
-    }
-
-    public static boolean isWearingGoldArmor() {
-        for (ItemStack armor : mc.player.getArmorItems()) {
-            if (armor.getItem() instanceof ArmorItem && ((ArmorItem) armor.getItem()).getMaterial() == ArmorMaterials.GOLD) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static void rotateToEntityType(EntityType en) {
         double closest = Double.MAX_VALUE;

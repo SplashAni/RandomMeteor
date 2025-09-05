@@ -32,26 +32,7 @@ public class PistonUtils {
     }
 
     public Map<Direction, BlockPos> getValidPosition(PlayerEntity entity, boolean top, PistonAura.Mode mode) {
-        Map<Direction, BlockPos> placeablePositions = new EnumMap<>(Direction.class);
-
-        offsets(entity.getBlockPos().up(top ? 1 : 0), Direction.Type.HORIZONTAL.facingArray).stream()
-            .filter(pair -> {
-                BlockPos offset = pair.getLeft();
-
-                return (Utils.state(offset) == Blocks.OBSIDIAN || Utils.state(offset) == Blocks.BEDROCK) &&
-                    BlockUtils.canPlace(offset.up());
-            })
-            .forEach(pair -> {
-                BlockPos offset = pair.getLeft();
-                Direction direction = pair.getRight();
-
-                BlockPos placeablePos = offset.offset(direction).up();
-                if (BlockUtils.canPlace(placeablePos) &&
-                    canActivate(placeablePos, direction, mode)) {
-                    placeablePositions.put(direction, offset);
-                }
-            });
-        return placeablePositions;
+     return null;
     }
 
     public boolean canActivate(BlockPos pos, Direction direction, PistonAura.Mode mode) {
@@ -62,7 +43,7 @@ public class PistonUtils {
     }
 
     public BlockPos getButtonPos(BlockPos pos, Direction direction) {
-        List<Pair<BlockPos, Direction>> offsetList = offsets(pos.down(), Direction.Type.HORIZONTAL.facingArray);
+        List<Pair<BlockPos, Direction>> offsetList = offsets(pos.down(), Direction.values());
 
         AtomicBoolean canButton = new AtomicBoolean(false);
         AtomicReference<BlockPos> torchPos = new AtomicReference<>(null);

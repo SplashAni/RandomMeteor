@@ -95,7 +95,7 @@ public class AutoMine extends Mod {
         } else {
 
             progress += BlockUtils.getBreakDelta(bestSlot != -1 ? bestSlot :
-                mc.player.getInventory().selectedSlot, getState());
+                mc.player.getInventory().getSelectedSlot(), getState());
 
         }
     }
@@ -104,7 +104,7 @@ public class AutoMine extends Mod {
         switch (swapMode.get()) {
             case Held -> InvUtils.swapBack();
             case Silent ->
-                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().selectedSlot));
+                mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(mc.player.getInventory().getSelectedSlot()));
         }
     }
 
@@ -112,7 +112,8 @@ public class AutoMine extends Mod {
         switch (swapMode.get()) {
             case None -> {
             }
-            case Normal -> mc.player.getInventory().selectedSlot = slot;
+            case Normal -> {
+            }
             case Held -> InvUtils.swap(slot, true);
             case Silent -> mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(slot));
         }

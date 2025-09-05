@@ -228,8 +228,7 @@ public class PistonPush extends Mod {
                     pistonPos = pistonInfo.pos();
 
                     switch (rotationMode.get()) {
-                        case None ->
-                            mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(pistonYaw(pistonInfo.direction()), 0, true));
+                        case None -> {}
                         case PistonYaw -> Rotations.rotate(pistonYaw(pistonInfo.direction()), 0);
                         case PistonBlock -> Rotations.rotate(Rotations.getYaw(pistonPos), Rotations.getPitch(pistonPos));
                     }
