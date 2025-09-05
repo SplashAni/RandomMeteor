@@ -12,6 +12,7 @@
 * piston burrow  (selfr buron with pistons)
 * auto item frame dupe
 * auto mine
+* tnt ora
 * fake kick
 
 some ideas for self

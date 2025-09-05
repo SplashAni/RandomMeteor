@@ -13,12 +13,14 @@ import java.util.List;
 
 public class PlaceSettingGroup extends DefaultSettingGroup {
 
-    Setting<List<Block>> blocks;
+    public Setting<List<Block>> blocks;
 
-    Setting<Boolean> airPlace;
-    Setting<Boolean> attackCrystal;
-    Setting<Boolean> createBase;
-    Setting<Double> supportRange;
+    public Setting<Boolean> airPlace;
+    public Setting<Boolean> checkEntities;
+    public Setting<Boolean> attackCrystal;
+
+    public Setting<Boolean> createBase;
+    public Setting<Double> supportRange;
 
     public PlaceSettingGroup(Mod mod) {
         super(mod);
@@ -33,6 +35,12 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
         airPlace = getSettingGroup().add(new BoolSetting.Builder()
             .name("air-place")
             .defaultValue(true)
+            .build()
+        );
+
+        checkEntities = getSettingGroup().add(new BoolSetting.Builder()
+            .name("check-entities")
+            .defaultValue(false)
             .build()
         );
 
@@ -61,8 +69,5 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
 
     }
 
-    public enum WorldHeight {
-        Old,
-        New,
-    }
+
 }
