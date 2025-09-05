@@ -6,7 +6,6 @@ import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -72,33 +71,29 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
         Vec3d hitPos = Vec3d.ofCenter(blockPos);
 
-        Direction side = BlockUtils.getPlaceSide(blockPos) == null ? Direction.UP : BlockUtils.getPlaceSide(blockPos); // do custom one with good bypassss
 
         HandMode handMode = swingSettings.handMode.get();
 
-        if(!placeSettings.airPlace.get()) {
-            BlockHitResult bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false); // todo: improve this badly
+        BlockHitResult bhr = null;
 
-            ActionResult result = null;
-            if (mc.interactionManager != null)
-                result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
+        if (!placeSettings.airPlace.get()) {
+
+            Direction side = BlockUtils.getPlaceSide(blockPos);
+
+            if(side == null){
+                System.out.println("no offset to place on");
+            } else {
+                bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false);
+            }
+
+
         } else {
-
-            BlockHitResult bhr = new BlockHitResult(hitPos, Direction.UP, blockPos, true);
-
-            ActionResult result = null;
-            if (mc.interactionManager != null)
-                result = mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
-
+            bhr = new BlockHitResult(hitPos, Direction.UP, blockPos, true);
         }
 
-
-
-        /*if (swingSettings.eventType.get().equals(EventType.PRE)) swing(handMode, hand);
-*/
-
-        /*if (result != null && result.isAccepted())
-            if (swingSettings.eventType.get().equals(EventType.POST)) swing(handMode, hand);*/
+        if (mc.interactionManager != null && bhr != null) {
+            mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
+        }
 
     }
 
