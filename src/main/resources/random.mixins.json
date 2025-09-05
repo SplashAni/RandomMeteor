@@ -3,21 +3,10 @@
   "package": "random.meteor.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ChatInputSuggestorMixin",
-    "ChatScreenMixin",
-    "DisconnectScreenMixin",
-    "MainMixin",
-    "MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
-    "AbstractMinecartEntityMixin",
-    "DiscordPresenceMixin",
-    "FakePlayerMixin",
-    "HeldItemRendererMixin",
-    "ItemMixin",
-    "KillAuraMixin"
   ]
 }
