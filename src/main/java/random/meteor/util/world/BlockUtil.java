@@ -21,6 +21,8 @@ import random.meteor.util.setting.modes.HandMode;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.setting.modes.WorldHeight;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
@@ -49,6 +51,13 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         ));
 
         return result.getType() == HitResult.Type.MISS;
+    }
+
+    public List<BlockPos> getPath(BlockPos to, int size) {
+        List<BlockPos> path = new ArrayList<>();
+
+
+        return path;
     }
 
     public static void place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings, SwapSettingGroup swapSettings, SwingSettingGroup swingSettings) {
