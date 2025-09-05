@@ -3,7 +3,7 @@ package random.meteor.manager;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import org.reflections.Reflections;
 import random.meteor.Main;
-import random.meteor.util.Mod;
+import random.meteor.util.system.Mod;
 
 import java.util.Set;
 

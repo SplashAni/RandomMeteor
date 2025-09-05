@@ -1,4 +1,4 @@
-package random.meteor.util;
+package random.meteor.util.system;
 
 import meteordevelopment.meteorclient.systems.modules.Module;
 import random.meteor.Main;
@@ -19,5 +19,8 @@ public class Mod extends Module {
         this.name = name;
         this.desc = "";
         this.category = category;
+    }
+    public void registerSetting(){
+
     }
 }
