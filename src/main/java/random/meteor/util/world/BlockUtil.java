@@ -84,11 +84,8 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
 
         SwapMode swapMode = swapSettings.swapMode.get();
-        if (swapMode == SwapMode.Normal || swapMode == SwapMode.Silent) {
-            InvUtils.swap(block.slot(), swapMode.equals(SwapMode.Silent));
-        }
 
-        ResultStatus resultStatus = getBlockHitResult(blockPos, placeSettings.airPlace.get(), block, placeSettings);
+        ResultStatus resultStatus = getBlockHitResult(blockPos, swapMode, block, placeSettings);
 
         boolean action = module.debugActions.get();
         if (resultStatus == null) {
@@ -107,17 +104,19 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
 
 
+        InventoryUtils.applySwap(swapMode, block);
         interact(resultStatus.bhr, block);
-        if (resultStatus.status == 1) module.debug("Successfully placed the block onto the nearest neighbour.", action);
-        else module.debug("Successfully air-placed the block.", action);
+        InventoryUtils.swapBack(swapMode);
 
-        if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
+        if (resultStatus.status == 1) module.debug("Successfully air-placed the block.", action);
+        else module.debug("Successfully placed the block onto the nearest neighbour.", action);
 
 
         return BlockPlaceResult.Success;
     }
 
-    public static ResultStatus getBlockHitResult(BlockPos pos, boolean airplace, FindItemResult itemResult, PlaceSettingGroup placeSettings) {
+
+    public static ResultStatus getBlockHitResult(BlockPos pos, SwapMode swapMode, FindItemResult itemResult, PlaceSettingGroup placeSettings) {
         Vec3d hitPos = Vec3d.ofCenter(pos);
 
         // can place off a neigbhour , does this by default
@@ -127,7 +126,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
 
         // airplacing since theres no blocks to place off
-        if (airplace) {
+        if (placeSettings.airPlace.get()) {
             return new ResultStatus(new BlockHitResult(hitPos, Direction.UP, pos, true), 1);
         }
 
@@ -143,15 +142,21 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
             if (!paths.isEmpty()) {
                 for (BlockPos supportPos : paths) {
 
-                    interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult);
+                    Direction neighbour = BlockUtils.getPlaceSide(supportPos);
+                    if (neighbour != null) {
 
-                    if (!BlockUtils.canPlace(supportPos, false)) { // successsufully placed support
-                        RenderUtils.renderTickingBlock(
-                            supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
-                            0, 5, true, true
-                        );
-                        paths.remove(supportPos);
-                        return new ResultStatus(null, 0); // 0 indicates that it successfully palced a SUPPORT block ; 1 is the bhr for the pos itself (=
+                        InventoryUtils.applySwap(swapMode, itemResult);
+                        interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult);
+                        InventoryUtils.swapBack(swapMode);
+
+                        if (!BlockUtils.canPlace(supportPos, false)) { // successsufully placed support
+                            RenderUtils.renderTickingBlock(
+                                supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
+                                0, 5, true, true
+                            );
+                            paths.remove(supportPos);
+                            return new ResultStatus(null, 0); // 0 indicates that it successfully palced a SUPPORT block ; 1 is the bhr for the pos itself (=
+                        }
                     } else return new ResultStatus(null, -1);
                 }
                 paths.clear();
@@ -185,6 +190,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
             case Packet -> mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(hand));
         }
     }
+
 
     private static void swing(Hand hand) {
         if (mc.player != null) {
