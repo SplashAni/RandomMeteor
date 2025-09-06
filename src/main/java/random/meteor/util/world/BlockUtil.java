@@ -1,8 +1,5 @@
 package random.meteor.util.world;
 
-import com.nimbusds.openid.connect.sdk.id.SectorID;
-import meteordevelopment.meteorclient.events.render.Render3DEvent;
-import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
@@ -67,86 +64,79 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
     }
 
 
-    public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings, SwapSettingGroup swapSettings,
-                                         SwingSettingGroup swingSettings) {
+    public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings,
+                                         SwapSettingGroup swapSettings, SwingSettingGroup swingSettings) {
 
         if (!BlockUtils.canPlace(blockPos, placeSettings.checkEntities.get())) return BlockPlaceResult.Fail;
         if (!PlayerUtils.isWithin(blockPos, rangeSettings.range.get())) return BlockPlaceResult.Fail;
         if (rangeSettings.eyeOnly.get() && !isWithinWalls(blockPos, rangeSettings.wallsRange.get()))
             return BlockPlaceResult.Fail;
 
-        FindItemResult block = InvUtils.findInHotbar(itemStack -> placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
+        FindItemResult block = InvUtils.findInHotbar(itemStack ->
+            placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
 
         SwapMode swapMode = swapSettings.swapMode.get();
-
-
         if (swapMode == SwapMode.Normal || swapMode == SwapMode.Silent) {
             InvUtils.swap(block.slot(), swapMode.equals(SwapMode.Silent));
         }
 
-        Hand hand = block.getHand();
+        BlockHitResult bhr = getBlockHitResult(blockPos, placeSettings.airPlace.get(), placeSettings);
 
+        if (bhr == null) return BlockPlaceResult.Fail;
 
-        Vec3d hitPos = Vec3d.ofCenter(blockPos);
-
-
-        HandMode handMode = swingSettings.handMode.get();
-
-        BlockHitResult bhr = null;
-
-        if (!placeSettings.airPlace.get()) {
-            Direction side = BlockUtils.getPlaceSide(blockPos);
-
-            if (side != null) {
-                bhr = new BlockHitResult(hitPos, side.getOpposite(), blockPos.offset(side), false);
-
-            } else if (placeSettings.support.get()) {
-                if (paths.isEmpty() || !blockPos.equals(lastTarget)) {
-                    paths = pathFinder.getPath(blockPos,placeSettings.supportRange.get());
-                    lastTarget = blockPos;
-                }
-
-                if (!paths.isEmpty()) {
-                    boolean placedSupport = false;
-
-                    for (BlockPos pos : paths) {
-                        if (BlockUtils.place(pos, block, true, 0, false, true, true)) {
-                            RenderUtils.renderTickingBlock(
-                                pos, Color.RED,
-                                Color.BLUE, ShapeMode.Both,
-                                0, 5, true,
-                                true
-                            );
-                            placedSupport = true;
-                            break;
-                        }
-                    }
-
-                    if (!placedSupport) {
-                        paths.clear();
-                        lastTarget = null;
-                        return BlockPlaceResult.WaitForSupport;
-                    }
-                } else {
-                    return BlockPlaceResult.Fail;
-                }
-
-            } else {
-                return BlockPlaceResult.Fail;
-            }
-
-        } else {
-            bhr = new BlockHitResult(hitPos, Direction.UP, blockPos, true);
-        }
-
-
-        if (mc.interactionManager != null && bhr != null) {
-            mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
-            if(swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
+        if (mc.interactionManager != null) {
+            mc.interactionManager.interactBlock(mc.player, block.getHand(), bhr);
+            if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
         }
 
         return BlockPlaceResult.Success;
     }
+
+    public static BlockHitResult getBlockHitResult(BlockPos pos, boolean airplace, PlaceSettingGroup placeSettings) {
+        Vec3d hitPos = Vec3d.ofCenter(pos);
+
+        // can place off a neigbhour , does this by default
+        Direction side = BlockUtils.getPlaceSide(pos);
+        if (side != null) {
+            return new BlockHitResult(hitPos, side.getOpposite(), pos.offset(side), false);
+        }
+
+        // airplacing since theres no blocks to place off
+        if (airplace) {
+            return new BlockHitResult(hitPos, Direction.UP, pos, true);
+        }
+
+
+
+        // creates a support path
+        if (placeSettings.support.get()) {
+            if (paths.isEmpty() || !pos.equals(lastTarget)) {
+                paths = pathFinder.getPath(pos, placeSettings.supportRange.get());
+                lastTarget = pos;
+            }
+
+            if (!paths.isEmpty()) {
+                for (BlockPos supportPos : paths) {
+                    if (BlockUtils.place(supportPos, InvUtils.findInHotbar(
+                            itemStack -> placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem()))),
+                        true, 0, false, true, true)) {
+
+                        RenderUtils.renderTickingBlock(
+                            supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
+                            0, 5, true, true
+                        );
+                        return null; // todo: reutrn a int to indicate a successful place???? maybe uise a record lol
+                    }
+                }
+                paths.clear();
+                lastTarget = null;
+                return null;
+            }
+        }
+
+        return null;
+    }
+
 
     private static void swing(HandMode handMode, Hand hand) {
         switch (handMode) {
