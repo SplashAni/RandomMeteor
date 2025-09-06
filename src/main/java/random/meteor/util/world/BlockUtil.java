@@ -17,7 +17,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
-import random.meteor.util.setting.groups.*;
+import random.meteor.util.setting.groups.PlaceSettingGroup;
+import random.meteor.util.setting.groups.RangeSettingGroup;
+import random.meteor.util.setting.groups.SwapSettingGroup;
+import random.meteor.util.setting.groups.SwingSettingGroup;
 import random.meteor.util.setting.modes.HandMode;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.setting.modes.WorldHeight;
@@ -75,27 +78,38 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         FindItemResult block = InvUtils.findInHotbar(itemStack ->
             placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem())));
 
+        if (!block.found()) {
+            module.debug("No blocks found...", module.debugLogic.get());
+            return BlockPlaceResult.Fail;
+        }
+
         SwapMode swapMode = swapSettings.swapMode.get();
         if (swapMode == SwapMode.Normal || swapMode == SwapMode.Silent) {
             InvUtils.swap(block.slot(), swapMode.equals(SwapMode.Silent));
         }
 
-        ResultStatus resultStatus = getBlockHitResult(blockPos, placeSettings.airPlace.get(), placeSettings);
+        ResultStatus resultStatus = getBlockHitResult(blockPos, placeSettings.airPlace.get(), block, placeSettings);
 
+        boolean action = module.debugActions.get();
         if (resultStatus == null) {
-            module.debug("Unable to find a neighbour to place the block onto.");
+            module.debug("Unable to find a neighbour to place the block onto.", action);
             return BlockPlaceResult.Fail;
         }
 
+        if (resultStatus.status == -1) {
+            module.debug("Unable to place support block", action);
+            return BlockPlaceResult.WaitForSupport;
+        }
+
         if (resultStatus.status == 0) {
-            module.debug("Successfully placed a support block " + paths.size() + " support blocks remaining.");
+            module.debug("Successfully placed a support block " + paths.size() + " support blocks remaining.", action);
             return BlockPlaceResult.WaitForSupport;
         }
 
 
         interact(resultStatus.bhr, block);
-        if (resultStatus.status == 1) module.debug("Successfully placed the block onto the nearest neighbour.");
-        else module.debug("Successfully air-placed the block.");
+        if (resultStatus.status == 1) module.debug("Successfully placed the block onto the nearest neighbour.", action);
+        else module.debug("Successfully air-placed the block.", action);
 
         if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
 
@@ -103,7 +117,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         return BlockPlaceResult.Success;
     }
 
-    public static ResultStatus getBlockHitResult(BlockPos pos, boolean airplace, PlaceSettingGroup placeSettings) {
+    public static ResultStatus getBlockHitResult(BlockPos pos, boolean airplace, FindItemResult itemResult, PlaceSettingGroup placeSettings) {
         Vec3d hitPos = Vec3d.ofCenter(pos);
 
         // can place off a neigbhour , does this by default
@@ -128,17 +142,17 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
             if (!paths.isEmpty()) {
                 for (BlockPos supportPos : paths) {
-                    if (BlockUtils.place(supportPos, InvUtils.findInHotbar(
-                            itemStack -> placeSettings.blocks.get().contains(Block.getBlockFromItem(itemStack.getItem()))),
-                        true, 0, false, true, true)) {
 
+                    interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult);
+
+                    if (!BlockUtils.canPlace(supportPos, false)) { // successsufully placed support
                         RenderUtils.renderTickingBlock(
                             supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
                             0, 5, true, true
                         );
-
+                        paths.remove(supportPos);
                         return new ResultStatus(null, 0); // 0 indicates that it successfully palced a SUPPORT block ; 1 is the bhr for the pos itself (=
-                    }
+                    } else return new ResultStatus(null, -1);
                 }
                 paths.clear();
                 lastTarget = null;

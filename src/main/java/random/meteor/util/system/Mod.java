@@ -4,6 +4,7 @@ import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import random.meteor.Main;
+import random.meteor.util.setting.DefaultSettingGroup;
 
 public class Mod extends Module {
     String name, desc;
@@ -11,6 +12,7 @@ public class Mod extends Module {
     public Setting<Boolean> debug;
     public Setting<Boolean> debugTimer;
     public Setting<Boolean> debugActions;
+    public Setting<Boolean> debugLogic;
     boolean allowDebug = true;
 
     public Mod(String name, String desc, Category category) {
@@ -27,7 +29,16 @@ public class Mod extends Module {
         this.category = category;
         setAllowDebug(true);
     }
-
+    protected <T extends DefaultSettingGroup> T register(Class<T> groupClass) {
+        try {
+            T group = groupClass.getConstructor(Mod.class).newInstance(this);
+            group.getSettingGroup();
+            return group;
+        } catch (Exception e) {
+            Main.LOGGER.error("Unable to register Setting Group {}", e.getMessage());
+            return null;
+        }
+    }
     public void setAllowDebug(boolean allowDebug) {
         this.allowDebug = allowDebug;
         if (allowDebug && debug == null) {
@@ -49,10 +60,16 @@ public class Mod extends Module {
                 .visible(debug::get)
                 .build()
             );
+            debugLogic = settings.getDefaultGroup().add(new BoolSetting.Builder()
+                .name("debug-logic")
+                .defaultValue(false)
+                .visible(debug::get)
+                .build()
+            );
         }
     }
 
-    public void debug(String message) { // todo: fancy debug prefix xd
-        if (debug.get()) info(message);
+    public void debug(String message, boolean confirmer) { // todo: fancy debug prefix xd
+        if (debug.get() && confirmer) info(message);
     }
 }

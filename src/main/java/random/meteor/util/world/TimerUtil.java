@@ -23,7 +23,7 @@ public class TimerUtil {
 
         if (mod.debug.get() && mod.debugTimer.get()) {
             String action = (ticks - decrement) <= 0 ? "now." : ticks - decrement + "ticks.";
-            mod.debug("Doing next action " + action);
+            mod.debug("Doing next action " + action, mod.debugTimer.get());
         }
 
         return ticks - decrement;
