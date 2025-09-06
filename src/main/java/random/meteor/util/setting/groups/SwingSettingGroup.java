@@ -4,7 +4,7 @@ import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import random.meteor.util.setting.DefaultSettingGroup;
 import random.meteor.util.setting.EventType;
-import random.meteor.util.setting.modes.HandMode;
+import random.meteor.util.setting.modes.SwingMode;
 import random.meteor.util.system.Mod;
 
 /*
@@ -15,7 +15,7 @@ import random.meteor.util.system.Mod;
  *
  * */
 public class SwingSettingGroup extends DefaultSettingGroup {
-    public Setting<HandMode> handMode;
+    public Setting<SwingMode> handMode;
     public Setting<EventType> eventType;
 
     public SwingSettingGroup(Mod mod) {
@@ -23,10 +23,10 @@ public class SwingSettingGroup extends DefaultSettingGroup {
 
         setName("Swing Settings");
 
-        handMode = getSettingGroup().add(new EnumSetting.Builder<HandMode>()
+        handMode = getSettingGroup().add(new EnumSetting.Builder<SwingMode>()
             .name("hand-mode")
             .description("How your hand should swing.")
-            .defaultValue(HandMode.Interacted)
+            .defaultValue(SwingMode.Interacted)
             .build()
         );
 

@@ -1,10 +1,7 @@
 package random.meteor.util.setting.modes;
 
-public enum HandMode {
-        MainHand,
-        Offhand,
+public enum SwingMode {
         Interacted,
-        Both,
         Packet,
         None
     }

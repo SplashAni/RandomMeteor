@@ -21,8 +21,8 @@ import random.meteor.util.setting.groups.PlaceSettingGroup;
 import random.meteor.util.setting.groups.RangeSettingGroup;
 import random.meteor.util.setting.groups.SwapSettingGroup;
 import random.meteor.util.setting.groups.SwingSettingGroup;
-import random.meteor.util.setting.modes.HandMode;
 import random.meteor.util.setting.modes.SwapMode;
+import random.meteor.util.setting.modes.SwingMode;
 import random.meteor.util.setting.modes.WorldHeight;
 import random.meteor.util.system.Mod;
 
@@ -42,29 +42,9 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
     static {
         pathFinder = new PathFinder();
     }
-
-
-
+    
     boolean outSideBorder = false;
     WorldHeight worldHeight = WorldHeight.New; // create placeholders for now
-
-    private static boolean isWithinWalls(BlockPos pos, double wallsRange) {
-
-        Vec3d eyes = new Vec3d(Objects.requireNonNull(mc.player).getX(), mc.player.getY() + mc.player.getStandingEyeHeight(), mc.player.getZ());
-
-
-        Vec3d target = pos.toCenterPos();
-
-        HitResult result = mc.world.raycast(new RaycastContext(
-            eyes,
-            target,
-            RaycastContext.ShapeType.COLLIDER,
-            RaycastContext.FluidHandling.NONE,
-            mc.player
-        ));
-
-        return result.getType() == HitResult.Type.MISS;
-    }
 
 
     public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings,
@@ -85,7 +65,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
         SwapMode swapMode = swapSettings.swapMode.get();
 
-        ResultStatus resultStatus = getBlockHitResult(blockPos, swapMode, block, placeSettings);
+        ResultStatus resultStatus = getBlockHitResult(blockPos, swapMode, block, placeSettings, swingSettings);
 
         boolean action = module.debugActions.get();
         if (resultStatus == null) {
@@ -105,7 +85,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
 
         InventoryUtils.applySwap(swapMode, block);
-        interact(resultStatus.bhr, block);
+        interact(resultStatus.bhr, block, swingSettings.handMode.get());
         InventoryUtils.swapBack(swapMode);
 
         if (resultStatus.status == 1) module.debug("Successfully air-placed the block.", action);
@@ -116,7 +96,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
     }
 
 
-    public static ResultStatus getBlockHitResult(BlockPos pos, SwapMode swapMode, FindItemResult itemResult, PlaceSettingGroup placeSettings) {
+    public static ResultStatus getBlockHitResult(BlockPos pos, SwapMode swapMode, FindItemResult itemResult, PlaceSettingGroup placeSettings, SwingSettingGroup swingSettingGroup) {
         Vec3d hitPos = Vec3d.ofCenter(pos);
 
         // can place off a neigbhour , does this by default
@@ -146,7 +126,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
                     if (neighbour != null) {
 
                         InventoryUtils.applySwap(swapMode, itemResult);
-                        interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult);
+                        interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult, swingSettingGroup.handMode.get());
                         InventoryUtils.swapBack(swapMode);
 
                         if (!BlockUtils.canPlace(supportPos, false)) { // successsufully placed support
@@ -168,26 +148,38 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         return null;
     }
 
-    private static void interact(BlockHitResult bhr, FindItemResult itemResult) {
+    private static void interact(BlockHitResult bhr, FindItemResult itemResult, SwingMode swingMode) {
         if (mc.interactionManager != null) {
             ActionResult actionResult = mc.interactionManager.interactBlock(mc.player, itemResult.getHand(), bhr);
             if (actionResult.isAccepted()) if (mc.player != null && itemResult.getHand() != null) {
-                mc.player.swingHand(itemResult.getHand());
+                swing(swingMode, itemResult.getHand());
             }
         }
     }
 
+    private static boolean isWithinWalls(BlockPos pos, double wallsRange) {
 
-    private static void swing(HandMode handMode, Hand hand) {
-        switch (handMode) {
-            case MainHand -> swing(Hand.MAIN_HAND);
-            case Offhand -> swing(Hand.OFF_HAND);
+        Vec3d eyes = new Vec3d(Objects.requireNonNull(mc.player).getX(), mc.player.getY() + mc.player.getStandingEyeHeight(), mc.player.getZ());
+
+
+        Vec3d target = pos.toCenterPos();
+
+        HitResult result = mc.world.raycast(new RaycastContext(
+            eyes,
+            target,
+            RaycastContext.ShapeType.COLLIDER,
+            RaycastContext.FluidHandling.NONE,
+            mc.player
+        ));
+
+        return result.getType() == HitResult.Type.MISS;
+    }
+
+
+    private static void swing(SwingMode swingMode, Hand hand) {
+        switch (swingMode) {
             case Interacted -> swing(hand);
-            case Both -> {
-                swing(Hand.MAIN_HAND);
-                swing(Hand.OFF_HAND);
-            }
-            case Packet -> mc.getNetworkHandler().sendPacket(new HandSwingC2SPacket(hand));
+            case Packet -> Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(new HandSwingC2SPacket(hand));
         }
     }
 
@@ -199,6 +191,6 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
     }
 
     public record ResultStatus(BlockHitResult bhr,
-                               int status) { // 0 placed support block ; 1 success airplace ; 2 successfully placed off neighbour
+                               int status) {
     }
 }
