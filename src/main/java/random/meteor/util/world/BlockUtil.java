@@ -142,6 +142,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
         if (mc.interactionManager != null && bhr != null) {
             mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, bhr);
+            if(swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
         }
 
         return BlockPlaceResult.Success;

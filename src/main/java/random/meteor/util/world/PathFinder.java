@@ -3,6 +3,7 @@ package random.meteor.util.world;
  * Uses A* ALGORUHTNMM
  * https://www.baeldung.com/java-a-star-pathfinding kind of helped
  * */
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -12,8 +13,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PathFinder {
 
-
-    public List<BlockPos> getPath(BlockPos target,int radius) {
+    public List<BlockPos> getPath(BlockPos target, int radius) {
         BlockPos start = getStartBlock(target, radius);
         if (start == null) return List.of();
 
@@ -27,10 +27,12 @@ public class PathFinder {
         while (!queue.isEmpty()) {
             BlockPos current = queue.poll();
 
-            if (current.equals(target)) return rebuildPatj(cameFrom, start, target);
+            if (current.equals(target)) return rebuildPath(cameFrom, start, target);
 
             for (Direction dir : Direction.values()) {
                 BlockPos neighbor = current.offset(dir);
+
+                if (!PlayerUtils.isWithin(neighbor, radius)) continue;
 
                 if (!visited.contains(neighbor) &&
                     isWithinCube(neighbor, target, radius) &&
@@ -46,8 +48,7 @@ public class PathFinder {
         return List.of();
     }
 
-
-    private List<BlockPos> rebuildPatj(Map<BlockPos, BlockPos> cameFrom, BlockPos start, BlockPos target) {
+    private List<BlockPos> rebuildPath(Map<BlockPos, BlockPos> cameFrom, BlockPos start, BlockPos target) {
         List<BlockPos> path = new ArrayList<>();
         BlockPos current = target;
 
@@ -71,7 +72,6 @@ public class PathFinder {
             Math.abs(pos.getZ() - center.getZ()) <= radius;
     }
 
-
     private BlockPos getStartBlock(BlockPos center, int radius) {
         BlockPos.Mutable pos = new BlockPos.Mutable();
 
@@ -79,7 +79,9 @@ public class PathFinder {
             for (int dy = -radius; dy <= radius; dy++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     pos.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
-                    if (mc.world != null && !mc.world.isAir(pos)) {
+
+                    if (mc.world != null && !mc.world.isAir(pos) &&
+                        PlayerUtils.isWithin(pos, radius)) {
                         return pos.toImmutable();
                     }
                 }

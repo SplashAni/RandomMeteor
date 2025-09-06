@@ -21,7 +21,7 @@ public class RangeSettingGroup extends DefaultSettingGroup {
             .description("Range in which to interact.")
             .defaultValue(4.5)
             .min(0)
-            .sliderMax(6)
+            .sliderMax(5)
             .build()
         );
 
@@ -30,7 +30,7 @@ public class RangeSettingGroup extends DefaultSettingGroup {
             .description("Range in which to interact when behind blocks.")
             .defaultValue(4.5)
             .min(0)
-            .sliderMax(6)
+            .sliderMax(5)
             .build()
         );
         eyeOnly = getSettingGroup().add(new BoolSetting.Builder()

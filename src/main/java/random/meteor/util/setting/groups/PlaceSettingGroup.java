@@ -1,6 +1,9 @@
 package random.meteor.util.setting.groups;
 
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.BlockListSetting;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import random.meteor.util.setting.DefaultSettingGroup;
@@ -54,7 +57,7 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
             .description("Range in which to interact.")
             .defaultValue(4)
             .min(0)
-            .sliderMax(6)
+            .sliderMax(5)
             .visible(() -> !airPlace.get() && support.get() == true)
             .build()
         );
