@@ -1,6 +1,5 @@
 package random.meteor.systems.modules;
 
-import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.ColorSetting;
@@ -11,14 +10,12 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import random.meteor.util.setting.groups.*;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
 import random.meteor.util.world.BlockUtil;
 import random.meteor.util.world.PathFinder;
-
-import java.util.List;
+import random.meteor.util.world.TimerUtil;
 
 public class FeetTrap extends Mod {
     private final SettingGroup sgRender = settings.createGroup("Render");
@@ -55,7 +52,7 @@ public class FeetTrap extends Mod {
     SwingSettingGroup swingSettingGroup = new SwingSettingGroup(this);
 
     PathFinder pathFinder;
-    int ticks;
+    double ticks;
 
     @Override
     public void onActivate() {
@@ -71,28 +68,21 @@ public class FeetTrap extends Mod {
 
     @EventHandler
     public void onTick(TickEvent.Pre event) {
-
-        offset = mc.player.getBlockPos().offset(Direction.DOWN, 1);
+        offset = mc.player.getBlockPos().down();
 
         if (ticks > 0) {
-            ticks--;
+            ticks = TimerUtil.updateTimer(ticks, delaySettingGroup, this);
             return;
         }
-        if(!BlockUtils.canPlace(offset)) return;
 
-        switch (BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup)) { // wrap this up too Xd
-            case WaitForSupport -> {
-                ticks = delaySettingGroup.delay.get().intValue();
-                info("PLACED SUPPORT BLOCK NOW APPLYING DWELAY FOR NEXT ONE");
-            }
-            case Fail -> {
-                ticks = delaySettingGroup.delay.get().intValue();
-                info("FAILED BUTTTTT WATING FOR DELAY");
-            } // fail delay too
-            case Success -> {
-                info("Successfully placed");
-            }
-        }
+        if (!BlockUtils.canPlace(offset)) return;
+
+        ticks = TimerUtil.applyDelay(
+            BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup, this),
+            delaySettingGroup
+        );
+
     }
+
 
 }

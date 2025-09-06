@@ -9,6 +9,7 @@ import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -16,13 +17,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
-import random.meteor.util.setting.groups.PlaceSettingGroup;
-import random.meteor.util.setting.groups.RangeSettingGroup;
-import random.meteor.util.setting.groups.SwapSettingGroup;
-import random.meteor.util.setting.groups.SwingSettingGroup;
+import random.meteor.util.setting.groups.*;
 import random.meteor.util.setting.modes.HandMode;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.setting.modes.WorldHeight;
+import random.meteor.util.system.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
     static {
         pathFinder = new PathFinder();
     }
+
 
 
     boolean outSideBorder = false;
@@ -65,7 +65,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
 
     public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings,
-                                         SwapSettingGroup swapSettings, SwingSettingGroup swingSettings) {
+                                         SwapSettingGroup swapSettings, SwingSettingGroup swingSettings, Mod module) {
 
         if (!BlockUtils.canPlace(blockPos, placeSettings.checkEntities.get())) return BlockPlaceResult.Fail;
         if (!PlayerUtils.isWithin(blockPos, rangeSettings.range.get())) return BlockPlaceResult.Fail;
@@ -82,14 +82,23 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
 
         ResultStatus resultStatus = getBlockHitResult(blockPos, placeSettings.airPlace.get(), placeSettings);
 
-        if (resultStatus == null) return BlockPlaceResult.Fail;
-
-        if (resultStatus.status == 0) return BlockPlaceResult.WaitForSupport;
-
-        if (mc.interactionManager != null) {
-            mc.interactionManager.interactBlock(mc.player, block.getHand(), resultStatus.bhr);
-            if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
+        if (resultStatus == null) {
+            module.debug("Unable to find a neighbour to place the block onto.");
+            return BlockPlaceResult.Fail;
         }
+
+        if (resultStatus.status == 0) {
+            module.debug("Successfully placed a support block " + paths.size() + " support blocks remaining.");
+            return BlockPlaceResult.WaitForSupport;
+        }
+
+
+        interact(resultStatus.bhr, block);
+        if (resultStatus.status == 1) module.debug("Successfully placed the block onto the nearest neighbour.");
+        else module.debug("Successfully air-placed the block.");
+
+        if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
+
 
         return BlockPlaceResult.Success;
     }
@@ -100,7 +109,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         // can place off a neigbhour , does this by default
         Direction side = BlockUtils.getPlaceSide(pos);
         if (side != null) {
-            return new ResultStatus(new BlockHitResult(hitPos, side.getOpposite(), pos.offset(side), false), 1);
+            return new ResultStatus(new BlockHitResult(hitPos, side.getOpposite(), pos.offset(side), false), 2);
         }
 
         // airplacing since theres no blocks to place off
@@ -127,6 +136,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
                             supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
                             0, 5, true, true
                         );
+
                         return new ResultStatus(null, 0); // 0 indicates that it successfully palced a SUPPORT block ; 1 is the bhr for the pos itself (=
                     }
                 }
@@ -137,6 +147,15 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
 
         return null;
+    }
+
+    private static void interact(BlockHitResult bhr, FindItemResult itemResult) {
+        if (mc.interactionManager != null) {
+            ActionResult actionResult = mc.interactionManager.interactBlock(mc.player, itemResult.getHand(), bhr);
+            if (actionResult.isAccepted()) if (mc.player != null && itemResult.getHand() != null) {
+                mc.player.swingHand(itemResult.getHand());
+            }
+        }
     }
 
 
@@ -159,7 +178,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
     }
 
-    public record ResultStatus(BlockHitResult bhr, int status) {
-
+    public record ResultStatus(BlockHitResult bhr,
+                               int status) { // 0 placed support block ; 1 success airplace ; 2 successfully placed off neighbour
     }
 }
