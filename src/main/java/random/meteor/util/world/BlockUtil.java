@@ -80,30 +80,32 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
             InvUtils.swap(block.slot(), swapMode.equals(SwapMode.Silent));
         }
 
-        BlockHitResult bhr = getBlockHitResult(blockPos, placeSettings.airPlace.get(), placeSettings);
+        ResultStatus resultStatus = getBlockHitResult(blockPos, placeSettings.airPlace.get(), placeSettings);
 
-        if (bhr == null) return BlockPlaceResult.Fail;
+        if (resultStatus == null) return BlockPlaceResult.Fail;
+
+        if (resultStatus.status == 0) return BlockPlaceResult.WaitForSupport;
 
         if (mc.interactionManager != null) {
-            mc.interactionManager.interactBlock(mc.player, block.getHand(), bhr);
+            mc.interactionManager.interactBlock(mc.player, block.getHand(), resultStatus.bhr);
             if (swapMode.equals(SwapMode.Silent)) InvUtils.swapBack();
         }
 
         return BlockPlaceResult.Success;
     }
 
-    public static BlockHitResult getBlockHitResult(BlockPos pos, boolean airplace, PlaceSettingGroup placeSettings) {
+    public static ResultStatus getBlockHitResult(BlockPos pos, boolean airplace, PlaceSettingGroup placeSettings) {
         Vec3d hitPos = Vec3d.ofCenter(pos);
 
         // can place off a neigbhour , does this by default
         Direction side = BlockUtils.getPlaceSide(pos);
         if (side != null) {
-            return new BlockHitResult(hitPos, side.getOpposite(), pos.offset(side), false);
+            return new ResultStatus(new BlockHitResult(hitPos, side.getOpposite(), pos.offset(side), false), 1);
         }
 
         // airplacing since theres no blocks to place off
         if (airplace) {
-            return new BlockHitResult(hitPos, Direction.UP, pos, true);
+            return new ResultStatus(new BlockHitResult(hitPos, Direction.UP, pos, true), 1);
         }
 
 
@@ -125,7 +127,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
                             supportPos, Color.RED, Color.BLUE, ShapeMode.Both,
                             0, 5, true, true
                         );
-                        return null; // todo: reutrn a int to indicate a successful place???? maybe uise a record lol
+                        return new ResultStatus(null, 0); // 0 indicates that it successfully palced a SUPPORT block ; 1 is the bhr for the pos itself (=
                     }
                 }
                 paths.clear();
@@ -157,4 +159,7 @@ public class BlockUtil { // make a class handler to sqeudle runnabled to run in 
         }
     }
 
+    public record ResultStatus(BlockHitResult bhr, int status) {
+
+    }
 }

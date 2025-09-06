@@ -80,10 +80,17 @@ public class FeetTrap extends Mod {
         }
         if(!BlockUtils.canPlace(offset)) return;
 
-        switch (BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup)) {
-            case WaitForSupport -> ticks = delaySettingGroup.delay.get().intValue();
-            case Fail -> ticks = delaySettingGroup.delay.get().intValue(); // fail delay too
+        switch (BlockUtil.place(offset, placeSettingGroup, rangeSettingGroup, swapSettingGroup, swingSettingGroup)) { // wrap this up too Xd
+            case WaitForSupport -> {
+                ticks = delaySettingGroup.delay.get().intValue();
+                info("PLACED SUPPORT BLOCK NOW APPLYING DWELAY FOR NEXT ONE");
+            }
+            case Fail -> {
+                ticks = delaySettingGroup.delay.get().intValue();
+                info("FAILED BUTTTTT WATING FOR DELAY");
+            } // fail delay too
             case Success -> {
+                info("Successfully placed");
             }
         }
     }
