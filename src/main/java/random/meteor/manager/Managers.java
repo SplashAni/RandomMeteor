@@ -1,5 +1,7 @@
 package random.meteor.manager;
 
+import random.meteor.util.world.BlockUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public class Managers implements Manager {
 
     @Override
     public void onInitialize() {
-        managers.add(new ModuleManager());
+        register(new ModuleManager());
+        register(new BlockUtil());
         managers.forEach(Manager::onInitialize);
     }
 }

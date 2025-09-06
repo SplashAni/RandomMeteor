@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
+import random.meteor.manager.Manager;
 import random.meteor.util.setting.groups.PlaceSettingGroup;
 import random.meteor.util.setting.groups.RangeSettingGroup;
 import random.meteor.util.setting.groups.SwapSettingGroup;
@@ -33,16 +34,20 @@ import java.util.Objects;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 
-public class BlockUtil { // make a class handler to sqeudle runnabled to run in the world
+public class BlockUtil implements Manager { // make a class handler to sqeudle runnabled to run in the world
 
-    private static final PathFinder pathFinder;
-    private static List<BlockPos> paths = new ArrayList<>();
-    private static BlockPos lastTarget = null;
+    private static PathFinder pathFinder;
+    private static List<BlockPos> paths;
+    private static BlockPos lastTarget;
 
-    static {
+
+    @Override
+    public void onInitialize() {
         pathFinder = new PathFinder();
+        paths = new ArrayList<>();
+        lastTarget = null;
     }
-    
+
     boolean outSideBorder = false;
     WorldHeight worldHeight = WorldHeight.New; // create placeholders for now
 
