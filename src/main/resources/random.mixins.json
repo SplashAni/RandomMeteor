@@ -3,6 +3,7 @@
   "package": "random.meteor.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "ClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

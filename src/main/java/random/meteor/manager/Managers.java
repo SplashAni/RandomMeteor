@@ -1,11 +1,13 @@
 package random.meteor.manager;
 
+import meteordevelopment.meteorclient.MeteorClient;
+import random.meteor.util.player.RotationUtil;
 import random.meteor.util.world.BlockUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Managers implements Manager {
+public class Managers extends Manager {
 
     private final List<Manager> managers = new ArrayList<>();
 
@@ -22,6 +24,11 @@ public class Managers implements Manager {
     public void onInitialize() {
         register(new ModuleManager());
         register(new BlockUtil());
-        managers.forEach(Manager::onInitialize);
+        register(new RotationUtil());
+        managers.forEach(manager -> {
+            manager.onInitialize();
+            if (manager.events) MeteorClient.EVENT_BUS.subscribe(events);
+        });
+
     }
 }

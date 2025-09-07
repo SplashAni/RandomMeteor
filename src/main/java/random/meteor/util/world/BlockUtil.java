@@ -34,7 +34,7 @@ import java.util.Objects;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 
-public class BlockUtil implements Manager { // make a class handler to sqeudle runnabled to run in the world
+public class BlockUtil extends Manager { // make a class handler to sqeudle runnabled to run in the world
 
     private static PathFinder pathFinder;
     private static List<BlockPos> paths;

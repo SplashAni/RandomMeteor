@@ -7,7 +7,7 @@ import random.meteor.util.system.Mod;
 
 import java.util.Set;
 
-public class ModuleManager implements Manager {
+public class ModuleManager extends Manager {
 
     @Override
     public void onInitialize() {

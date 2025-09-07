@@ -1,5 +1,13 @@
 package random.meteor.manager;
 
-public interface Manager {
-    void onInitialize();
+public abstract class Manager {
+    boolean events;
+
+    public void onInitialize() {
+
+    }
+
+    public void setEvents(boolean events) {
+        this.events = events;
+    }
 }
