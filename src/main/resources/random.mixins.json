@@ -9,5 +9,6 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "PlayerEntityRendererMixin"
   ]
 }
