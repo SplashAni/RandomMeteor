@@ -1,17 +1,14 @@
 package random.meteor.util.player;
 
-import static meteordevelopment.meteorclient.MeteorClient.mc;
-
 public class RotationGoal {
     RotationType rotationType;
-    int yaw, pitch, prevYaw, prevPitch;
+    int yaw;
+    int pitch;
 
     public RotationGoal(RotationType rotationType, int yaw, int pitch) {
         this.rotationType = rotationType;
         this.yaw = yaw;
         this.pitch = pitch;
-        this.prevYaw = (int) mc.player.getYaw();
-        this.prevPitch = (int) mc.player.getPitch();
     }
 
     public RotationType rotationType() {
