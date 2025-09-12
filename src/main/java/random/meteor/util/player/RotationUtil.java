@@ -71,6 +71,7 @@ public class RotationUtil extends Manager {
 
             if (rotations.isEmpty()) {
                 currentRotationGoal = null;
+                updateServerLook((int) mc.player.getYaw(), (int) mc.player.getPitch());
             } else {
                 currentRotationGoal = rotations.getFirst();
             }
@@ -89,9 +90,7 @@ public class RotationUtil extends Manager {
             holdTick--;
 
             if (holdTick <= 0) {
-                if (prevRotation.rotationType == RotationType.Server || prevRotation.rotationType == RotationType.Silent) {
-                    updateServerLook((int) mc.player.getYaw(), (int) mc.player.getPitch()); // prevent gae desync xd
-                }
+                updateServerLook((int) mc.player.getYaw(), (int) mc.player.getPitch());
                 prevRotation = null;
             }
         }
@@ -108,7 +107,6 @@ public class RotationUtil extends Manager {
                     event.redirect(currentRotationGoal.yaw(), currentRotationGoal.pitch());
                 }
             }
-            return;
         }
     }
 }

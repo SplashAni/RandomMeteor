@@ -14,8 +14,10 @@ import java.util.List;
 public class PlaceSettingGroup extends DefaultSettingGroup {
 
     public Setting<List<Block>> blocks;
+    public Setting<Boolean> instant;
 
     public Setting<Boolean> airPlace;
+
     public Setting<Boolean> checkEntities;
     public Setting<Boolean> attackCrystal;
 
@@ -31,7 +33,12 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
             .defaultValue(Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN, Blocks.NETHERITE_BLOCK)
             .build()
         );
-
+        instant = getSettingGroup().add(new BoolSetting.Builder()
+            .name("instant")
+            .defaultValue(false)
+            .description("PLACES every single block at once super op but you'll probably get kicked xd")
+            .build()
+        );
         airPlace = getSettingGroup().add(new BoolSetting.Builder()
             .name("air-place")
             .defaultValue(true)

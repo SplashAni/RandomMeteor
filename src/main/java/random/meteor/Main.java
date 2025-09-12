@@ -13,10 +13,12 @@ public class Main extends MeteorAddon {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Category RM = new Category("RM", Items.BARRIER.getDefaultStack());// todo: make custom menu to change this lol
     public static final Managers MANAGERS = new Managers();
+    public static boolean testMode;
     @Override
     public void onInitialize() {
         LOGGER.info("Thanks for using Random Meteor <3\n Make sure to star on github please (=");
         MANAGERS.onInitialize();
+        testMode = true;
 
     }
 

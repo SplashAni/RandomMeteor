@@ -17,6 +17,8 @@ public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds m
         super(mod);
         setName("Delay Settings");
 
+
+
         delay = getSettingGroup().add(new DoubleSetting.Builder()
             .name("interaction-delay")
             .description("Delay, in ticks, between interactions.")

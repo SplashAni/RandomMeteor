@@ -2,6 +2,7 @@ package random.meteor.manager;
 
 import meteordevelopment.meteorclient.MeteorClient;
 import random.meteor.util.player.RotationUtil;
+import random.meteor.util.render.RenderUtil;
 import random.meteor.util.world.BlockUtil;
 
 import java.util.ArrayList;
