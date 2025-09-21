@@ -43,9 +43,7 @@ public class RenderBlock {
             line.a = (int) (line.a * inv);
         }
 
-        Double blockHeight = settings.blockHeight.get();
-        double height = blockHeight;
-        y2 = y1 + (y2 - y1) * height;
+        y2 = y1 + (y2 - y1) * settings.blockHeight.get();
 
         if (settings.shrink.get()) {
             double shrinkAmt = 0.5 * progress;

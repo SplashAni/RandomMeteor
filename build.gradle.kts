@@ -29,6 +29,9 @@ dependencies {
     modImplementation("meteordevelopment:meteor-client:${properties["minecraft_version"] as String}-SNAPSHOT")
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/random.accesswidener")
+}
 tasks {
     processResources {
         val propertyMap = mapOf(
