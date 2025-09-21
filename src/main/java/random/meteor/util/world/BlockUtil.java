@@ -18,10 +18,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import random.meteor.manager.Manager;
-import random.meteor.util.setting.groups.PlaceSettingGroup;
-import random.meteor.util.setting.groups.RangeSettingGroup;
-import random.meteor.util.setting.groups.SwapSettingGroup;
-import random.meteor.util.setting.groups.SwingSettingGroup;
+import random.meteor.util.player.PlayerUtil;
+import random.meteor.util.setting.groups.*;
+import random.meteor.util.setting.modes.CenterTiming;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.setting.modes.SwingMode;
 import random.meteor.util.setting.modes.WorldHeight;
@@ -53,7 +52,7 @@ public class BlockUtil extends Manager { // make a class handler to sqeudle runn
 
 
     public static BlockPlaceResult place(BlockPos blockPos, PlaceSettingGroup placeSettings, RangeSettingGroup rangeSettings,
-                                         SwapSettingGroup swapSettings, SwingSettingGroup swingSettings, Mod module) {
+                                         SwapSettingGroup swapSettings, SwingSettingGroup swingSettings, CenterSettingGroup centerSettingGroup, Mod module) {
 
         if (!BlockUtils.canPlace(blockPos, placeSettings.checkEntities.get())) return BlockPlaceResult.Fail;
         if (!PlayerUtils.isWithin(blockPos, rangeSettings.range.get())) return BlockPlaceResult.Fail;
@@ -70,7 +69,7 @@ public class BlockUtil extends Manager { // make a class handler to sqeudle runn
 
         SwapMode swapMode = swapSettings.swapMode.get();
 
-        ResultStatus resultStatus = getBlockHitResult(blockPos, swapMode, block, placeSettings, swingSettings);
+        ResultStatus resultStatus = getBlockHitResult(blockPos, swapMode, block, placeSettings, centerSettingGroup, swingSettings);
 
         boolean action = module.debugActions.get();
         if (resultStatus == null) {
@@ -89,6 +88,7 @@ public class BlockUtil extends Manager { // make a class handler to sqeudle runn
         }
 
 
+        if (centerSettingGroup.centerTiming.get().equals(CenterTiming.Placing)) PlayerUtil.centerEvent(centerSettingGroup);
         InventoryUtils.applySwap(swapMode, block);
         interact(resultStatus.bhr, block, swingSettings.handMode.get());
         InventoryUtils.swapBack(swapMode);
@@ -101,7 +101,8 @@ public class BlockUtil extends Manager { // make a class handler to sqeudle runn
     }
 
 
-    public static ResultStatus getBlockHitResult(BlockPos pos, SwapMode swapMode, FindItemResult itemResult, PlaceSettingGroup placeSettings, SwingSettingGroup swingSettingGroup) {
+    public static ResultStatus getBlockHitResult(BlockPos pos, SwapMode swapMode, FindItemResult itemResult,
+                                                 PlaceSettingGroup placeSettings, CenterSettingGroup center, SwingSettingGroup swingSettingGroup) { // todo: add debugging here too
         Vec3d hitPos = Vec3d.ofCenter(pos);
 
         // can place off a neigbhour , does this by default
@@ -130,6 +131,7 @@ public class BlockUtil extends Manager { // make a class handler to sqeudle runn
                     Direction neighbour = BlockUtils.getPlaceSide(supportPos);
                     if (neighbour != null) {
 
+                        if (center.centerTiming.get().equals(CenterTiming.Placing)) PlayerUtil.centerEvent(center);
                         InventoryUtils.applySwap(swapMode, itemResult);
                         interact(new BlockHitResult(supportPos.toCenterPos(), BlockUtils.getPlaceSide(supportPos).getOpposite(), supportPos, false), itemResult, swingSettingGroup.handMode.get());
                         InventoryUtils.swapBack(swapMode);

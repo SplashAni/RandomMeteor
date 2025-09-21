@@ -16,7 +16,6 @@ public abstract class DefaultSettingGroup {
         this.mod = mod;
         this.name = name;
     }
-
     public void setName(String name) {
         this.name = name;
     }

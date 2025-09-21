@@ -14,6 +14,7 @@ import java.util.List;
 public class PlaceSettingGroup extends DefaultSettingGroup {
 
     public Setting<List<Block>> blocks;
+
     public Setting<Boolean> instant;
 
     public Setting<Boolean> airPlace;
@@ -33,6 +34,7 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
             .defaultValue(Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN, Blocks.NETHERITE_BLOCK)
             .build()
         );
+
         instant = getSettingGroup().add(new BoolSetting.Builder()
             .name("instant")
             .defaultValue(false)

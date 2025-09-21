@@ -1,6 +1,6 @@
 package random.meteor.util.render;
 
 public enum RenderShape {
-    Normal
-
+    Normal,
+    Gradient
 }

@@ -1,8 +1,12 @@
 package random.meteor.util.player;
 
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
+import random.meteor.util.setting.groups.CenterSettingGroup;
+import random.meteor.util.setting.modes.CenterTiming;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +15,45 @@ import java.util.Objects;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class PlayerUtil {
+
+
+    public static boolean centerEvent(CenterSettingGroup settings) {
+        if (mc.player == null) return false;
+
+        Vec3d center = new Vec3d(
+            Math.floor(mc.player.getX()) + 0.5,
+            mc.player.getY(),
+            Math.floor(mc.player.getZ()) + 0.5
+        );
+
+        if (Math.abs(mc.player.getX() - center.x) <= 0.2 && Math.abs(mc.player.getZ() - center.z) <= 0.2 || (settings.onOnGround.get() && !mc.player.isOnGround()))
+            return true;
+
+
+        switch (settings.centerMode.get()) {
+            case None -> {
+            }
+            case Smooth -> {
+                double xDifference = (center.x - mc.player.getX()) * 0.5;
+                double zDifference = (center.z - mc.player.getZ()) * 0.5;
+                double speed = Math.sqrt(xDifference * xDifference + zDifference * zDifference);
+                if (speed > 0.28) {
+                    xDifference *= 0.28 / speed;
+                    zDifference *= 0.28 / speed;
+                }
+
+                mc.player.setVelocity(xDifference, 0, zDifference); // scyeahhh who knew it could be THIS GOOd
+            }
+            case Instant -> {
+                mc.player.setPosition(center.x, mc.player.getY(), center.z);
+                mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround(), mc.player.horizontalCollision));
+            }
+        }
+
+
+        return false;
+    }
+
 
     private static BlockPos[] getOffsets(BlockPos pos) {
         return new BlockPos[]{pos.north(), pos.east(), pos.south(), pos.west()};

@@ -21,9 +21,9 @@ public class ModuleManager extends Manager {
                 Mod mod = modClass.getDeclaredConstructor().newInstance();
                 Modules.get().add(mod); // why doesnt more devs do this instread of manually typing all day xd
             } catch (Exception e) {
-                Main.LOGGER.error("Unable to load module {}", e.getMessage());
+                Main.LOGGER.error("Unable to load module", e);
             }
         }
-
+        System.out.println(module.size());
     }
 }
