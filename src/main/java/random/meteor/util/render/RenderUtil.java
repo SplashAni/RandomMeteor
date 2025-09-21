@@ -6,9 +6,7 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.util.math.BlockPos;
 import random.meteor.manager.Manager;
-import random.meteor.util.setting.groups.RenderSettingGroup;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,19 +38,20 @@ public class RenderUtil extends Manager {
 
         blocks.add(newBlock);
     }
-
     public static void fillGradient(Renderer3D renderer,
                                     double x1, double y1, double z1,
                                     double x2, double y2, double z2,
-                                    Color top, Color bottom) {
+                                    Color top, Color bottom, GradientMode gradientMode) {
 
-        renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
+        if (gradientMode == GradientMode.Bottom) renderer.quadHorizontal(x1, y1, z1, x2, z2, bottom);
+        else if (gradientMode == GradientMode.Top) renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
 
         renderer.gradientQuadVertical(x1, y2, z1, x2, y1, z1, bottom, top);
         renderer.gradientQuadVertical(x1, y2, z1, x1, y1, z2, bottom, top);
         renderer.gradientQuadVertical(x2, y2, z1, x2, y1, z2, bottom, top);
         renderer.gradientQuadVertical(x1, y2, z2, x2, y1, z2, bottom, top);
     }
+
 
     @EventHandler
     public void render(Render3DEvent event) {
