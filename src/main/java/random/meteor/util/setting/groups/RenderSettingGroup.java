@@ -1,5 +1,6 @@
 package random.meteor.util.setting.groups;
 
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import random.meteor.util.render.GradientMode;
@@ -12,6 +13,7 @@ public class RenderSettingGroup extends DefaultSettingGroup { // todo : make glo
     public Setting<Integer> renderTime;
     public Setting<Boolean> shrink;
     public Setting<Boolean> slide;
+    public Setting<Double> blockHeight;
     public Setting<Boolean> fade;
     public Setting<RenderType> renderType;
     public Setting<RenderMode> renderMode;
@@ -32,6 +34,13 @@ public class RenderSettingGroup extends DefaultSettingGroup { // todo : make glo
             .defaultValue(4)
             .min(1 )
             .sliderMax(10)
+            .build()
+        );
+        blockHeight = getSettingGroup().add(new DoubleSetting.Builder()
+            .name("block-height")
+            .defaultValue(1)
+            .min(0.1)
+            .sliderRange(0.1,1)
             .build()
         );
 

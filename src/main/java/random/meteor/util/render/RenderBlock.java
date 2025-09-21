@@ -43,6 +43,9 @@ public class RenderBlock {
             line.a = (int) (line.a * inv);
         }
 
+        Double blockHeight = settings.blockHeight.get();
+        double height = blockHeight;
+        y2 = y1 + (y2 - y1) * height;
 
         if (settings.shrink.get()) {
             double shrinkAmt = 0.5 * progress;
@@ -60,16 +63,12 @@ public class RenderBlock {
         }
 
         switch (settings.renderType.get()) {
-            case Normal -> {
+            case Normal ->
                 event.renderer.box(x1, y1, z1, x2, y2, z2, side, line, settings.renderMode.get().toShapeMode(), 0);
-            }
             case Gradient -> {
                 RenderUtil.sidesGradient(event.renderer, x1, y1, z1, x2, y2, z2, settings);
                 RenderUtil.lineGradient(event.renderer, x1, y1, z1, x2, y2, z2, settings);
-
             }
-
-
         }
     }
 }
