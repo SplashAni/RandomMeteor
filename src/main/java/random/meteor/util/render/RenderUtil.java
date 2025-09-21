@@ -7,6 +7,7 @@ import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.manager.Manager;
+import random.meteor.util.setting.groups.RenderSettingGroup;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,18 +39,82 @@ public class RenderUtil extends Manager {
 
         blocks.add(newBlock);
     }
-    public static void fillGradient(Renderer3D renderer,
-                                    double x1, double y1, double z1,
-                                    double x2, double y2, double z2,
-                                    Color top, Color bottom, GradientMode gradientMode) {
 
-        if (gradientMode == GradientMode.Bottom) renderer.quadHorizontal(x1, y1, z1, x2, z2, bottom);
-        else if (gradientMode == GradientMode.Top) renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
+    public static void sidesGradient(Renderer3D renderer, double x1, double y1, double z1, double x2, double y2, double z2, RenderSettingGroup settings) {
+
+        Color topColor = settings.sideColor.get();
+        Color top = new Color(topColor.r, topColor.g, topColor.b, topColor.a);
+        Color bottom = new Color(topColor.r, topColor.g, topColor.b, 0);
+
+        switch (settings.gradientMode.get()) {
+            case Bottom -> {
+                Color tmp = top;
+                top = bottom;
+                bottom = tmp;
+            }
+            case Full -> bottom = settings.sideColor2.get();
+        }
+
+        switch (settings.gradientMode.get()) {
+            case Bottom -> renderer.quadHorizontal(x1, y1, z1, x2, z2, bottom);
+            case Top -> renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
+            case Full -> {
+                renderer.quadHorizontal(x1, y1, z1, x2, z2, bottom);
+                renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
+            }
+        }
 
         renderer.gradientQuadVertical(x1, y2, z1, x2, y1, z1, bottom, top);
         renderer.gradientQuadVertical(x1, y2, z1, x1, y1, z2, bottom, top);
         renderer.gradientQuadVertical(x2, y2, z1, x2, y1, z2, bottom, top);
         renderer.gradientQuadVertical(x1, y2, z2, x2, y1, z2, bottom, top);
+    }
+
+    public static void lineGradient(Renderer3D renderer, double x1, double y1, double z1, double x2, double y2, double z2, RenderSettingGroup settings) {
+
+        Color topColor = settings.sideColor.get();
+
+        Color top = new Color(topColor.r, topColor.g, topColor.b, topColor.a);
+        Color bottom = new Color(topColor.r, topColor.g, topColor.b, 0);
+
+        switch (settings.gradientMode.get()) {
+            case Bottom -> {
+                Color tmp = top;
+                top = bottom;
+                bottom = tmp;
+            }
+            case Full -> bottom = settings.lineColor2.get();
+        }
+
+        switch (settings.gradientMode.get()) {
+            case Bottom -> {
+                renderer.line(x1, y1, z1, x2, y1, z1, bottom);
+                renderer.line(x1, y1, z1, x1, y1, z2, bottom);
+                renderer.line(x2, y1, z1, x2, y1, z2, bottom);
+                renderer.line(x1, y1, z2, x2, y1, z2, bottom);
+            }
+            case Top -> {
+                renderer.line(x1, y2, z1, x2, y2, z1, top);
+                renderer.line(x1, y2, z1, x1, y2, z2, top);
+                renderer.line(x2, y2, z1, x2, y2, z2, top);
+                renderer.line(x1, y2, z2, x2, y2, z2, top);
+            }
+            case Full -> {
+                renderer.line(x1, y1, z1, x2, y1, z1, bottom);
+                renderer.line(x1, y1, z1, x1, y1, z2, bottom);
+                renderer.line(x2, y1, z1, x2, y1, z2, bottom);
+                renderer.line(x1, y1, z2, x2, y1, z2, bottom);
+                renderer.line(x1, y2, z1, x2, y2, z1, top);
+                renderer.line(x1, y2, z1, x1, y2, z2, top);
+                renderer.line(x2, y2, z1, x2, y2, z2, top);
+                renderer.line(x1, y2, z2, x2, y2, z2, top);
+            }
+        }
+
+        renderer.line(x1, y2, z1, x1, y1, z1, top, bottom);
+        renderer.line(x2, y2, z1, x2, y1, z1, top, bottom);
+        renderer.line(x1, y2, z2, x1, y1, z2, top, bottom);
+        renderer.line(x2, y2, z2, x2, y1, z2, top, bottom);
     }
 
 

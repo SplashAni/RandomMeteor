@@ -64,18 +64,11 @@ public class RenderBlock {
                 event.renderer.box(x1, y1, z1, x2, y2, z2, side, line, settings.renderMode.get().toShapeMode(), 0);
             }
             case Gradient -> {
-                GradientMode gradientMode = settings.gradientMode.get();
-                Color top = new Color(side.r, side.g, side.b, side.a);
-                Color bottom = new Color(side.r, side.g, side.b, 0);
+                RenderUtil.sidesGradient(event.renderer, x1, y1, z1, x2, y2, z2, settings);
+                RenderUtil.lineGradient(event.renderer, x1, y1, z1, x2, y2, z2, settings);
 
-                if (gradientMode == GradientMode.Bottom) {
-                    Color tmp = top;
-                    top = bottom;
-                    bottom = tmp;
-                }
-
-                RenderUtil.fillGradient(event.renderer, x1, y1, z1, x2, y2, z2, top, bottom, gradientMode);
             }
+
 
         }
     }

@@ -18,7 +18,10 @@ public class RenderSettingGroup extends DefaultSettingGroup { // todo : make glo
     public Setting<GradientMode> gradientMode;
 
     public Setting<SettingColor> sideColor;
+    public Setting<SettingColor> sideColor2;
+
     public Setting<SettingColor> lineColor;
+    public Setting<SettingColor> lineColor2;
 
     public RenderSettingGroup(Mod mod) {
         super(mod);
@@ -39,10 +42,26 @@ public class RenderSettingGroup extends DefaultSettingGroup { // todo : make glo
             .build()
         );
 
+        sideColor2 = getSettingGroup().add(new ColorSetting.Builder()
+            .name("second-side-color")
+            .description("The side color of the rendering.")
+            .defaultValue(new SettingColor(0, 255, 0, 75))
+            .visible(() -> gradientMode.get() == GradientMode.Full)
+            .build()
+        );
+
         lineColor = getSettingGroup().add(new ColorSetting.Builder()
             .name("line-color")
             .description("The line color of the rendering.")
             .defaultValue(new SettingColor(0, 0, 255, 255))
+            .build()
+        );
+
+        lineColor2 = getSettingGroup().add(new ColorSetting.Builder()
+            .name("second-line-color")
+            .description("The side color of the rendering.")
+            .defaultValue(new SettingColor(0, 255, 0, 255))
+            .visible(() -> gradientMode.get() == GradientMode.Full)
             .build()
         );
 
