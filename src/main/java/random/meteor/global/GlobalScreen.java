@@ -33,9 +33,10 @@ public class GlobalScreen extends WindowTabScreen {
 
     @Override
     public void initWidgets() {
+
+        add(theme.label("Below is the controls for every module that uses global settings.")).expandCellX();
         add(theme.settings(settings)).expandX();
         add(theme.horizontalSeparator()).expandX();
-        WButton openEditor = add(theme.button("Edit")).expandX().widget();
 
     }
 

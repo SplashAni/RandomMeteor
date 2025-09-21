@@ -19,8 +19,10 @@ public abstract class TabsMixin {
     @Final
     private static List<Tab> tabs;
 
-    @Inject(method = "add", at = @At(value = "HEAD"))
+    @Inject(method = "add", at = @At(value = "TAIL"))
     private static void add(Tab tab, CallbackInfo ci) {
-        if (tab instanceof ProfilesTab) tabs.add(new GlobalTab()); // LAST TAB AND IT WORKS (=
+        if (tab instanceof ProfilesTab) {
+            tabs.add(new GlobalTab()); // LAST TAB AND IT WORKS (=
+        }
     }
 }
