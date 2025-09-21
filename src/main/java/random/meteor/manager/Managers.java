@@ -26,10 +26,8 @@ public class Managers extends Manager {
         register(new ModuleManager());
         register(new BlockUtil());
         register(new RotationUtil());
-        managers.forEach(manager -> {
-            manager.onInitialize();
-            if (manager.events) MeteorClient.EVENT_BUS.subscribe(events);
-        });
+        register(new RenderUtil());
+        managers.forEach(Manager::onInitialize);
 
     }
 }

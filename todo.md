@@ -23,3 +23,8 @@ some ideas for self
 * change colors based on categories of a module
 * good utils
 * LOL DONT GIVE UP XD
+
+#
+
+GGLOBAL SETTING MANAGERS BRO THATS GENIUS
+IN CUSTOM SCREENS TOO BROOO

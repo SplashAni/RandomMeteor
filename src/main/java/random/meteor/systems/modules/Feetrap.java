@@ -127,7 +127,7 @@ public class Feetrap extends Mod {
                 NametagUtils.end();
             }
 */
-            RenderUtil.renderBlock(event, poses.get(i), RenderShape.Normal, RenderMode.Both, new Color(255, 0, 0, 100), Color.RED);
+//            RenderUtil.addBlock(event, poses.get(i), RenderShape.Normal, RenderMode.Both, new Color(255, 0, 0, 100), Color.RED);
         }
 
     }
