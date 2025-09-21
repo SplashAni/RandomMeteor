@@ -3,10 +3,12 @@ package random.meteor.util.render;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.renderer.Renderer3D;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.BlockPos;
 import random.meteor.manager.Manager;
+import random.meteor.util.setting.groups.RenderSettingGroup;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,15 +28,11 @@ public class RenderUtil extends Manager {
             if (block.pos.equals(newBlock.pos)) {
 
                 block.ticks = 0;
-                block.renderTime = newBlock.renderTime;
 
+                block.renderTime = newBlock.renderTime;
                 block.lineColor = newBlock.lineColor;
                 block.sideColor = newBlock.sideColor;
-                block.renderShape = newBlock.renderShape;
-                block.renderMode = newBlock.renderMode;
-                block.shrink = newBlock.shrink;
-                block.slide = newBlock.slide;
-                block.fade = newBlock.fade;
+                block.settings = newBlock.settings;
 
                 return;
             }
@@ -43,23 +41,28 @@ public class RenderUtil extends Manager {
         blocks.add(newBlock);
     }
 
+    public static void fillGradient(Renderer3D renderer,
+                                    double x1, double y1, double z1,
+                                    double x2, double y2, double z2,
+                                    Color top, Color bottom) {
 
-    public static void renderBlock(Render3DEvent event, BlockPos pos, RenderShape renderShape,
-                                   RenderMode renderMode, Color fill, Color lines) {
-        switch (renderShape) {
-            case Normal -> event.renderer.box(pos, fill, lines, renderMode.toShapeMode(), 0);
-        }
+        renderer.quadHorizontal(x1, y2, z1, x2, z2, top);
+
+        renderer.gradientQuadVertical(x1, y2, z1, x2, y1, z1, bottom, top);
+        renderer.gradientQuadVertical(x1, y2, z1, x1, y1, z2, bottom, top);
+        renderer.gradientQuadVertical(x2, y2, z1, x2, y1, z2, bottom, top);
+        renderer.gradientQuadVertical(x1, y2, z2, x2, y1, z2, bottom, top);
     }
 
     @EventHandler
     public void render(Render3DEvent event) {
-        Iterator<RenderBlock> it = blocks.iterator();
-        while (it.hasNext()) {
-            RenderBlock block = it.next();
+        Iterator<RenderBlock> iterator = blocks.iterator();
+        while (iterator.hasNext()) {
+            RenderBlock block = iterator.next();
             block.render(event);
 
-            if (block.isExpired()) {
-                it.remove();
+            if (block.isDoneRendering()) {
+                iterator.remove();
             }
         }
     }
@@ -67,7 +70,7 @@ public class RenderUtil extends Manager {
     @EventHandler
     public void tick(TickEvent.Pre event) {
         for (RenderBlock block : blocks) {
-            block.tick(); /
+            block.updateTimer();
         }
     }
 

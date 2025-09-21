@@ -7,7 +7,7 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.util.render.RenderMode;
-import random.meteor.util.render.RenderShape;
+import random.meteor.util.render.RenderType;
 import random.meteor.util.render.RenderUtil;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
@@ -35,7 +35,7 @@ public class BlockposTest extends Mod {
 
     @EventHandler
     public void render(Render3DEvent renderer3D) {
-        RenderUtil.renderBlock(renderer3D,mc.player.getBlockPos().add(x.get(),0,z.get()), RenderShape.Normal, RenderMode.Both, Color.RED, Color.PINK);
+//        RenderUtil.addBlock(renderer3D,mc.player.getBlockPos().add(x.get(),0,z.get()), RenderType.Normal, RenderMode.Both, Color.RED, Color.PINK);
 
 
     }

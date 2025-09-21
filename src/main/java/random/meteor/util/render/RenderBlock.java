@@ -8,29 +8,24 @@ import random.meteor.util.setting.groups.RenderSettingGroup;
 public class RenderBlock {
     BlockPos pos;
     Color lineColor, sideColor;
-    RenderShape renderShape;
-    RenderMode renderMode;
     int ticks, renderTime;
-    boolean shrink, slide, fade;
+    RenderSettingGroup settings;
 
     public RenderBlock(BlockPos pos, RenderSettingGroup renderSettingGroup) {
         this.pos = pos;
         this.lineColor = renderSettingGroup.lineColor.get();
         this.sideColor = renderSettingGroup.sideColor.get();
-        this.renderShape = renderSettingGroup.shape.get();
-        this.renderMode = renderSettingGroup.renderMode.get();
         this.ticks = 0;
         this.renderTime = renderSettingGroup.renderTime.get();
-        this.shrink = renderSettingGroup.shrink.get();
-        this.slide = renderSettingGroup.slide.get();
-        this.fade = renderSettingGroup.fade.get();
+        this.settings = renderSettingGroup;
+
     }
 
-    public boolean isExpired() {
+    public boolean isDoneRendering() {
         return ticks >= renderTime;
     }
 
-    public void tick() {
+    public void updateTimer() {
         ticks++;
     }
 
@@ -43,13 +38,13 @@ public class RenderBlock {
 
         Color side = new Color(sideColor);
         Color line = new Color(lineColor);
-        if (fade) {
+        if (settings.fade.get()) {
             side.a = (int) (side.a * inv);
             line.a = (int) (line.a * inv);
         }
 
 
-        if (shrink) {
+        if (settings.shrink.get()) {
             double shrinkAmt = 0.5 * progress;
             x1 += shrinkAmt;
             y1 += shrinkAmt;
@@ -59,11 +54,20 @@ public class RenderBlock {
             z2 -= shrinkAmt;
         }
 
-        if (slide) {
+        if (settings.slide.get()) {
             y1 -= progress;
             y2 -= progress;
         }
 
-        event.renderer.box(x1, y1, z1, x2, y2, z2, side, line, renderMode.toShapeMode(), 0);
+        switch (settings.renderType.get()) {
+            case Normal -> {
+                event.renderer.box(x1, y1, z1, x2, y2, z2, side, line, settings.renderMode.get().toShapeMode(), 0);
+            }
+            case Gradient -> {
+                Color bottom = new Color(side.r, side.g, side.b, 0); // fully transparent at bottom
+                RenderUtil.fillGradient(event.renderer, x1, y1, z1, x2, y2, z2, side, bottom);
+            }
+        }
+
     }
 }
