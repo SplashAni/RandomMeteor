@@ -19,9 +19,7 @@ public class SwingSettingGroup extends DefaultSettingGroup {
     public Setting<EventType> eventType;
 
     public SwingSettingGroup(Mod mod) {
-        super(mod);
-
-        setName("Swing Settings");
+        super(mod,"Swing");
 
         handMode = getSettingGroup().add(new EnumSetting.Builder<SwingMode>()
             .name("hand-mode")

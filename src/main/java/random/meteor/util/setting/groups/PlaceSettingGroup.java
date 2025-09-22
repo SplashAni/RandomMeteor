@@ -26,7 +26,7 @@ public class PlaceSettingGroup extends DefaultSettingGroup {
     public Setting<Integer> supportRange;
 
     public PlaceSettingGroup(Mod mod) {
-        super(mod);
+        super(mod, "Place");
 
         blocks = getSettingGroup().add(new BlockListSetting.Builder()
             .name("blocks")

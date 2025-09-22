@@ -26,8 +26,7 @@ public class RenderSettingGroup extends DefaultSettingGroup { // todo : make glo
     public Setting<SettingColor> lineColor2;
 
     public RenderSettingGroup(Mod mod) {
-        super(mod);
-        setName("Render Settings");
+        super(mod,"Render");
 
         renderTime = getSettingGroup().add(new IntSetting.Builder()
             .name("render-time")

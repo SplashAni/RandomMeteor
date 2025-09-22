@@ -15,7 +15,7 @@ public class CenterSettingGroup extends DefaultSettingGroup {
     public Setting<Boolean> onOnGround;
 
     public CenterSettingGroup(Mod mod) {
-        super(mod);
+        super(mod, "Center");
 
         centerTiming = getSettingGroup().add(new EnumSetting.Builder<CenterTiming>()
             .name("center-event")

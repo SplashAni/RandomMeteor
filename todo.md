@@ -28,3 +28,7 @@ some ideas for self
 
 GGLOBAL SETTING MANAGERS BRO THATS GENIUS
 IN CUSTOM SCREENS TOO BROOO
+
+
+ADD SCREENING EVERY SINGLE SETTING IN THE GLOBAL TAB THEN CONTROL IT
+shows module list per setting group then u can add a module to exlude its settings there to control it globally (=)

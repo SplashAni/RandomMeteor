@@ -4,7 +4,6 @@ import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import random.meteor.util.setting.DefaultSettingGroup;
-import random.meteor.util.setting.EventType;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.system.Mod;
 
@@ -13,7 +12,7 @@ public class SwapSettingGroup extends DefaultSettingGroup {
     public Setting<SwapMode> swapMode;
 
     public SwapSettingGroup(Mod mod) {
-        super(mod);
+        super(mod, "Swap");
 
         delay = getSettingGroup().add(new DoubleSetting.Builder()
             .name("swap-delay")

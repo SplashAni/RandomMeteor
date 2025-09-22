@@ -8,21 +8,14 @@ public abstract class DefaultSettingGroup {
     String name;
     SettingGroup settingGroup;
 
-    public DefaultSettingGroup(Mod mod) {
+    public DefaultSettingGroup(Mod mod,String name) {
         this.mod = mod;
+        this.name = name;
     }
 
-    public DefaultSettingGroup(Mod mod, String name) {
-        this.mod = mod;
-        this.name = name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public SettingGroup getSettingGroup() {
-        if (name == null) name = "Unknown";
-        return settingGroup != null ? settingGroup : (settingGroup = mod.settings.createGroup(name));
+        return settingGroup != null ? settingGroup : (settingGroup = mod.settings.createGroup(name + " Settings"));
     }
 
 

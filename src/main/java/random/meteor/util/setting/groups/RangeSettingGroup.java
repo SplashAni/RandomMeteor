@@ -13,7 +13,7 @@ public class RangeSettingGroup extends DefaultSettingGroup {
     public Setting<Boolean> eyeOnly;
 
     public RangeSettingGroup(Mod mod) {
-        super(mod);
+        super(mod,"Range");
 
 
         range = getSettingGroup().add(new DoubleSetting.Builder()

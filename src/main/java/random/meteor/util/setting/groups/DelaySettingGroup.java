@@ -14,8 +14,7 @@ public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds m
     public Setting<Boolean> customCounter;
 
     public DelaySettingGroup(Mod mod) {
-        super(mod);
-        setName("Delay Settings");
+        super(mod,"Delay");
 
 
 
