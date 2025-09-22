@@ -21,11 +21,20 @@ public class GlobalSettingGroupManager extends Manager {
             Main.LOGGER.error("Calling global setting manager before the module manager has been initialized.");
         } else {
             for (Mod module : moduleManager.getModules()) {
-                modGroups.add(module,module.get)
+                modGroups.add(new ModGroups(module, module.getGlobalSettingGroupList()));
             }
         }
-
         super.onInitialize();
+    }
+
+    public void setGlobal(Mod mod, GlobalSettingGroup settingGroup) {
+        /*for (GlobalSettingGroup modSettingGroup : mod.getGlobalSettingGroupList()) {
+            if (settingGroup == modSettingGroup) {
+            }
+            mod.settings.getGroup("teszt").forEach(setting -> {
+
+            })
+        }*/
     }
 
     public record ModGroups(Mod mod, List<GlobalSettingGroup> groups) {

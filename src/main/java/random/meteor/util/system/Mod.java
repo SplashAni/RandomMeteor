@@ -93,4 +93,8 @@ public class Mod extends Module {
     public void debug(String message, boolean confirmer) {
         if (allowDebug && debug != null && debug.get() && confirmer) info(message);
     }
+
+    public List<GlobalSettingGroup> getGlobalSettingGroupList() {
+        return globalSettingGroupList;
+    }
 }
