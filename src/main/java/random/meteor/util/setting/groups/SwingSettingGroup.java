@@ -2,7 +2,7 @@ package random.meteor.util.setting.groups;
 
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.setting.EventType;
 import random.meteor.util.setting.modes.SwingMode;
 import random.meteor.util.system.Mod;
@@ -14,7 +14,7 @@ import random.meteor.util.system.Mod;
  * target
  *
  * */
-public class SwingSettingGroup extends DefaultSettingGroup {
+public class SwingSettingGroup extends GlobalSettingGroup {
     public Setting<SwingMode> handMode;
     public Setting<EventType> eventType;
 

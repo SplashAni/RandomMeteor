@@ -3,11 +3,11 @@ package random.meteor.util.setting.groups;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.setting.modes.SwapMode;
 import random.meteor.util.system.Mod;
 
-public class SwapSettingGroup extends DefaultSettingGroup {
+public class SwapSettingGroup extends GlobalSettingGroup {
     public Setting<Double> delay;
     public Setting<SwapMode> swapMode;
 

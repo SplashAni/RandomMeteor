@@ -3,10 +3,10 @@ package random.meteor.util.setting.groups;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.Setting;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.system.Mod;
 
-public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds mode too
+public class DelaySettingGroup extends GlobalSettingGroup { // todo : seconds mode too
 
     public Setting<Double> retryDelay;
     public Setting<Double> delay;
@@ -15,7 +15,6 @@ public class DelaySettingGroup extends DefaultSettingGroup { // todo : seconds m
 
     public DelaySettingGroup(Mod mod) {
         super(mod,"Delay");
-
 
 
         delay = getSettingGroup().add(new DoubleSetting.Builder()

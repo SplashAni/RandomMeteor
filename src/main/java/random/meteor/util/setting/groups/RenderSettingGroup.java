@@ -1,15 +1,14 @@
 package random.meteor.util.setting.groups;
 
-import it.unimi.dsi.fastutil.doubles.DoubleSet;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import random.meteor.util.render.GradientMode;
 import random.meteor.util.render.RenderMode;
 import random.meteor.util.render.RenderType;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.system.Mod;
 
-public class RenderSettingGroup extends DefaultSettingGroup { // todo : make global color managmenets and so on
+public class RenderSettingGroup extends GlobalSettingGroup { // todo : make global color managmenets and so on
     public Setting<Integer> renderTime;
     public Setting<Boolean> shrink;
     public Setting<Boolean> slide;

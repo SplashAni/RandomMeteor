@@ -6,12 +6,12 @@ import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.system.Mod;
 
 import java.util.List;
 
-public class PlaceSettingGroup extends DefaultSettingGroup {
+public class PlaceSettingGroup extends GlobalSettingGroup {
 
     public Setting<List<Block>> blocks;
 

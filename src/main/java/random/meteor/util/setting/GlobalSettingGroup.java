@@ -3,12 +3,12 @@ package random.meteor.util.setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import random.meteor.util.system.Mod;
 
-public abstract class DefaultSettingGroup {
-    Mod mod;
+public abstract class GlobalSettingGroup {
+    public Mod mod;
     String name;
     SettingGroup settingGroup;
 
-    public DefaultSettingGroup(Mod mod,String name) {
+    public GlobalSettingGroup(Mod mod, String name) {
         this.mod = mod;
         this.name = name;
     }
@@ -16,6 +16,12 @@ public abstract class DefaultSettingGroup {
 
     public SettingGroup getSettingGroup() {
         return settingGroup != null ? settingGroup : (settingGroup = mod.settings.createGroup(name + " Settings"));
+    }
+    public void onActivate(){
+
+    }
+    public void onPreTick(){
+
     }
 
 

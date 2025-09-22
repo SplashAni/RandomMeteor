@@ -3,16 +3,18 @@ package random.meteor.util.setting.groups;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.player.PlayerUtil;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.setting.modes.CenterMode;
 import random.meteor.util.setting.modes.CenterTiming;
 import random.meteor.util.system.Mod;
 
-public class CenterSettingGroup extends DefaultSettingGroup {
+public class CenterSettingGroup extends GlobalSettingGroup {
 
     public Setting<CenterTiming> centerTiming;
     public Setting<CenterMode> centerMode;
     public Setting<Boolean> onOnGround;
+    boolean centerUntil;
 
     public CenterSettingGroup(Mod mod) {
         super(mod, "Center");
@@ -35,5 +37,24 @@ public class CenterSettingGroup extends DefaultSettingGroup {
             .defaultValue(true)
             .build()
         );
+    }
+
+    @Override
+    public void onActivate() {
+        centerUntil = centerTiming.get() == CenterTiming.OnActivate;
+
+        super.onActivate();
+    }
+
+    @Override
+    public void onPreTick() {
+        boolean shouldCenter = centerTiming.get() == CenterTiming.Always
+            || centerUntil;
+
+        if (shouldCenter && PlayerUtil.centerEvent(this)) {
+            mod.debug(centerUntil ? "Finished centering on on activation" : "Centered player", mod.debugActions.get());
+            if (centerUntil) centerUntil = false;
+        }
+        super.onPreTick();
     }
 }

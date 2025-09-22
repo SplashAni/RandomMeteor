@@ -7,10 +7,12 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
 import random.meteor.util.player.PlayerUtil;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.setting.groups.CenterSettingGroup;
 import random.meteor.util.setting.modes.CenterTiming;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class Mod extends Module {
@@ -21,10 +23,7 @@ public class Mod extends Module {
     public Setting<Boolean> debugActions;
     public Setting<Boolean> debugLogic;
     boolean allowDebug = true;
-    boolean centerUntil;
-
-    // all methods that might need custom events instead of repeating myself.. lOL
-    CenterSettingGroup centerSettingGroup;
+    List<GlobalSettingGroup> globalSettingGroupList = new ArrayList<>();
 
     public Mod(String name, String desc, Category category) {
         super(Main.RM, name, desc);
@@ -40,14 +39,13 @@ public class Mod extends Module {
         this.category = category;
         setAllowDebug(true);
     }
-    protected <T extends DefaultSettingGroup> T register(Class<T> groupClass) {
+
+
+    protected <T extends GlobalSettingGroup> T register(Class<T> groupClass) {
         try {
             T group = groupClass.getConstructor(Mod.class).newInstance(this);
 
-            if (group instanceof CenterSettingGroup) {
-                centerSettingGroup = (CenterSettingGroup) group; // lets getthighhh tonightt
-            }
-
+            globalSettingGroupList.add(group);
             group.getSettingGroup();
             return group;
         } catch (Exception e) {
@@ -82,23 +80,14 @@ public class Mod extends Module {
 
     @Override
     public void onActivate() {
-        centerUntil = centerSettingGroup != null &&
-            centerSettingGroup.centerTiming.get() == CenterTiming.OnActivate;
 
+        globalSettingGroupList.forEach(GlobalSettingGroup::onActivate);
         super.onActivate();
     }
 
     @EventHandler
     public void onPreTick(TickEvent.Pre event) {
-        if (centerSettingGroup == null) return;
-
-        boolean shouldCenter = centerSettingGroup.centerTiming.get() == CenterTiming.Always
-            || centerUntil;
-
-        if (shouldCenter && PlayerUtil.centerEvent(centerSettingGroup)) {
-            debug(centerUntil ? "Finished centering on on activation" : "Centered player",debugActions.get());
-            if (centerUntil) centerUntil = false;
-        }
+        globalSettingGroupList.forEach(GlobalSettingGroup::onPreTick);
     }
 
     public void debug(String message, boolean confirmer) {

@@ -3,10 +3,10 @@ package random.meteor.util.setting.groups;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.Setting;
-import random.meteor.util.setting.DefaultSettingGroup;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.system.Mod;
 
-public class RangeSettingGroup extends DefaultSettingGroup {
+public class RangeSettingGroup extends GlobalSettingGroup {
 
     public Setting<Double> wallsRange;
     public Setting<Double> range;
