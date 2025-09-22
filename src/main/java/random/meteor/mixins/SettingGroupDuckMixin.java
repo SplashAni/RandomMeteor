@@ -5,38 +5,45 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import random.meteor.util.setting.IGlobalManaged;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 @Mixin(value = SettingGroup.class, remap = false)
-public class SettingGroupMixin {
+public class SettingGroupDuckMixin implements IGlobalManaged {
 
-    // This could be toggled somewhere in your mod logic
-    private boolean hideSettings = true;
+    @Unique
+    private boolean hideSettings = false; // default: show normally
 
-    public void setHideSettings(boolean hide) {
+    @Override
+    public boolean randomMeteor$shouldHideSettings() {
+        return hideSettings;
+    }
+
+    @Override
+    public void randomMeteor$setHideSettings(boolean hide) {
         this.hideSettings = hide;
     }
 
+
     @Inject(method = "iterator", at = @At("HEAD"), cancellable = true)
-    private void hideRealSettings(CallbackInfoReturnable<Iterator<Setting<?>>> cir) {
+    private void hideSettingsIterator(CallbackInfoReturnable<Iterator<Setting<?>>> cir) {
         if (hideSettings) {
+            System.out.println("true");
             List<Setting<?>> fake = new ArrayList<>();
-            fake.add((new ColorSetting.Builder()
-                    .name("you are GAEEEE")
-                    .description("The side color of the rendering.")
-                    .defaultValue(new SettingColor(225, 0, 0, 75))
-                    .build()
-                )
-            ); // simple placeholder setting
+            fake.add(new ColorSetting.Builder()
+                .name("side-color")
+                .description("The side color of the rendering.")
+                .defaultValue(new SettingColor(225, 0, 0, 75))
+                .build()
+            );
             cir.setReturnValue(fake.iterator());
         }
     }
-
-
 }

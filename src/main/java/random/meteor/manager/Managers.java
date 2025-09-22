@@ -1,6 +1,6 @@
 package random.meteor.manager;
 
-import meteordevelopment.meteorclient.MeteorClient;
+import random.meteor.global.GlobalSettingGroupManager;
 import random.meteor.util.player.RotationUtil;
 import random.meteor.util.render.RenderUtil;
 import random.meteor.util.world.BlockUtil;
@@ -24,6 +24,7 @@ public class Managers extends Manager {
     @Override
     public void onInitialize() {
         register(new ModuleManager());
+        register(new GlobalSettingGroupManager());
         register(new BlockUtil());
         register(new RotationUtil());
         register(new RenderUtil());

@@ -10,7 +10,7 @@
   },
   "mixins": [
     "PlayerEntityRendererMixin",
-    "SettingGroupMixin",
+    "SettingGroupDuckMixin",
     "TabsMixin"
   ]
 }

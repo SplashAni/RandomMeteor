@@ -4,6 +4,8 @@ import random.meteor.Main;
 import random.meteor.manager.Manager;
 import random.meteor.manager.ModuleManager;
 import random.meteor.util.setting.GlobalSettingGroup;
+import random.meteor.util.setting.IGlobalManaged;
+import random.meteor.util.setting.groups.RangeSettingGroup;
 import random.meteor.util.system.Mod;
 
 import java.util.ArrayList;
@@ -27,15 +29,12 @@ public class GlobalSettingGroupManager extends Manager {
         super.onInitialize();
     }
 
-    public void setGlobal(Mod mod, GlobalSettingGroup settingGroup) {
-        /*for (GlobalSettingGroup modSettingGroup : mod.getGlobalSettingGroupList()) {
-            if (settingGroup == modSettingGroup) {
-            }
-            mod.settings.getGroup("teszt").forEach(setting -> {
-
-            })
-        }*/
+    public void setGlobal(Mod mod) {
+        for (GlobalSettingGroup modSettingGroup : mod.getGlobalSettingGroupList()) {
+            ((IGlobalManaged)modSettingGroup.getSettingGroup()).randomMeteor$setHideSettings(true); // thanks !!duck on fabrics discord i always forget
+        }
     }
+
 
     public record ModGroups(Mod mod, List<GlobalSettingGroup> groups) {
 

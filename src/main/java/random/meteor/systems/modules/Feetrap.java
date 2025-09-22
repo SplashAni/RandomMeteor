@@ -10,7 +10,11 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.BlockPos;
+import random.meteor.Main;
+import random.meteor.global.GlobalSettingGroupManager;
+import random.meteor.manager.Managers;
 import random.meteor.util.player.PlayerUtil;
+import random.meteor.util.setting.IGlobalManaged;
 import random.meteor.util.setting.groups.*;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
@@ -70,6 +74,8 @@ public class Feetrap extends Mod {
     @Override
     public void onActivate() {
         pathFinder = new PathFinder();
+        Main.MANAGERS.getManager(GlobalSettingGroupManager.class).setGlobal(this);
+
         super.onActivate();
     }
 
