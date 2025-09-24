@@ -2,41 +2,58 @@ package random.meteor.global;
 
 import random.meteor.Main;
 import random.meteor.manager.Manager;
-import random.meteor.manager.ModuleManager;
 import random.meteor.util.setting.GlobalSettingGroup;
-import random.meteor.util.setting.IGlobalManaged;
-import random.meteor.util.setting.groups.RangeSettingGroup;
+import random.meteor.util.setting.groups.*;
 import random.meteor.util.system.Mod;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GlobalSettingGroupManager extends Manager {
-    List<ModGroups> modGroups = new ArrayList<>();
+    private final Mod GLOBAL_MOD = new Mod("GLOBALHOLDER", "Global default settings", null);
+
+    private final Map<Class<? extends GlobalSettingGroup>, GlobalSettingGroup> globalGroups = new HashMap<>();
+    private final Map<Mod, Map<Class<? extends GlobalSettingGroup>, GlobalSettingGroup>> modGroups = new HashMap<>();
+    private final Map<Mod, Map<Class<? extends GlobalSettingGroup>, Boolean>> useGlobalFlags = new HashMap<>();
 
     @Override
     public void onInitialize() {
-
-        ModuleManager moduleManager = Main.MANAGERS.getManager(ModuleManager.class);
-
-        if (moduleManager.getModules().isEmpty()) {
-            Main.LOGGER.error("Calling global setting manager before the module manager has been initialized.");
-        } else {
-            for (Mod module : moduleManager.getModules()) {
-                modGroups.add(new ModGroups(module, module.getGlobalSettingGroupList()));
-            }
-        }
+        registerGroups(CenterSettingGroup.class, DelaySettingGroup.class, PlaceSettingGroup.class, RangeSettingGroup.class, RenderSettingGroup.class, SwapSettingGroup.class, SwingSettingGroup.class);
         super.onInitialize();
     }
 
-    public void setGlobal(Mod mod) {
-        for (GlobalSettingGroup modSettingGroup : mod.getGlobalSettingGroupList()) {
-            ((IGlobalManaged)modSettingGroup.getSettingGroup()).randomMeteor$setHideSettings(true); // thanks !!duck on fabrics discord i always forget
+    @SafeVarargs
+    private void registerGroups(Class<? extends GlobalSettingGroup>... groups) {
+        for (Class<? extends GlobalSettingGroup> groupClass : groups) {
+            try {
+                GlobalSettingGroup group = groupClass.getConstructor(Mod.class).newInstance(GLOBAL_MOD);
+                globalGroups.put(groupClass, group);
+            } catch (Exception e) {
+                Main.LOGGER.error("Failed to initialize global group {}: {}", groupClass.getSimpleName(), e.getMessage());
+            }
         }
     }
 
+    public <T extends GlobalSettingGroup> T registerGroupForMod(Mod mod, Class<T> groupClass, boolean useGlobal) {
+        Map<Class<? extends GlobalSettingGroup>, GlobalSettingGroup> modGroupMap = modGroups.computeIfAbsent(mod, k -> new HashMap<>());
+        Map<Class<? extends GlobalSettingGroup>, Boolean> flagMap = useGlobalFlags.computeIfAbsent(mod, k -> new HashMap<>());
 
-    public record ModGroups(Mod mod, List<GlobalSettingGroup> groups) {
+        if (modGroupMap.containsKey(groupClass)) return groupClass.cast(modGroupMap.get(groupClass));
 
+        try {
+            T group = useGlobal ? groupClass.cast(globalGroups.get(groupClass)) : groupClass.getConstructor(Mod.class).newInstance(mod);
+
+            modGroupMap.put(groupClass, group);
+            flagMap.put(groupClass, useGlobal);
+
+            if (!mod.getGlobalSettingGroupList().contains(group)) {
+                mod.getGlobalSettingGroupList().add(group);
+            }
+
+            return group;
+        } catch (Exception e) {
+            Main.LOGGER.error("cant register group {} for module {}: {}", groupClass.getSimpleName(), mod.getName(), e.getMessage());
+            return null;
+        }
     }
 }

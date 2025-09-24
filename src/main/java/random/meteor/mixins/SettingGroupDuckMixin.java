@@ -19,7 +19,7 @@ import java.util.List;
 public class SettingGroupDuckMixin implements IGlobalManaged {
 
     @Unique
-    private boolean hideSettings = false; // default: show normally
+    private boolean hideSettings = false;
 
     @Override
     public boolean randomMeteor$shouldHideSettings() {
@@ -35,7 +35,6 @@ public class SettingGroupDuckMixin implements IGlobalManaged {
     @Inject(method = "iterator", at = @At("HEAD"), cancellable = true)
     private void hideSettingsIterator(CallbackInfoReturnable<Iterator<Setting<?>>> cir) {
         if (hideSettings) {
-            System.out.println("true");
             List<Setting<?>> fake = new ArrayList<>();
             fake.add(new ColorSetting.Builder()
                 .name("side-color")

@@ -6,6 +6,8 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.Main;
+import random.meteor.global.GlobalSettingGroupManager;
+import random.meteor.global.SettingGroups;
 import random.meteor.util.player.PlayerUtil;
 import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.setting.groups.CenterSettingGroup;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-public class Mod extends Module {
+public class Mod extends Module implements SettingGroups {
     String name, desc;
     Category category; // will be used to represent the moduel catgegory in future...;
     public Setting<Boolean> debug;
@@ -32,6 +34,10 @@ public class Mod extends Module {
         this.category = category;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Mod(String name, Category category) {
         super(Main.RM, name, "No description yet...");
         this.name = name;
@@ -41,18 +47,16 @@ public class Mod extends Module {
     }
 
 
-    protected <T extends GlobalSettingGroup> T register(Class<T> groupClass) {
-        try {
-            T group = groupClass.getConstructor(Mod.class).newInstance(this);
 
-            globalSettingGroupList.add(group);
-            group.getSettingGroup();
-            return group;
-        } catch (Exception e) {
-            Main.LOGGER.error("Unable to register Setting Group {}", e.getMessage());
-            return null;
+    @SafeVarargs
+    protected final <T extends GlobalSettingGroup> void register(Class<? extends T>... groupClasses) {
+        for (Class<? extends T> groupClass : groupClasses) {
+            GlobalSettingGroup group = Main.MANAGERS.getManager(GlobalSettingGroupManager.class) .registerGroupForMod(this, groupClass,false);
+            if (group != null && !globalSettingGroupList.contains(group)) globalSettingGroupList.add(group);
         }
     }
+
+
 
     public void setAllowDebug(boolean allowDebug) {
         this.allowDebug = allowDebug;

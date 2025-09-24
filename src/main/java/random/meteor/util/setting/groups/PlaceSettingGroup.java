@@ -25,6 +25,7 @@ public class PlaceSettingGroup extends GlobalSettingGroup {
     public Setting<Boolean> support;
     public Setting<Integer> supportRange;
 
+
     public PlaceSettingGroup(Mod mod) {
         super(mod, "Place");
 

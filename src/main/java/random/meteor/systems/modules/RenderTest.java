@@ -29,12 +29,12 @@ public class RenderTest extends Mod {
 
     public RenderTest() {
         super("render-test", Category.PVP);
-        renderSettingGroup = register(RenderSettingGroup.class);
+       // renderSettingGroup = register(RenderSettingGroup.class);
     }
 
     @Override
     public void onPreTick(TickEvent.Pre event) {
-        RenderUtil.addBlock(new RenderBlock(mc.player.getBlockPos(),renderSettingGroup));
+        //RenderUtil.addBlock(new RenderBlock(mc.player.getBlockPos(),renderSettingGroup));
         super.onPreTick(event);
     }
 

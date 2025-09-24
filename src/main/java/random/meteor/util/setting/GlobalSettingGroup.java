@@ -1,5 +1,6 @@
 package random.meteor.util.setting;
 
+import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import random.meteor.util.system.Mod;
 
@@ -24,5 +25,8 @@ public abstract class GlobalSettingGroup {
 
     }
 
+    public void copyFrom(GlobalSettingGroup other) {
+
+    }
 
 }

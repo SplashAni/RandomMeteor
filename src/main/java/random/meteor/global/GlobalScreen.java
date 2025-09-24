@@ -14,6 +14,8 @@ import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.navigation.NavigationDirection;
 import org.jetbrains.annotations.Nullable;
+import random.meteor.Main;
+import random.meteor.util.setting.GlobalSettingGroup;
 
 import java.util.Optional;
 
@@ -35,6 +37,7 @@ public class GlobalScreen extends WindowTabScreen {
     public void initWidgets() {
 
         add(theme.label("Below is the controls for every module that uses global settings.")).expandCellX();
+
         add(theme.settings(settings)).expandX();
         add(theme.horizontalSeparator()).expandX();
 
