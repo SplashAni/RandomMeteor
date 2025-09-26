@@ -4,13 +4,12 @@ import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
-import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
-import random.meteor.util.render.RenderMode;
-import random.meteor.util.render.RenderType;
-import random.meteor.util.render.RenderUtil;
+import random.meteor.global.ModListSetting;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
+
+import java.util.List;
 
 public class BlockposTest extends Mod {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -29,6 +28,13 @@ public class BlockposTest extends Mod {
         .sliderMax(7)
         .build()
     );
+    private final Setting<List<Mod>> bobmaclat = sgGeneral.add(new ModListSetting.Builder()
+        .name("modularsss")
+        .description("xd")
+        .defaultValue(Feetrap.class)
+        .build()
+    );
+
     public BlockposTest() {
         super("test-pos", Category.PVP);
     }
