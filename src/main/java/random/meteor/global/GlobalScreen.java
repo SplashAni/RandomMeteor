@@ -21,23 +21,20 @@ import java.util.Optional;
 
 public class GlobalScreen extends WindowTabScreen {
     public Settings settings = new Settings();
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     public GlobalScreen(GuiTheme theme, Tab tab) {
         super(theme, tab);
-        sgGeneral.add(new EnumSetting.Builder<ShapeMode>()
-            .name("testing")
-            .description("smash")
-            .defaultValue(ShapeMode.Both)
-            .build()
-        );
+
     }
 
     @Override
     public void initWidgets() {
 
         add(theme.label("Below is the controls for every module that uses global settings.")).expandCellX();
-
+        for (GlobalSettingGroup globalSettingGroup : Main.MANAGERS.getManager(GlobalSettingGroupManager.class).getGLOBAL_MOD().getGlobalSettingGroupList()) {
+            System.out.println("found global setting for "+globalSettingGroup.getSettingGroup().name);
+            settings.groups.add(globalSettingGroup.getSettingGroup()); // thanks meteorirrr
+        }
         add(theme.settings(settings)).expandX();
         add(theme.horizontalSeparator()).expandX();
 
