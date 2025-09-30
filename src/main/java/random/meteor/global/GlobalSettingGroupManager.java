@@ -9,7 +9,7 @@ import random.meteor.util.system.Mod;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GlobalSettingGroupManager extends Manager {
+public class GlobalSettingGroupManager extends Manager { // stores global settings xD
     private final Mod GLOBAL_MOD = new Mod("GLOBALHOLDER", "Global default settings", null);
 
     private final Map<Class<? extends GlobalSettingGroup>, GlobalSettingGroup> globalGroups = new HashMap<>();
@@ -29,7 +29,7 @@ public class GlobalSettingGroupManager extends Manager {
                 GlobalSettingGroup group = groupClass.getConstructor(Mod.class).newInstance(GLOBAL_MOD);
                 globalGroups.put(groupClass, group);
             } catch (Exception e) {
-                Main.LOGGER.error("Failed to initialize global group {}: {}", groupClass.getSimpleName(), e.getMessage());
+                Main.LOGGER.error("cont  initialize global group {} {}", groupClass.getSimpleName(), e.getMessage());
             }
         }
     }

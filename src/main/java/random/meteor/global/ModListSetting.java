@@ -1,8 +1,3 @@
-/*
- * This file is part of the Meteor Client distribution (https://github.com/MeteorDevelopment/meteor-client).
- * Copyright (c) Meteor Development.
- */
-
 package random.meteor.global;
 
 import meteordevelopment.meteorclient.settings.IVisible;
@@ -13,17 +8,24 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import random.meteor.Main;
 import random.meteor.manager.ModuleManager;
+import random.meteor.util.setting.GlobalSettingGroup;
 import random.meteor.util.system.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ModListSetting extends Setting<List<Mod>> {
+public class ModListSetting<T extends GlobalSettingGroup> extends Setting<List<Mod>> {
     private static List<String> suggestions;
+    private final Class<T> groupClass;
 
-    public ModListSetting(String name, String description, List<Mod> defaultValue, Consumer<List<Mod>> onChanged, Consumer<Setting<List<Mod>>> onModActivated, IVisible visible) {
-        super(name, description, defaultValue, onChanged, onModActivated, visible);
+    public ModListSetting(String name, String description, List<Mod> defaultValue, Consumer<List<Mod>> onChanged, Consumer<Setting<List<Mod>>> onListUpdated, IVisible visible, Class<T> groupClass) {
+        super(name, description, defaultValue, onChanged, onListUpdated, visible);
+        this.groupClass = groupClass;
+    }
+
+    private static ModuleManager getModManager() {
+        return Main.MANAGERS.getManager(ModuleManager.class);
     }
 
     @Override
@@ -32,87 +34,84 @@ public class ModListSetting extends Setting<List<Mod>> {
     }
 
     @Override
-    protected List<Mod> parseImpl(String str) {
-        String[] values = str.split(",");
-        List<Mod> Mods = new ArrayList<>(values.length);
-
-        try {
-            for (String value : values) {
-                Mod Mod = moduleManager().getMod(value.trim());
-                if (Mod != null) Mods.add(Mod);
-            }
-        } catch (Exception ignored) {
-        }
-
-        return Mods;
-    }
-
-    @Override
     protected boolean isValueValid(List<Mod> value) {
         return true;
     }
 
     @Override
-    public List<String> getSuggestions() {
-        if (suggestions == null) {
-            suggestions = new ArrayList<>(moduleManager().getModules().size());
-            for (Mod xd : moduleManager().getModules()) {
-                suggestions.add(xd.getName());
-            }
+    protected List<Mod> parseImpl(String str) {
+        String[] values = str.split(",");
+        List<Mod> mods = new ArrayList<>(values.length);
+
+        for (String value : values) {
+            Mod mod = getModManager().getMod(value.trim());
+            if (mod != null) mods.add(mod);
         }
 
-        return suggestions;
+        return mods;
     }
+
+
 
     @Override
     public NbtCompound save(NbtCompound tag) {
-        NbtList ModsTag = new NbtList();
-        for (Mod xd : get()) {
-            ModsTag.add(NbtString.of(xd.getName()));
+        NbtList modsTag = new NbtList();
+        for (Mod mod : get()) {
+            if (mod.getGlobalSettingGroupList().stream().anyMatch(g -> g.getClass().equals(groupClass))) {
+                modsTag.add(NbtString.of(mod.getName()));
+            }
         }
-        tag.put("Mods", ModsTag);
-
+        tag.put("Mods", modsTag);
         return tag;
     }
 
     @Override
     public List<Mod> load(NbtCompound tag) {
         get().clear();
-
         NbtList valueTag = tag.getListOrEmpty("Mods");
         for (NbtElement tagI : valueTag) {
-            Mod Mod = moduleManager().getMod(tagI.asString().orElse(""));
-            if (Mod != null) get().add(Mod);
+            Mod mod = getModManager().getMod(tagI.asString().orElse(""));
+            if (mod != null && mod.getGlobalSettingGroupList().stream().anyMatch(g -> g.getClass().equals(groupClass))) {
+                get().add(mod);
+            }
         }
-
         return get();
     }
 
-    private static ModuleManager moduleManager() {
-        return Main.MANAGERS.getManager(ModuleManager.class);
+    public Class<T> getGroupClass() {
+        return groupClass;
     }
 
-    public static class Builder extends SettingBuilder<Builder, List<Mod>, ModListSetting> {
+    @Override
+    public List<String> getSuggestions() {
+        if (suggestions == null) {
+            suggestions = new ArrayList<>();
+            for (Mod mod : getModManager().getModWithSettingGroup(groupClass)) {
+                suggestions.add(mod.getName());
+            }
+        }
+        return suggestions;
+    }
+
+
+    public static class Builder<T extends GlobalSettingGroup> extends SettingBuilder<Builder<T>, List<Mod>, ModListSetting<T>> {
+        private Class<T> groupClass;
+
         public Builder() {
             super(new ArrayList<>(0));
         }
 
-        @SafeVarargs
-        public final Builder defaultValue(Class<? extends Mod>... defaults) {
-            List<Mod> Mods = new ArrayList<>();
+        private static void accept(Setting<List<Mod>> listSetting) {
+        }
 
-            for (Class<? extends Mod> klass : defaults) {
-                if (moduleManager().getMod(klass) != null) Mods.add(moduleManager().getMod(klass));
-            }
-
-            return defaultValue(Mods);
+        public Builder<T> groupClass(Class<T> groupClass) {
+            this.groupClass = groupClass;
+            return this;
         }
 
         @Override
-        public ModListSetting build() {
-            return new ModListSetting(name, description, defaultValue, onChanged, listSetting -> {
-                System.out.println("added module");
-            }, visible);
+        public ModListSetting<T> build() {
+            return new ModListSetting<>(name, description, defaultValue, onChanged, Builder::accept, visible, groupClass);
         }
     }
 }

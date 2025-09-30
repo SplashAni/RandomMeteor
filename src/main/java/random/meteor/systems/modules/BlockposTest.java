@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.orbit.EventHandler;
 import random.meteor.global.ModListSetting;
+import random.meteor.util.setting.groups.RangeSettingGroup;
 import random.meteor.util.system.Category;
 import random.meteor.util.system.Mod;
 
@@ -28,15 +29,23 @@ public class BlockposTest extends Mod {
         .sliderMax(7)
         .build()
     );
-    private final Setting<List<Mod>> bobmaclat = sgGeneral.add(new ModListSetting.Builder()
-        .name("modularsss")
-        .description("xd")
-        .defaultValue(Feetrap.class)
-        .build()
+    private final Setting<List<Mod>> bobmaclat = sgGeneral.add(
+        new ModListSetting.Builder<RangeSettingGroup>()
+            .name("modularsss")
+            .description("xd")
+            .groupClass(RangeSettingGroup.class)
+            .build()
     );
 
     public BlockposTest() {
-        super("test-pos", Category.PVP);
+        super("test-p1s", Category.PVP);
+        register(RangeSettingGroup.class);
+    }
+
+    @Override
+    public void onActivate() {
+        System.out.println(bobmaclat.get());
+        super.onActivate();
     }
 
     @EventHandler
